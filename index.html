@@ -18,6 +18,9 @@
     --accent-jlpt: #ff6b9d;
     --accent-hsk: #ffd93d;
     --accent-fm: #6bcfff;
+    --accent-grammar: #a78bfa;
+    --accent-quiz: #4ade80;
+    --accent-kanji: #f59e0b;
     --card-bg: rgba(255, 255, 255, 0.06);
     --card-border: rgba(255, 255, 255, 0.12);
   }
@@ -161,9 +164,12 @@
     transform: translateY(-2px);
   }
 
-  .card[data-app="jlpt"] { --card-accent: var(--accent-jlpt); }
-  .card[data-app="hsk"]  { --card-accent: var(--accent-hsk); }
-  .card[data-app="fm"]   { --card-accent: var(--accent-fm); }
+  .card[data-app="jlpt"]    { --card-accent: var(--accent-jlpt); }
+  .card[data-app="hsk"]     { --card-accent: var(--accent-hsk); }
+  .card[data-app="fm"]      { --card-accent: var(--accent-fm); }
+  .card[data-app="grammar"] { --card-accent: var(--accent-grammar); }
+  .card[data-app="quiz"]    { --card-accent: var(--accent-quiz); }
+  .card[data-app="kanji"]   { --card-accent: var(--accent-kanji); }
 
   .card-icon {
     font-size: 44px;
@@ -264,6 +270,30 @@
       <h2 class="card-title">FM 전문의 퀴즈</h2>
       <p class="card-desc">가정의학과 전문의 시험 대비 기출 퀴즈. 과목별로 집중 학습.</p>
       <span class="card-cta">퀴즈 풀기</span>
+    </a>
+
+    <a class="card" data-app="grammar" href="./grammar/index.html">
+      <span class="card-icon" aria-hidden="true">📘</span>
+      <p class="card-subtitle">Grammar · JLPT N5–N3</p>
+      <h2 class="card-title">일본어 문법 정리</h2>
+      <p class="card-desc">동사 변형·수동·사역·경어까지. 후리가나 포함 PDF 저장 가능.</p>
+      <span class="card-cta">문법 보기</span>
+    </a>
+
+    <a class="card" data-app="quiz" href="./grammar-quiz/index.html">
+      <span class="card-icon" aria-hidden="true">📝</span>
+      <p class="card-subtitle">Practice · 즉시 피드백</p>
+      <h2 class="card-title">문법 연습문제</h2>
+      <p class="card-desc">동사 활용·수동·사역·조사·경어 등 카테고리별 퀴즈. 150+ 문제.</p>
+      <span class="card-cta">퀴즈 풀기</span>
+    </a>
+
+    <a class="card" data-app="kanji" href="./kanji-quiz/index.html">
+      <span class="card-icon" aria-hidden="true">🈁</span>
+      <p class="card-subtitle">Kanji · 읽기·뜻·듣기</p>
+      <h2 class="card-title">한자 읽기 퀴즈</h2>
+      <p class="card-desc">JLPT 1400+ 단어로 4가지 모드 · 객관식·단답·뜻맞히기·듣기.</p>
+      <span class="card-cta">한자 연습</span>
     </a>
   </nav>
 
