@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSK 중국어 학습</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d27;
+  --bg3: #242736;
+  --accent: #6c63ff;
+  --accent2: #ff6b6b;
+  --accent3: #51cf66;
+  --accent4: #ffd43b;
+  --accent5: #339af0;
+  --text: #e8e8e8;
+  --text2: #9ca3af;
+  --border: #2d3148;
+  --card: #1e2130;
+  --shadow: rgba(0,0,0,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+a { color: var(--accent); text-decoration: none; }
+
+.app { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 30px;
+}
+.header h1 {
+  font-size: 1.6rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent5));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header .stats {
+  display: flex;
+  gap: 20px;
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+.header .stats span { display: flex; align-items: center; gap: 5px; }
+.header .stats .num { color: var(--accent); font-weight: 700; font-size: 1.1rem; }
+
+/* Navigation */
+.nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.nav button {
+  padding: 10px 20px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.nav button:hover { border-color: var(--accent); color: var(--text); }
+.nav button.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* HSK Level Selector */
+.level-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.level-btn {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s;
+}
+.level-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow); }
+.level-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.15); }
+.level-btn .lvl { font-size: 1.3rem; font-weight: 700; }
+.level-btn .cnt { font-size: 0.75rem; color: var(--text2); margin-top: 4px; }
+.level-btn .prog-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--bg);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.level-btn .prog-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* Dashboard */
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+.overview-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+.overview-card .val { font-size: 2rem; font-weight: 700; margin: 8px 0; }
+.overview-card .label { font-size: 0.8rem; color: var(--text2); }
+.overview-card.mastered .val { color: var(--accent3); }
+.overview-card.learning .val { color: var(--accent4); }
+.overview-card.new .val { color: var(--accent5); }
+.overview-card.streak .val { color: var(--accent2); }
+
+/* Word List */
+.word-list {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+}
+.word-list.active { display: flex; }
+
+.word-list-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr 80px;
+  padding: 10px 16px;
+  font-size: 0.75rem;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.word-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1fr 80px;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.word-item:hover {
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+.word-item .hanzi { font-size: 1.4rem; font-weight: 600; }
+.word-item .pinyin { color: var(--accent5); font-size: 0.9rem; }
+.word-item .meaning { color: var(--text2); font-size: 0.9rem; }
+.word-item .status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  justify-self: center;
+}
+.word-item .status-dot.new { background: var(--border); }
+.word-item .status-dot.learning { background: var(--accent4); }
+.word-item .status-dot.mastered { background: var(--accent3); }
+
+.search-bar {
+  margin-bottom: 16px;
+  position: relative;
+}
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+}
+.search-bar input:focus { border-color: var(--accent); }
+.search-bar::before {
+  content: '🔍';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+}
+
+/* Flashcard */
+.flashcard-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.flashcard-container.active { display: flex; }
+
+.flashcard-progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+.flashcard-progress .bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.flashcard-progress .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent5));
+  transition: width 0.3s;
+}
+
+.flashcard-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.flashcard-options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text2);
+  cursor: pointer;
+}
+.flashcard-options input[type="checkbox"] { accent-color: var(--accent); }
+
+.card-wrapper {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 480px;
+  height: 320px;
+  cursor: pointer;
+}
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  border: 1px solid var(--border);
+}
+.card-front {
+  background: linear-gradient(135deg, var(--bg2), var(--card));
+}
+.card-back {
+  background: linear-gradient(135deg, var(--card), var(--bg2));
+  transform: rotateY(180deg);
+}
+.card-front .hanzi {
+  font-size: 5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-shadow: 0 0 40px rgba(108,99,255,0.3);
+}
+.card-front .hint {
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-top: 16px;
+}
+.card-back .pinyin {
+  font-size: 1.6rem;
+  color: var(--accent5);
+  margin-bottom: 12px;
+}
+.card-back .meaning {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.card-back .example {
+  font-size: 0.95rem;
+  color: var(--text2);
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.card-back .word-type {
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: rgba(108,99,255,0.15);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+.card-actions button {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.card-actions .btn-hard {
+  background: rgba(255,107,107,0.15);
+  color: var(--accent2);
+  border: 1px solid rgba(255,107,107,0.3);
+}
+.card-actions .btn-good {
+  background: rgba(255,212,59,0.15);
+  color: var(--accent4);
+  border: 1px solid rgba(255,212,59,0.3);
+}
+.card-actions .btn-easy {
+  background: rgba(81,207,102,0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(81,207,102,0.3);
+}
+.card-actions button:hover { transform: translateY(-2px); }
+
+/* Quiz */
+.quiz-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.quiz-container.active { display: flex; }
+
+.quiz-question {
+  text-align: center;
+  width: 100%;
+  padding: 40px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+.quiz-question .prompt {
+  font-size: 0.85rem;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+.quiz-question .main-char {
+  font-size: 4.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.quiz-question .sub-info {
+  font-size: 1rem;
+  color: var(--accent5);
+}
+
+.quiz-options {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.quiz-option {
+  padding: 18px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  text-align: center;
+  transition: all 0.2s;
+  color: var(--text);
+}
+.quiz-option:hover { border-color: var(--accent); transform: scale(1.02); }
+.quiz-option.correct {
+  border-color: var(--accent3);
+  background: rgba(81,207,102,0.15);
+  animation: pulse-green 0.3s;
+}
+.quiz-option.wrong {
+  border-color: var(--accent2);
+  background: rgba(255,107,107,0.15);
+  animation: shake 0.3s;
+}
+@keyframes pulse-green {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.quiz-type-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.quiz-type-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.quiz-type-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.quiz-score {
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+  color: var(--text2);
+}
+.quiz-score .correct-count { color: var(--accent3); }
+.quiz-score .wrong-count { color: var(--accent2); }
+
+/* Character Detail Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.modal .char-display {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.modal .char-display .big-char {
+  font-size: 6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.modal .char-display .pinyin-big {
+  font-size: 1.4rem;
+  color: var(--accent5);
+  margin-top: 8px;
+}
+.modal .info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.modal .info-item {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 14px;
+}
+.modal .info-item .info-label {
+  font-size: 0.7rem;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.modal .info-item .info-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.modal .example-section {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.modal .example-section h4 {
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.modal .example-item {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.modal .example-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.modal .example-item .ex-cn { font-size: 1.1rem; margin-bottom: 2px; }
+.modal .example-item .ex-py { font-size: 0.8rem; color: var(--accent5); }
+.modal .example-item .ex-kr { font-size: 0.85rem; color: var(--text2); margin-top: 2px; }
+
+.modal .status-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.modal .status-btns button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.modal .status-btns button.active-status { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.1); }
+
+/* Writing Practice */
+.writing-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.writing-container.active { display: flex; }
+.writing-area {
+  width: 300px;
+  height: 300px;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  position: relative;
+  background: var(--card);
+  cursor: crosshair;
+  touch-action: none;
+}
+.writing-area canvas {
+  border-radius: 14px;
+}
+.writing-area .guide-char {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12rem;
+  color: rgba(108,99,255,0.08);
+  pointer-events: none;
+  font-weight: 700;
+}
+.writing-controls {
+  display: flex;
+  gap: 10px;
+}
+.writing-controls button {
+  padding: 10px 24px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.writing-controls button:hover { border-color: var(--accent); }
+.writing-info {
+  text-align: center;
+}
+.writing-info .w-hanzi { font-size: 3rem; font-weight: 700; }
+.writing-info .w-pinyin { color: var(--accent5); font-size: 1.1rem; margin-top: 4px; }
+.writing-info .w-meaning { color: var(--text2); margin-top: 4px; }
+
+.toggle-guide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+.toggle-guide input { accent-color: var(--accent); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text2);
+}
+.empty-state .emoji { font-size: 3rem; margin-bottom: 16px; }
+.empty-state p { font-size: 1rem; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.pagination button {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.pagination button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pagination button:disabled { opacity: 0.3; cursor: default; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .word-list-header, .word-item { grid-template-columns: 60px 1fr 1fr 60px; }
+  .word-item .meaning { display: none; }
+  .quiz-options { grid-template-columns: 1fr; }
+  .card-wrapper { height: 280px; }
+  .card-front .hanzi { font-size: 3.5rem; }
+  .level-selector { flex-wrap: wrap; }
+  .level-btn { flex: 0 0 calc(50% - 5px); }
+  .overview-cards { grid-template-columns: 1fr 1fr; }
+}
+
+/* Audio Button */
+.audio-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  opacity: 0.5;
+  vertical-align: middle;
+}
+.audio-btn:hover { opacity: 1; background: rgba(108,99,255,0.15); }
+.fc-audio {
+  font-size: 1.5rem;
+  opacity: 0.7;
+  margin-top: 8px;
+}
+.fc-audio:hover { opacity: 1; }
+
+.card-back .ex-section {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+.card-back .ex-section .ex-cn { font-size: 1.05rem; margin-bottom: 2px; }
+.card-back .ex-section .ex-py { font-size: 0.8rem; color: var(--accent5); }
+.card-back .ex-section .ex-kr { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+.card-back .ex-audio-btn {
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.3);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.card-back .ex-audio-btn:hover { background: rgba(108,99,255,0.25); }
+
+/* Sentence Practice */
+.sentence-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+.sentence-container.active { display: flex; }
+
+.sentence-card {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 30px;
+  text-align: center;
+}
+.sentence-card .s-word-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  background: rgba(108,99,255,0.15);
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.sentence-card .s-chinese {
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.sentence-card .s-pinyin {
+  font-size: 1.05rem;
+  color: var(--accent5);
+  margin-bottom: 10px;
+  line-height: 1.6;
+  min-height: 1.6em;
+}
+.sentence-card .s-korean {
+  font-size: 1.05rem;
+  color: var(--text2);
+  line-height: 1.6;
+  min-height: 1.6em;
+}
+.sentence-card .s-hidden { visibility: hidden; }
+.sentence-card .s-audio-row {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.sentence-card .s-audio-btn {
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.3);
+  color: var(--accent);
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.sentence-card .s-audio-btn:hover { background: rgba(108,99,255,0.25); }
+.sentence-card .s-audio-btn.slow {
+  background: rgba(51,154,240,0.1);
+  border-color: rgba(51,154,240,0.3);
+  color: var(--accent5);
+}
+
+.sentence-toggles {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sentence-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--text2);
+  cursor: pointer;
+}
+.sentence-toggles input[type="checkbox"] { accent-color: var(--accent); }
+
+.sentence-nav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.sentence-nav button {
+  padding: 10px 24px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.sentence-nav button:hover { border-color: var(--accent); }
+.sentence-nav .s-counter {
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+
+.sentence-word-info {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sentence-word-info .swi-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.sentence-word-info .swi-hz { font-size: 1.8rem; font-weight: 700; }
+.sentence-word-info .swi-py { color: var(--accent5); font-size: 0.95rem; }
+.sentence-word-info .swi-kr { color: var(--text2); font-size: 0.9rem; }
+
+/* Keyboard Hint */
+.kbd-hint {
+  width: 100%;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text2);
+  opacity: 0.6;
+  padding: 8px 0;
+  letter-spacing: 0.5px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<style>
+  .hub-home-btn {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 10px);
+    left: calc(env(safe-area-inset-left, 0) + 10px);
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hub-home-btn:hover,
+  .hub-home-btn:focus-visible {
+    background: rgba(255, 217, 61, 0.9);
+    color: #1a1a1a;
+    transform: translateY(-1px);
+    outline: none;
+  }
+  .hub-home-btn:active { transform: translateY(0); }
+  @media (max-width: 600px) {
+    .hub-home-btn { padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<a class="hub-home-btn" href="../index.html" title="허브로 돌아가기" aria-label="허브 홈으로 이동">← 홈</a>
+
+<div class="app">
+  <div class="header">
+    <h1>HSK 중국어 학습</h1>
+    <div class="stats">
+      <span>학습한 단어 <span class="num" id="totalLearned">0</span></span>
+      <span>완벽 암기 <span class="num" id="totalMastered">0</span></span>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="active" data-view="dashboard">대시보드</button>
+    <button data-view="wordlist">단어장</button>
+    <button data-view="flashcard">학습</button>
+    <button data-view="quiz">퀴즈</button>
+    <button data-view="sentence">문장 연습</button>
+    <button data-view="writing">쓰기 연습</button>
+  </div>
+
+  <div class="level-selector" id="levelSelector"></div>
+
+  <!-- Dashboard -->
+  <div class="dashboard active" id="viewDashboard">
+    <div class="overview-cards">
+      <div class="overview-card new">
+        <div class="label">새 단어</div>
+        <div class="val" id="dashNew">0</div>
+      </div>
+      <div class="overview-card learning">
+        <div class="label">학습 중</div>
+        <div class="val" id="dashLearning">0</div>
+      </div>
+      <div class="overview-card mastered">
+        <div class="label">완벽 암기</div>
+        <div class="val" id="dashMastered">0</div>
+      </div>
+      <div class="overview-card streak">
+        <div class="label">오늘 학습</div>
+        <div class="val" id="dashToday">0</div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:16px;font-size:1rem;">최근 학습 단어</h3>
+    <div id="recentWords" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
+  <!-- Word List -->
+  <div class="word-list" id="viewWordlist">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="한자, 병음, 뜻으로 검색...">
+    </div>
+    <div class="word-list-header">
+      <span>급수</span>
+      <span>한자</span>
+      <span>병음</span>
+      <span>뜻</span>
+      <span>상태</span>
+    </div>
+    <div id="wordListItems"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- Flashcard -->
+  <div class="flashcard-container" id="viewFlashcard">
+    <div class="flashcard-options">
+      <label><input type="checkbox" id="fcShowPinyin"> 앞면에 병음 표시</label>
+      <label><input type="checkbox" id="fcReverse"> 뜻 → 한자</label>
+      <label><input type="checkbox" id="fcOnlyNew" checked> 새 단어만</label>
+    </div>
+    <div class="flashcard-progress">
+      <span id="fcCurrent">0</span> / <span id="fcTotal">0</span>
+      <div class="bar"><div class="bar-fill" id="fcBar" style="width:0%"></div></div>
+    </div>
+    <div class="card-wrapper" id="cardWrapper">
+      <div class="card-inner" id="cardInner">
+        <div class="card-front">
+          <div class="hanzi" id="fcFrontMain"></div>
+          <button class="audio-btn fc-audio" onclick="event.stopPropagation();playCurrentCard()">🔊</button>
+          <div class="hint" id="fcFrontSub">Space 뒤집기 · P 발음</div>
+        </div>
+        <div class="card-back">
+          <div class="word-type" id="fcBackType"></div>
+          <div class="pinyin" id="fcBackPinyin"></div>
+          <div class="meaning" id="fcBackMeaning"></div>
+          <div class="ex-section" id="fcBackEx"></div>
+          <button class="ex-audio-btn" onclick="event.stopPropagation();playCurrentCardSentence()">🔊 예문 듣기</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-actions" id="cardActions" style="display:none;">
+      <button class="btn-hard" onclick="rateCard('hard')">1 어려움</button>
+      <button class="btn-good" onclick="rateCard('good')">2 보통</button>
+      <button class="btn-easy" onclick="rateCard('easy')">3 쉬움</button>
+    </div>
+    <div class="kbd-hint" id="fcKbdHint">Space 뒤집기 · 1 어려움 · 2 보통 · 3 쉬움 · P 발음 · E 예문 발음</div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="quiz-container" id="viewQuiz">
+    <div class="quiz-type-selector">
+      <button class="quiz-type-btn active" data-qtype="hanzi2kr">한자 → 뜻</button>
+      <button class="quiz-type-btn" data-qtype="kr2hanzi">뜻 → 한자</button>
+      <button class="quiz-type-btn" data-qtype="pinyin2hanzi">병음 → 한자</button>
+      <button class="quiz-type-btn" data-qtype="listen">듣기</button>
+    </div>
+    <div class="quiz-score">
+      <span>정답: <span class="correct-count" id="quizCorrect">0</span></span>
+      <span>오답: <span class="wrong-count" id="quizWrong">0</span></span>
+    </div>
+    <div class="quiz-question">
+      <div class="prompt" id="quizPrompt">다음 한자의 뜻은?</div>
+      <div class="main-char" id="quizMainChar">你</div>
+      <div class="sub-info" id="quizSubInfo"></div>
+    </div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="kbd-hint">1~4 번호키로 정답 선택</div>
+  </div>
+
+  <!-- Sentence Practice -->
+  <div class="sentence-container" id="viewSentence">
+    <div class="sentence-toggles">
+      <label><input type="checkbox" id="sShowPinyin" checked> 병음 표시</label>
+      <label><input type="checkbox" id="sShowKorean"> 한국어 뜻 표시</label>
+      <label><input type="checkbox" id="sAutoPlay" checked> 자동 재생</label>
+    </div>
+    <div class="sentence-card">
+      <div class="s-word-tag" id="sWordTag"></div>
+      <div class="s-chinese" id="sChinese"></div>
+      <div class="s-pinyin" id="sPinyinText"></div>
+      <div class="s-korean" id="sKoreanText"></div>
+      <div class="s-audio-row">
+        <button class="s-audio-btn" onclick="playCurrentSentence()">🔊 듣기</button>
+        <button class="s-audio-btn slow" onclick="playCurrentSentence(0.5)">🐢 느리게</button>
+      </div>
+    </div>
+    <div class="sentence-word-info" id="sWordInfo">
+      <div class="swi-left">
+        <span class="swi-hz" id="sWordHz"></span>
+        <span>
+          <span class="swi-py" id="sWordPy"></span>
+          <span class="swi-kr" id="sWordKr"></span>
+        </span>
+      </div>
+      <button class="audio-btn" onclick="playCurrentSentenceWord()" style="font-size:1.3rem;opacity:0.7">🔊</button>
+    </div>
+    <div class="sentence-nav">
+      <button onclick="prevSentence()">← 이전</button>
+      <span class="s-counter"><span id="sCurrentIdx">1</span> / <span id="sTotalIdx">0</span></span>
+      <button onclick="nextSentence()">다음 →</button>
+    </div>
+    <div class="kbd-hint">← → 이동 · Space 다음 · P 문장 발음 · W 단어 발음 · S 느리게 · D 뜻 토글</div>
+  </div>
+
+  <!-- Writing Practice -->
+  <div class="writing-container" id="viewWriting">
+    <div class="writing-info">
+      <div class="w-hanzi" id="wHanzi">你</div>
+      <div class="w-pinyin" id="wPinyin">nǐ</div>
+      <div class="w-meaning" id="wMeaning">너</div>
+    </div>
+    <div class="toggle-guide">
+      <label><input type="checkbox" id="showGuide" checked> 가이드 글자 표시</label>
+    </div>
+    <div class="writing-area" id="writingArea">
+      <div class="guide-char" id="guideChar">你</div>
+      <canvas id="writingCanvas" width="300" height="300"></canvas>
+    </div>
+    <div class="writing-controls">
+      <button onclick="clearCanvas()">지우기</button>
+      <button onclick="nextWritingChar()">다음 글자</button>
+    </div>
+  </div>
+</div>
+
+<!-- Character Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="char-display">
+      <div class="big-char" id="modalChar"></div>
+      <div class="pinyin-big" id="modalPinyin"></div>
+      <button class="audio-btn" onclick="if(state.modalWord)speakChinese(state.modalWord.hz)" style="font-size:1.5rem;opacity:0.7;margin-top:8px">🔊 발음 듣기</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">뜻</div>
+        <div class="info-value" id="modalMeaning"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">HSK 급수</div>
+        <div class="info-value" id="modalLevel"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">품사</div>
+        <div class="info-value" id="modalType"></div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">학습 상태</div>
+        <div class="info-value" id="modalStatus"></div>
+      </div>
+    </div>
+    <div class="example-section" id="modalExamples">
+      <h4>예문</h4>
+    </div>
+    <div class="status-btns">
+      <button onclick="setWordStatus('new')">새 단어</button>
+      <button onclick="setWordStatus('learning')">학습 중</button>
+      <button onclick="setWordStatus('mastered')">완벽 암기</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const state = {
+  currentLevel: 0,
+  currentView: 'dashboard',
+  wordProgress: {},
+  todayCount: 0,
+  todayDate: '',
+  fcIndex: 0,
+  fcDeck: [],
+  fcFlipped: false,
+  quizType: 'hanzi2kr',
+  quizCorrect: 0,
+  quizWrong: 0,
+  quizCurrent: null,
+  modalWord: null,
+  writingIndex: 0,
+  writingDeck: [],
+  listPage: 0,
+  searchQuery: '',
+  sentenceIndex: 0,
+  sentenceDeck: []
+};
+
+const ITEMS_PER_PAGE = 20;
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('hsk_study_state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state.wordProgress = parsed.wordProgress || {};
+      state.todayCount = parsed.todayCount || 0;
+      state.todayDate = parsed.todayDate || '';
+    }
+  } catch(e) {}
+  const today = new Date().toDateString();
+  if (state.todayDate !== today) {
+    state.todayCount = 0;
+    state.todayDate = today;
+  }
+}
+
+function saveState() {
+  localStorage.setItem('hsk_study_state', JSON.stringify({
+    wordProgress: state.wordProgress,
+    todayCount: state.todayCount,
+    todayDate: state.todayDate
+  }));
+}
+
+function getWordStatus(hz) {
+  return state.wordProgress[hz] || 'new';
+}
+
+function setWordStatusDirect(hz, status) {
+  state.wordProgress[hz] = status;
+  saveState();
+}
+
+function getFilteredWords() {
+  let words = state.currentLevel === 0 ? HSK_DATA : HSK_DATA.filter(w => w.lv === state.currentLevel);
+  if (state.searchQuery) {
+    const q = state.searchQuery.toLowerCase();
+    words = words.filter(w =>
+      w.hz.includes(q) || w.py.toLowerCase().includes(q) || w.kr.includes(q)
+    );
+  }
+  return words;
+}
+
+function getLevelCount(lv) {
+  return HSK_DATA.filter(w => w.lv === lv).length;
+}
+
+function getLevelProgress(lv) {
+  const words = HSK_DATA.filter(w => w.lv === lv);
+  const mastered = words.filter(w => getWordStatus(w.hz) === 'mastered').length;
+  return words.length > 0 ? Math.round((mastered / words.length) * 100) : 0;
+}
+
+function renderLevelSelector() {
+  const el = document.getElementById('levelSelector');
+  let html = `<div class="level-btn ${state.currentLevel===0?'active':''}" onclick="selectLevel(0)">
+    <div class="lvl">전체</div>
+    <div class="cnt">${HSK_DATA.length}단어</div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${Math.round(Object.values(state.wordProgress).filter(v=>v==='mastered').length/HSK_DATA.length*100)}%"></div></div>
+  </div>`;
+  for (let i = 1; i <= 5; i++) {
+    html += `<div class="level-btn ${state.currentLevel===i?'active':''}" onclick="selectLevel(${i})">
+      <div class="lvl">HSK ${i}</div>
+      <div class="cnt">${getLevelCount(i)}단어</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${getLevelProgress(i)}%"></div></div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function selectLevel(lv) {
+  state.currentLevel = lv;
+  state.listPage = 0;
+  renderLevelSelector();
+  renderCurrentView();
+}
+
+function switchView(view) {
+  state.currentView = view;
+  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  ['dashboard','wordlist','flashcard','quiz','sentence','writing'].forEach(v => {
+    const el = document.getElementById('view' + v.charAt(0).toUpperCase() + v.slice(1));
+    if (el) el.classList.toggle('active', v === view);
+  });
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  switch(state.currentView) {
+    case 'dashboard': renderDashboard(); break;
+    case 'wordlist': renderWordList(); break;
+    case 'flashcard': initFlashcards(); break;
+    case 'quiz': initQuiz(); break;
+    case 'sentence': initSentences(); break;
+    case 'writing': initWriting(); break;
+  }
+}
+
+function renderDashboard() {
+  const words = getFilteredWords();
+  const newW = words.filter(w => getWordStatus(w.hz) === 'new').length;
+  const learning = words.filter(w => getWordStatus(w.hz) === 'learning').length;
+  const mastered = words.filter(w => getWordStatus(w.hz) === 'mastered').length;
+
+  document.getElementById('dashNew').textContent = newW;
+  document.getElementById('dashLearning').textContent = learning;
+  document.getElementById('dashMastered').textContent = mastered;
+  document.getElementById('dashToday').textContent = state.todayCount;
+  document.getElementById('totalLearned').textContent = learning + mastered;
+  document.getElementById('totalMastered').textContent = mastered;
+
+  const recent = Object.entries(state.wordProgress)
+    .filter(([_,s]) => s !== 'new')
+    .slice(-10)
+    .reverse();
+  const recentEl = document.getElementById('recentWords');
+  if (recent.length === 0) {
+    recentEl.innerHTML = '<div class="empty-state"><div class="emoji">📚</div><p>아직 학습한 단어가 없습니다.<br>플래시카드나 퀴즈로 학습을 시작해보세요!</p></div>';
+  } else {
+    recentEl.innerHTML = recent.map(([hz, status]) => {
+      const w = HSK_DATA.find(x => x.hz === hz);
+      if (!w) return '';
+      return `<div class="word-item" onclick="openModal('${w.hz}')">
+        <span style="font-size:0.75rem;color:var(--text2)">HSK${w.lv}</span>
+        <span class="hanzi">${w.hz}<button class="audio-btn" onclick="event.stopPropagation();speakChinese('${w.hz}')">🔊</button></span>
+        <span class="pinyin">${w.py}</span>
+        <span class="meaning">${w.kr}</span>
+        <span class="status-dot ${status}"></span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderWordList() {
+  const words = getFilteredWords();
+  const totalPages = Math.ceil(words.length / ITEMS_PER_PAGE);
+  const page = Math.min(state.listPage, totalPages - 1);
+  const start = page * ITEMS_PER_PAGE;
+  const pageWords = words.slice(start, start + ITEMS_PER_PAGE);
+
+  const el = document.getElementById('wordListItems');
+  el.innerHTML = pageWords.map(w => `
+    <div class="word-item" onclick="openModal('${w.hz}')">
+      <span style="font-size:0.75rem;color:var(--text2)">HSK${w.lv}</span>
+      <span class="hanzi">${w.hz}<button class="audio-btn" onclick="event.stopPropagation();speakChinese('${w.hz}')">🔊</button></span>
+      <span class="pinyin">${w.py}</span>
+      <span class="meaning">${w.kr}</span>
+      <span class="status-dot ${getWordStatus(w.hz)}"></span>
+    </div>
+  `).join('');
+
+  const pagEl = document.getElementById('pagination');
+  if (totalPages <= 1) { pagEl.innerHTML = ''; return; }
+  let pagHtml = `<button ${page===0?'disabled':''} onclick="goPage(${page-1})">이전</button>`;
+  for (let i = 0; i < totalPages; i++) {
+    if (totalPages > 7 && Math.abs(i - page) > 2 && i !== 0 && i !== totalPages-1) {
+      if (i === 1 || i === totalPages-2) pagHtml += '<button disabled>...</button>';
+      continue;
+    }
+    pagHtml += `<button class="${i===page?'active':''}" onclick="goPage(${i})">${i+1}</button>`;
+  }
+  pagHtml += `<button ${page>=totalPages-1?'disabled':''} onclick="goPage(${page+1})">다음</button>`;
+  pagEl.innerHTML = pagHtml;
+}
+
+function goPage(p) { state.listPage = p; renderWordList(); }
+
+// Flashcard
+function initFlashcards() {
+  const onlyNew = document.getElementById('fcOnlyNew').checked;
+  let words = getFilteredWords();
+  if (onlyNew) words = words.filter(w => getWordStatus(w.hz) !== 'mastered');
+  state.fcDeck = shuffleArray([...words]);
+  state.fcIndex = 0;
+  state.fcFlipped = false;
+  if (state.fcDeck.length === 0) {
+    document.getElementById('fcFrontMain').textContent = '🎉';
+    document.getElementById('fcFrontSub').textContent = '모든 단어를 마스터했습니다!';
+    document.getElementById('cardActions').style.display = 'none';
+    return;
+  }
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  if (state.fcIndex >= state.fcDeck.length) {
+    document.getElementById('fcFrontMain').textContent = '🎉';
+    document.getElementById('fcFrontSub').textContent = `${state.fcDeck.length}개 카드 학습 완료!`;
+    document.getElementById('cardActions').style.display = 'none';
+    document.getElementById('cardInner').classList.remove('flipped');
+    return;
+  }
+
+  const w = state.fcDeck[state.fcIndex];
+  const reverse = document.getElementById('fcReverse').checked;
+  const showPinyin = document.getElementById('fcShowPinyin').checked;
+
+  document.getElementById('cardInner').classList.remove('flipped');
+  state.fcFlipped = false;
+  document.getElementById('cardActions').style.display = 'none';
+
+  if (reverse) {
+    document.getElementById('fcFrontMain').textContent = w.kr;
+    document.getElementById('fcFrontSub').textContent = 'Space 뒤집기 · P 발음';
+    document.getElementById('fcBackPinyin').textContent = w.py;
+    document.getElementById('fcBackMeaning').textContent = w.hz;
+  } else {
+    document.getElementById('fcFrontMain').textContent = w.hz;
+    document.getElementById('fcFrontSub').textContent = showPinyin ? w.py : 'Space 뒤집기 · P 발음';
+    document.getElementById('fcBackPinyin').textContent = w.py;
+    document.getElementById('fcBackMeaning').textContent = w.kr;
+  }
+  document.getElementById('fcBackType').textContent = w.tp;
+  const exEl = document.getElementById('fcBackEx');
+  if (w.ex && w.ex[0]) {
+    exEl.innerHTML = `<div class="ex-cn">${w.ex[0].cn}</div><div class="ex-py">${w.ex[0].py}</div><div class="ex-kr">${w.ex[0].kr}</div>`;
+  } else {
+    exEl.innerHTML = '';
+  }
+
+  document.getElementById('fcCurrent').textContent = state.fcIndex + 1;
+  document.getElementById('fcTotal').textContent = state.fcDeck.length;
+  document.getElementById('fcBar').style.width = ((state.fcIndex + 1) / state.fcDeck.length * 100) + '%';
+}
+
+document.getElementById('cardWrapper').addEventListener('click', () => {
+  if (state.fcDeck.length === 0 || state.fcIndex >= state.fcDeck.length) return;
+  state.fcFlipped = !state.fcFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', state.fcFlipped);
+  if (state.fcFlipped) {
+    document.getElementById('cardActions').style.display = 'flex';
+  }
+});
+
+function rateCard(rating) {
+  const w = state.fcDeck[state.fcIndex];
+  if (rating === 'easy') setWordStatusDirect(w.hz, 'mastered');
+  else if (rating === 'good') setWordStatusDirect(w.hz, 'learning');
+  state.todayCount++;
+  saveState();
+  state.fcIndex++;
+  renderFlashcard();
+}
+
+// Quiz
+function initQuiz() {
+  state.quizCorrect = 0;
+  state.quizWrong = 0;
+  document.getElementById('quizCorrect').textContent = '0';
+  document.getElementById('quizWrong').textContent = '0';
+  nextQuizQuestion();
+}
+
+function nextQuizQuestion() {
+  const words = getFilteredWords();
+  if (words.length < 4) {
+    document.getElementById('quizMainChar').textContent = '⚠️';
+    document.getElementById('quizPrompt').textContent = '최소 4개 이상의 단어가 필요합니다.';
+    document.getElementById('quizOptions').innerHTML = '';
+    return;
+  }
+
+  const correct = words[Math.floor(Math.random() * words.length)];
+  state.quizCurrent = correct;
+  const wrongs = shuffleArray(words.filter(w => w.hz !== correct.hz)).slice(0, 3);
+  const options = shuffleArray([correct, ...wrongs]);
+
+  const qtype = state.quizType;
+  let prompt = '', mainChar = '', subInfo = '';
+
+  if (qtype === 'hanzi2kr') {
+    prompt = '다음 한자의 뜻은?';
+    mainChar = correct.hz;
+    subInfo = '';
+  } else if (qtype === 'kr2hanzi') {
+    prompt = '다음 뜻의 한자는?';
+    mainChar = correct.kr;
+    subInfo = '';
+  } else if (qtype === 'pinyin2hanzi') {
+    prompt = '다음 병음의 한자는?';
+    mainChar = correct.py;
+    subInfo = '';
+  } else if (qtype === 'listen') {
+    prompt = '발음을 듣고 맞는 한자를 고르세요';
+    mainChar = '🔊';
+    subInfo = '클릭하여 발음 듣기';
+    setTimeout(() => speakChinese(correct.hz), 300);
+  }
+
+  document.getElementById('quizPrompt').textContent = prompt;
+  document.getElementById('quizMainChar').textContent = mainChar;
+  document.getElementById('quizSubInfo').textContent = subInfo;
+  if (qtype === 'listen') {
+    document.getElementById('quizMainChar').style.cursor = 'pointer';
+    document.getElementById('quizMainChar').onclick = () => speakChinese(correct.hz);
+  } else {
+    document.getElementById('quizMainChar').style.cursor = 'default';
+    document.getElementById('quizMainChar').onclick = null;
+  }
+
+  const optEl = document.getElementById('quizOptions');
+  optEl.innerHTML = options.map(o => {
+    let label = '';
+    if (qtype === 'hanzi2kr') label = o.kr;
+    else if (qtype === 'kr2hanzi' || qtype === 'pinyin2hanzi' || qtype === 'listen') label = o.hz;
+    return `<div class="quiz-option" data-hz="${o.hz}" onclick="checkAnswer(this,'${correct.hz}')">${label}</div>`;
+  }).join('');
+}
+
+function checkAnswer(el, correctHz) {
+  if (el.classList.contains('correct') || el.classList.contains('wrong')) return;
+  const allOpts = document.querySelectorAll('.quiz-option');
+  const isCorrect = el.dataset.hz === correctHz;
+
+  if (isCorrect) {
+    el.classList.add('correct');
+    state.quizCorrect++;
+    const w = HSK_DATA.find(x => x.hz === correctHz);
+    if (w && getWordStatus(w.hz) === 'new') setWordStatusDirect(w.hz, 'learning');
+    state.todayCount++;
+    saveState();
+  } else {
+    el.classList.add('wrong');
+    state.quizWrong++;
+    allOpts.forEach(o => { if(o.dataset.hz === correctHz) o.classList.add('correct'); });
+  }
+
+  document.getElementById('quizCorrect').textContent = state.quizCorrect;
+  document.getElementById('quizWrong').textContent = state.quizWrong;
+
+  allOpts.forEach(o => o.style.pointerEvents = 'none');
+  setTimeout(nextQuizQuestion, 1200);
+}
+
+function speakChinese(text) {
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN';
+    u.rate = 0.8;
+    speechSynthesis.speak(u);
+  }
+}
+
+// Card Audio
+function playCurrentCard() {
+  if (state.fcDeck.length > 0 && state.fcIndex < state.fcDeck.length) {
+    speakChinese(state.fcDeck[state.fcIndex].hz);
+  }
+}
+function playCurrentCardSentence() {
+  if (state.fcDeck.length > 0 && state.fcIndex < state.fcDeck.length) {
+    const w = state.fcDeck[state.fcIndex];
+    if (w.ex && w.ex[0]) speakChinese(w.ex[0].cn);
+  }
+}
+
+// Sentence Practice
+function getSentenceDeck() {
+  const words = getFilteredWords();
+  const sentences = [];
+  words.forEach(w => {
+    if (w.ex) {
+      w.ex.forEach(e => {
+        sentences.push({ cn: e.cn, py: e.py, kr: e.kr, hz: w.hz, wpy: w.py, wkr: w.kr, lv: w.lv });
+      });
+    }
+  });
+  return shuffleArray(sentences);
+}
+
+function initSentences() {
+  state.sentenceDeck = getSentenceDeck();
+  state.sentenceIndex = 0;
+  renderSentence();
+}
+
+function renderSentence() {
+  const deck = state.sentenceDeck;
+  if (deck.length === 0) {
+    document.getElementById('sChinese').textContent = '문장이 없습니다';
+    return;
+  }
+  const idx = state.sentenceIndex % deck.length;
+  const s = deck[idx];
+  const showPy = document.getElementById('sShowPinyin').checked;
+  const showKr = document.getElementById('sShowKorean').checked;
+
+  document.getElementById('sWordTag').textContent = `HSK${s.lv} · ${s.hz} (${s.wpy})`;
+  document.getElementById('sChinese').textContent = s.cn;
+  document.getElementById('sPinyinText').textContent = s.py;
+  document.getElementById('sPinyinText').classList.toggle('s-hidden', !showPy);
+  document.getElementById('sKoreanText').textContent = s.kr;
+  document.getElementById('sKoreanText').classList.toggle('s-hidden', !showKr);
+
+  document.getElementById('sWordHz').textContent = s.hz;
+  document.getElementById('sWordPy').textContent = s.wpy;
+  document.getElementById('sWordKr').textContent = ' · ' + s.wkr;
+
+  document.getElementById('sCurrentIdx').textContent = idx + 1;
+  document.getElementById('sTotalIdx').textContent = deck.length;
+
+  if (document.getElementById('sAutoPlay').checked) {
+    setTimeout(() => speakChinese(s.cn), 200);
+  }
+}
+
+function playCurrentSentence(rate) {
+  const deck = state.sentenceDeck;
+  if (deck.length === 0) return;
+  const s = deck[state.sentenceIndex % deck.length];
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(s.cn);
+    u.lang = 'zh-CN';
+    u.rate = rate || 0.8;
+    speechSynthesis.speak(u);
+  }
+}
+
+function playCurrentSentenceWord() {
+  const deck = state.sentenceDeck;
+  if (deck.length === 0) return;
+  const s = deck[state.sentenceIndex % deck.length];
+  speakChinese(s.hz);
+}
+
+function nextSentence() {
+  state.sentenceIndex++;
+  if (state.sentenceIndex >= state.sentenceDeck.length) state.sentenceIndex = 0;
+  renderSentence();
+}
+
+function prevSentence() {
+  state.sentenceIndex--;
+  if (state.sentenceIndex < 0) state.sentenceIndex = state.sentenceDeck.length - 1;
+  renderSentence();
+}
+
+// Writing
+function initWriting() {
+  let words = getFilteredWords();
+  state.writingDeck = shuffleArray([...words]);
+  state.writingIndex = 0;
+  renderWritingChar();
+  initCanvas();
+}
+
+function renderWritingChar() {
+  if (state.writingDeck.length === 0) return;
+  const w = state.writingDeck[state.writingIndex % state.writingDeck.length];
+  document.getElementById('wHanzi').textContent = w.hz;
+  document.getElementById('wPinyin').textContent = w.py;
+  document.getElementById('wMeaning').textContent = w.kr;
+  document.getElementById('guideChar').textContent = w.hz;
+  clearCanvas();
+}
+
+function nextWritingChar() {
+  state.writingIndex++;
+  renderWritingChar();
+}
+
+let isDrawing = false;
+let ctx;
+
+function initCanvas() {
+  const canvas = document.getElementById('writingCanvas');
+  ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#6c63ff';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('mouseleave', stopDraw);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e.touches[0]); });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e.touches[0]); });
+  canvas.addEventListener('touchend', stopDraw);
+}
+
+function startDraw(e) {
+  isDrawing = true;
+  const rect = document.getElementById('writingCanvas').getBoundingClientRect();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function draw(e) {
+  if (!isDrawing) return;
+  const rect = document.getElementById('writingCanvas').getBoundingClientRect();
+  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.stroke();
+}
+
+function stopDraw() { isDrawing = false; }
+
+function clearCanvas() {
+  if (ctx) ctx.clearRect(0, 0, 300, 300);
+}
+
+document.getElementById('showGuide').addEventListener('change', e => {
+  document.getElementById('guideChar').style.display = e.target.checked ? 'flex' : 'none';
+});
+
+// Modal
+function openModal(hz) {
+  const w = HSK_DATA.find(x => x.hz === hz);
+  if (!w) return;
+  state.modalWord = w;
+  document.getElementById('modalChar').textContent = w.hz;
+  document.getElementById('modalPinyin').textContent = w.py;
+  document.getElementById('modalMeaning').textContent = w.kr;
+  document.getElementById('modalLevel').textContent = 'HSK ' + w.lv;
+  document.getElementById('modalType').textContent = w.tp;
+  const status = getWordStatus(w.hz);
+  const statusMap = { new: '새 단어', learning: '학습 중', mastered: '완벽 암기' };
+  document.getElementById('modalStatus').textContent = statusMap[status] || '새 단어';
+
+  const exEl = document.getElementById('modalExamples');
+  let exHtml = '<h4>예문</h4>';
+  if (w.ex) {
+    w.ex.forEach(e => {
+      exHtml += `<div class="example-item">
+        <div class="ex-cn">${e.cn}</div>
+        <div class="ex-py">${e.py}</div>
+        <div class="ex-kr">${e.kr}</div>
+      </div>`;
+    });
+  }
+  exEl.innerHTML = exHtml;
+
+  const btns = document.querySelectorAll('.status-btns button');
+  btns.forEach(b => b.classList.remove('active-status'));
+  const idx = status === 'new' ? 0 : status === 'learning' ? 1 : 2;
+  btns[idx].classList.add('active-status');
+
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function setWordStatus(status) {
+  if (state.modalWord) {
+    setWordStatusDirect(state.modalWord.hz, status);
+    const statusMap = { new: '새 단어', learning: '학습 중', mastered: '완벽 암기' };
+    document.getElementById('modalStatus').textContent = statusMap[status];
+    const btns = document.querySelectorAll('.status-btns button');
+    btns.forEach(b => b.classList.remove('active-status'));
+    const idx = status === 'new' ? 0 : status === 'learning' ? 1 : 2;
+    btns[idx].classList.add('active-status');
+    renderLevelSelector();
+  }
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// Utility
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Event listeners
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.searchQuery = e.target.value;
+  state.listPage = 0;
+  renderWordList();
+});
+
+document.querySelectorAll('.quiz-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.quiz-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.quizType = btn.dataset.qtype;
+    initQuiz();
+  });
+});
+
+['fcShowPinyin','fcReverse','fcOnlyNew'].forEach(id => {
+  document.getElementById(id).addEventListener('change', initFlashcards);
+});
+
+['sShowPinyin','sShowKorean','sAutoPlay'].forEach(id => {
+  document.getElementById(id).addEventListener('change', renderSentence);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+
+  if (state.currentView === 'flashcard') {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!state.fcFlipped) {
+        document.getElementById('cardWrapper').click();
+      } else {
+        rateCard('good');
+      }
+    }
+    if (e.code === 'ArrowRight') { e.preventDefault(); if (state.fcFlipped) rateCard('good'); else document.getElementById('cardWrapper').click(); }
+    if (e.code === 'ArrowLeft' && state.fcFlipped) { e.preventDefault(); rateCard('hard'); }
+    if (e.key === 'p' || e.key === 'P' || e.key === 'ㅔ') playCurrentCard();
+    if (e.key === 'e' || e.key === 'E' || e.key === 'ㄷ') playCurrentCardSentence();
+    if (state.fcFlipped) {
+      if (e.key === '1') rateCard('hard');
+      if (e.key === '2') rateCard('good');
+      if (e.key === '3') rateCard('easy');
+    }
+  }
+
+  if (state.currentView === 'sentence') {
+    if (e.code === 'ArrowRight' || e.code === 'Space') { e.preventDefault(); nextSentence(); }
+    if (e.code === 'ArrowLeft') { e.preventDefault(); prevSentence(); }
+    if (e.key === 'p' || e.key === 'P' || e.key === 'ㅔ') { e.preventDefault(); playCurrentSentence(); }
+    if (e.key === 'w' || e.key === 'W' || e.key === 'ㅈ') playCurrentSentenceWord();
+    if (e.key === 's' || e.key === 'S' || e.key === 'ㄴ') { e.preventDefault(); playCurrentSentence(0.5); }
+    if (e.key === 'd' || e.key === 'D' || e.key === 'ㅇ') {
+      const cb = document.getElementById('sShowKorean');
+      cb.checked = !cb.checked;
+      renderSentence();
+    }
+  }
+
+  if (state.currentView === 'quiz') {
+    if (e.key >= '1' && e.key <= '4') {
+      const opts = document.querySelectorAll('.quiz-option');
+      if (opts[e.key - 1]) opts[e.key - 1].click();
+    }
+  }
+});
+
+// Init
+loadState();
+renderLevelSelector();
+renderDashboard();
+</script>
+</body>
+</html>

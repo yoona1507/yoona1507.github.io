@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>My Study Hub</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📚%3C/text%3E%3C/svg%3E" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  :root {
+    --bg-1: #0f1020;
+    --bg-2: #1a1b3a;
+    --bg-3: #2d1b4e;
+    --text: #f5f5ff;
+    --text-muted: #b8b8d1;
+    --accent-jlpt: #ff6b9d;
+    --accent-hsk: #ffd93d;
+    --accent-fm: #6bcfff;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.12);
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+      "Noto Sans KR", "Pretendard", sans-serif;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* 배경 장식 */
+  body::before,
+  body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+  }
+  body::before {
+    width: 400px; height: 400px;
+    background: var(--accent-jlpt);
+    top: -100px; left: -100px;
+    animation: float1 20s ease-in-out infinite;
+  }
+  body::after {
+    width: 500px; height: 500px;
+    background: var(--accent-fm);
+    bottom: -150px; right: -150px;
+    animation: float2 25s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(50px, 100px); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-80px, -60px); }
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  header .emoji {
+    font-size: clamp(48px, 10vw, 72px);
+    display: block;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 8px 20px rgba(255, 107, 157, 0.4));
+  }
+  h1 {
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 800;
+    margin: 0 0 12px;
+    background: linear-gradient(135deg, #fff 0%, #ffd93d 50%, #ff6b9d 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
+  header p {
+    font-size: clamp(14px, 2.5vw, 18px);
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
+    padding: 28px;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.3s, box-shadow 0.3s;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--card-accent, var(--accent-jlpt));
+    opacity: 0.8;
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 200px; height: 200px;
+    background: var(--card-accent, var(--accent-jlpt));
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.15;
+    transition: opacity 0.3s;
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--card-accent, var(--accent-jlpt));
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4),
+                0 0 0 1px var(--card-accent, var(--accent-jlpt));
+    outline: none;
+  }
+  .card:hover::after,
+  .card:focus-visible::after {
+    opacity: 0.3;
+  }
+  .card:active {
+    transform: translateY(-2px);
+  }
+
+  .card[data-app="jlpt"] { --card-accent: var(--accent-jlpt); }
+  .card[data-app="hsk"]  { --card-accent: var(--accent-hsk); }
+  .card[data-app="fm"]   { --card-accent: var(--accent-fm); }
+
+  .card-icon {
+    font-size: 44px;
+    line-height: 1;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .card-subtitle {
+    font-size: 13px;
+    color: var(--card-accent, var(--accent-jlpt));
+    font-weight: 600;
+    margin: 0 0 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .card-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+  }
+  .card-cta {
+    margin-top: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--card-accent, var(--accent-jlpt));
+  }
+  .card-cta::after {
+    content: "→";
+    transition: transform 0.3s;
+  }
+  .card:hover .card-cta::after,
+  .card:focus-visible .card-cta::after {
+    transform: translateX(4px);
+  }
+
+  footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 40px 16px 60px; }
+    header { margin-bottom: 36px; }
+    .grid { gap: 14px; }
+    .card { padding: 22px; min-height: auto; }
+    .card-icon { font-size: 36px; margin-bottom: 12px; }
+    .card-title { font-size: 19px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation: none; }
+    .card { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="emoji" aria-hidden="true">📚</span>
+    <h1>My Study Hub</h1>
+    <p>공부 앱 모음 · 어디서든 열어서 바로 학습</p>
+  </header>
+
+  <nav class="grid" aria-label="학습 앱 목록">
+    <a class="card" data-app="jlpt" href="./jlpt/index.html">
+      <span class="card-icon" aria-hidden="true">🇯🇵</span>
+      <p class="card-subtitle">Japanese · N5–N3</p>
+      <h2 class="card-title">JLPT 일본어</h2>
+      <p class="card-desc">히라가나·가타카나부터 N3까지. 음성 자동재생, 플래시카드, 퀴즈, 쓰기 연습까지.</p>
+      <span class="card-cta">학습 시작하기</span>
+    </a>
+
+    <a class="card" data-app="hsk" href="./hsk/index.html">
+      <span class="card-icon" aria-hidden="true">🇨🇳</span>
+      <p class="card-subtitle">Chinese · HSK</p>
+      <h2 class="card-title">HSK 중국어</h2>
+      <p class="card-desc">HSK 단어 암기 · 성조 학습. 플래시카드와 퀴즈로 꾸준하게.</p>
+      <span class="card-cta">학습 시작하기</span>
+    </a>
+
+    <a class="card" data-app="fm" href="./fm/index.html">
+      <span class="card-icon" aria-hidden="true">🩺</span>
+      <p class="card-subtitle">Medical · Family Medicine</p>
+      <h2 class="card-title">FM 전문의 퀴즈</h2>
+      <p class="card-desc">가정의학과 전문의 시험 대비 기출 퀴즈. 과목별로 집중 학습.</p>
+      <span class="card-cta">퀴즈 풀기</span>
+    </a>
+  </nav>
+
+  <footer>
+    <p>홈 화면에 추가해서 앱처럼 사용하세요 · Made with ☕</p>
+  </footer>
+</main>
+</body>
+</html>
