@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가정의학과 전문의 시험 퀴즈</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--card:#1e293b;--card2:#334155;--accent:#6366f1;--accent2:#818cf8;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--text:#e2e8f0;--text2:#94a3b8;--border:#475569}
+body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.container{max-width:800px;margin:0 auto;padding:16px}
+header{text-align:center;padding:24px 0;border-bottom:1px solid var(--border);margin-bottom:24px}
+header h1{font-size:1.5rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+header p{color:var(--text2);font-size:.85rem}
+.stats-bar{display:flex;gap:12px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+.stat{background:var(--card);padding:8px 16px;border-radius:8px;font-size:.8rem;display:flex;align-items:center;gap:6px}
+.stat .num{font-weight:700;font-size:1rem}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 18px;border-radius:8px;background:var(--card);color:var(--text2);cursor:pointer;border:1px solid transparent;font-size:.85rem;transition:.2s}
+.tab:hover,.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cat-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.cat-btn{padding:4px 12px;border-radius:20px;background:var(--card);color:var(--text2);cursor:pointer;font-size:.75rem;border:1px solid var(--border);transition:.2s}
+.cat-btn:hover,.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.q-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid var(--border);transition:.3s}
+.q-num{font-size:.75rem;color:var(--accent2);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.q-cat{background:var(--card2);padding:2px 10px;border-radius:12px;font-size:.7rem}
+.q-text{font-size:.95rem;margin-bottom:16px;white-space:pre-wrap}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{padding:12px 16px;border-radius:8px;background:var(--card2);cursor:pointer;border:2px solid transparent;transition:.2s;font-size:.9rem}
+.opt:hover{border-color:var(--accent)}
+.opt.selected{border-color:var(--accent);background:rgba(99,102,241,.15)}
+.opt.correct{border-color:var(--green);background:rgba(34,197,94,.15)}
+.opt.wrong{border-color:var(--red);background:rgba(239,68,68,.15)}
+.opt.show-correct{border-color:var(--green);background:rgba(34,197,94,.1)}
+.explanation{margin-top:16px;padding:16px;background:rgba(99,102,241,.08);border-radius:8px;font-size:.85rem;border-left:3px solid var(--accent);display:none}
+.explanation.show{display:block}
+.explanation h4{color:var(--accent2);margin-bottom:6px;font-size:.8rem}
+.btn-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:.2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--card2);color:var(--text)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{opacity:.8}
+.progress-bar{width:100%;height:6px;background:var(--card2);border-radius:3px;margin:12px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:3px;transition:width .3s}
+.result-card{text-align:center;padding:40px 20px}
+.result-card .score{font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-card .msg{font-size:1.1rem;margin:12px 0;color:var(--text2)}
+.hidden{display:none!important}
+.study-card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:12px;border:1px solid var(--border)}
+.study-card .q{font-weight:600;margin-bottom:8px}
+.study-card .a{color:var(--green);margin-bottom:6px}
+.study-card .e{color:var(--text2);font-size:.85rem}
+.bookmark-btn{cursor:pointer;font-size:1.1rem;opacity:.5;transition:.2s}
+.bookmark-btn:hover,.bookmark-btn.active{opacity:1}
+.mode-desc{color:var(--text2);font-size:.8rem;margin-bottom:16px;padding:12px;background:var(--card);border-radius:8px}
+#quiz-area .q-card{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.search-box{width:100%;padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:.9rem;margin-bottom:16px}
+.search-box::placeholder{color:var(--text2)}
+@media(max-width:600px){.container{padding:10px}.q-card{padding:14px}.tabs{gap:4px}.tab{padding:6px 12px;font-size:.8rem}}
+</style>
+</head>
+<body>
+<style>
+  .hub-home-btn {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 10px);
+    left: calc(env(safe-area-inset-left, 0) + 10px);
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hub-home-btn:hover,
+  .hub-home-btn:focus-visible {
+    background: rgba(107, 207, 255, 0.9);
+    color: #0a1a2a;
+    transform: translateY(-1px);
+    outline: none;
+  }
+  .hub-home-btn:active { transform: translateY(0); }
+  @media (max-width: 600px) {
+    .hub-home-btn { padding: 7px 10px; font-size: 12px; }
+  }
+</style>
+<a class="hub-home-btn" href="../index.html" title="허브로 돌아가기" aria-label="허브 홈으로 이동">← 홈</a>
+
+<div class="container">
+<header>
+<h1>FM 전문의 시험 퀴즈</h1>
+<p>2023-2024 기출 복원 기반 | 총 <span id="total-q">0</span>문제</p>
+</header>
+<div class="stats-bar">
+<div class="stat">풀은 문제 <span class="num" id="st-done">0</span></div>
+<div class="stat" style="color:var(--green)">정답 <span class="num" id="st-correct">0</span></div>
+<div class="stat" style="color:var(--red)">오답 <span class="num" id="st-wrong">0</span></div>
+<div class="stat">정답률 <span class="num" id="st-rate">0%</span></div>
+</div>
+<div class="tabs">
+<div class="tab active" data-mode="quiz">시험모드</div>
+<div class="tab" data-mode="study">학습모드</div>
+<div class="tab" data-mode="wrong">오답노트</div>
+<div class="tab" data-mode="bookmark">북마크</div>
+<div class="tab" data-mode="random">랜덤 20제</div>
+</div>
+<div class="cat-filters" id="cat-filters"></div>
+<input class="search-box hidden" id="search-box" placeholder="검색어 입력 (질환명, 약물명 등)">
+<div class="progress-bar hidden" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+<div id="quiz-area"></div>
+</div>
+<script>
+const questions=[
+{id:1,cat:"가정의학총론",q:"'흡연의 자유 제한'을 언급하며 의사가 환자의 자유를 제한한다는 내용의 원칙은?",opts:["정의의 원칙","온정적 간섭주의","자율성 존중","의료산업과의 이해상충"],ans:1,exp:"온정적 간섭주의: 환자의 즉각적 욕망에 대치되더라도 이익을 보호/증진시킨다고 믿는 방식으로 행동하는 것. 금연 권고, 마약/담배 규제 등이 예."},
+{id:2,cat:"가정의학총론",q:"5년간 고혈압 잘 조절되던 72세 여자, 1개월 전부터 혈압 조절 안 됨. 2개월 전부터 건강기능식품 복용 중. 가장 효율적인 항고혈압 약물 순응도 평가방법은?",opts:["재방문 시 남은 약 들고 오게 한다","약을 잘 복용하는지 물어본다","소변/혈액 약물농도 측정","과거 외래 약속 부도 여부 확인"],ans:1,exp:"교과서에서는 가장 손쉬운 방법으로 '과거 예약부도 확인'과 '직접 물어보기' 두 가지를 제시. 이 문제는 건강기능식품 복용이 최근 변수이므로 직접 물어보는 것이 적절."},
+{id:3,cat:"응급",q:"말기 췌장암 환자, 경피 펜타닐로 통증 조절 중. 몰핀 IV 투여 후 호흡곤란 발생. 치료제는?",opts:["naloxone","epinephrine","atropine","adenosine","alprazolam"],ans:0,exp:"마약성 진통제 과량에 의한 호흡억제 → naloxone (마약 길항제)"},
+{id:4,cat:"산부인과",q:"임신 3개월 보육교사, 1일 전 수두 환자 접촉. 수두 항체/접종력 모름. 조치는?",opts:["수두 예방접종","acyclovir 1일 경구","acyclovir 7일 경구","수두 면역글로불린","증상 나타날 때까지 경과관찰"],ans:3,exp:"임산부에게 수두 생백신은 금기. 수두 면역글로불린(VZIG) 투여가 정답."},
+{id:5,cat:"건강검진",q:"42세 여자, 2년 전 유방촬영 정상, 6개월 전 자궁세포진/위내시경 정상. 평생건강 차원에서 권유할 검사는?",opts:["위내시경","대장내시경","유방촬영","경질초음파","자궁세포진검사"],ans:2,exp:"유방촬영의 주기는 2년. 2년 전 시행했으므로 이번에 다시 해야 함."},
+{id:6,cat:"가정의학총론",q:"30대 여자, 남편이 말대꾸하면 때린다고 함. 의사의 역할은?",opts:["법적 처벌을 해야 한다","고소를 추천한다","폭력의 원인에 대해 물어보기","폭력은 잘못된 행동이라는 것을 인지시킨다"],ans:3,exp:"가정폭력 피해자에게 가장 먼저 '폭력은 부당한 행동'임을 인지시키는 것이 의사의 역할."},
+{id:7,cat:"금연/금주",q:"비행기 타는 동안에도 담배 피고 싶어하는 환자. 평소 우울감 있음. 금연 치료약은?",opts:["varenicline","bupropion","buspirone"],ans:1,exp:"우울증이 동반된 금연 환자에게는 항우울 효과도 있는 bupropion 선택."},
+{id:8,cat:"혈액",q:"65세 남자, Hb 7-8, ferritin 10, MCV 60-70 (IDA 소견). 다음 처치는?",opts:["Vit B12","경구 철분제","스테로이드","대장내시경"],ans:3,exp:"중년 남성 IDA → 위장관 출혈 의심 → 위/대장내시경 시행이 우선."},
+{id:9,cat:"근골격",q:"35세 남자, 우측 발꿈치 들기 힘듦, 우측 발 바깥쪽 감각 저하, 아킬레스건반사 소실, SLR 45도 양성. 진단은?",opts:["척추협착증","요추염좌","L3-L4","L4-L5","L5-S1"],ans:4,exp:"발꿈치 들기 힘듦 + 아킬레스건반사 소실 + 발 바깥쪽 감각 저하 = S1 신경근 (L5-S1 디스크)."},
+{id:10,cat:"혈액",q:"고령 남성, 술·담배 많이 함. Hb 감소, MCV 증가 (거대적혈모구빈혈). 적당한 처치는?",opts:["경구 철분제","folate","코발라민(B12)"],ans:2,exp:"거대적혈모구빈혈 치료 시 신경학적 증상 악화 방지를 위해 cobalamin(B12)부터 투여."},
+{id:11,cat:"혈액",q:"25세 남자, 운동시 호흡곤란. Spherocyte(+), Osmotic fragility(+), Direct Coombs(+). 진단은?",opts:["G6PD deficiency","Hereditary spherocytosis","Autoimmune hemolytic anemia","PNH","Sickle cell anemia"],ans:2,exp:"Direct Coombs 양성 = 자가면역 용혈빈혈(AIHA). HS는 Coombs 음성."},
+{id:12,cat:"혈액",q:"40세 여성, 3개월간 생리양 증가, 멍, 하지 점상출혈. 간비장 종대 없음. Hb 9, PLT 15,000. 치료는?",opts:["경과관찰","경구 스테로이드","혈소판 수혈","면역글로불린 정맥주사","비장절제술"],ans:1,exp:"ITP (면역혈소판감소자색반) → 1차 치료는 경구 스테로이드."},
+{id:13,cat:"내분비",q:"55세 여자, 추위 타고 기운 없음. TSH 14↑, free T4 0.5↓, anti-TPO(+), PRL 55↑. 조치는?",opts:["티록신 복용","브로모크립틴","갑상선 스캔","안장 MRI","2주 후 재검"],ans:0,exp:"증상 + TSH↑ + fT4↓ + anti-TPO(+) = 갑상선기능저하증 → 레보티록신(T4) 투여. PRL 상승은 갑상선저하에 의한 이차적 상승."},
+{id:14,cat:"내분비",q:"54세 여자, 갑상선 초음파에서 1.2cm 단순 낭종, wider than taller, TFT 정상. 조치는?",opts:["초음파 추적관찰","갑상선 스캔","FNA","갑상선 엽절제술"],ans:0,exp:"Pure cyst (단순 낭종)은 악성 위험이 매우 낮으므로 경과관찰."},
+{id:15,cat:"내분비",q:"출산 3개월 후 34세 여자, 두근거림. 갑상선 미만성 비후, TSH 0.03↓, RAIU 40%↑. 진단은?",opts:["그레이브스병","급성갑상선염","아급성갑상선염","산후갑상선염","하시모토병"],ans:0,exp:"산후 + RAIU 증가(40%) = 그레이브스병. 산후갑상선염이면 RAIU가 감소함."},
+{id:16,cat:"내분비",q:"쿠싱 증후군 의심(비만, 복부 선조 등). 진단 방법은?",opts:["레닌 검사","고용량 덱사메타손 억제","24시간 소변 유리 코티솔","(기타)","소변 카테콜아민"],ans:2,exp:"쿠싱 증후군 선별검사: 24시간 소변 유리 코티솔 또는 overnight dexamethasone 억제검사."},
+{id:17,cat:"정신과",q:"입원 중 할머니, 의사를 친척이라 함. 밤에 증상 악화. 치료는?",opts:["quetiapine","BZD 계열","리튬"],ans:0,exp:"전형적 섬망 증상(야간 악화, 지남력 장애) → 비정형 항정신병약 quetiapine. Haloperidol이 없으면 quetiapine 선택."},
+{id:18,cat:"정신과",q:"문을 잠그고 자꾸 확인한다. 알면서도 멈추지 못한다. 치료는?",opts:["파록세틴(SSRI)","클로나제팜","카바마제핀","부프로피온","리스페리돈"],ans:0,exp:"강박장애(OCD) → 1차 치료 SSRI (paroxetine, fluvoxamine 등)."},
+{id:19,cat:"정신과",q:"20세 여성, 점심 소량 식사, 간식 대량 섭취 후 손가락으로 구토 유발. 160cm 56kg. 진단은?",opts:["이식증","폭식장애","신경성 폭식증","신경성 식욕부진","회피-제한적 섭취 장애"],ans:2,exp:"폭식 + 부적절한 보상행동(자가 유도 구토) + 정상~과체중 = 신경성 폭식증."},
+{id:20,cat:"호흡기",q:"호흡기 병동 간호사, TST 작년 5mm → 올해 18mm. 증상 없음, CXR 정상. 조치는?",opts:["INH 치료","4제 요법","3개월 후 재검"],ans:0,exp:"TST 전환(10mm 이상 증가) = 잠복결핵 감염(LTBI) → isoniazid 단독 치료."},
+{id:21,cat:"호흡기",q:"50세 여자, 폐결핵 치료 4개월째 AFB 양성. INH 내성, RIF 내성, EMB/PZA 감수성. 조치는?",opts:["폐 절제술","기존 약제 9개월 치료","현재 약 모두 중단 후 다른 결핵약으로 변경","EMB+PZA에 다른 약 추가","INH+RIF 빼고 다른 약 추가"],ans:2,exp:"다제내성결핵(INH+RIF 모두 내성) → 기존 약제를 모두 중단하고 새로운 약제로 전면 교체."},
+{id:22,cat:"호흡기",q:"67세 남자, 호흡곤란 점차 악화. FVC 64%, FEV1/FVC 80%대. 양쪽 하엽 honeycomb on CT. 진단은?",opts:["기관지확장증","NSIP","급성간질성폐렴","IPF","COPD"],ans:3,exp:"제한성 패턴(FVC↓) + both lower lobe honeycomb = IPF (특발성폐섬유증)."},
+{id:23,cat:"호흡기",q:"조선소에서 용접하던 사람. 폐 X-ray 이상, 호흡곤란, 기침. 객담에서 asbestos body. 진단은?",opts:["석면폐증","베릴륨폐증","규폐증","면분폐증","탄광부진폐증"],ans:0,exp:"조선소 + asbestos body + pleural plaque = 석면폐증(asbestosis)."},
+{id:24,cat:"소화기",q:"위궤양에서 CLO 양성 → 제균치료 + PPI 후 내시경 F/U에서 궤양 치유됨. 다음 조치는?",opts:["경과관찰","조직검사","요소호기검사","위장관조영술","조영증강 CT"],ans:1,exp:"위궤양 치료 후 제균 확인은 내시경+조직검사로 시행 (십이지장궤양은 요소호기검사)."},
+{id:25,cat:"소화기",q:"대장내시경에서 용종 3개 (14mm, 15mm, 8mm), 모두 저등급 관상선종. 추적 간격은?",opts:["6개월","1년","3년","5년","10년"],ans:2,exp:"고위험 선종(10mm 이상 포함) → 3년 후 추적 대장내시경. 2022 가이드라인 기준."},
+{id:26,cat:"소화기",q:"54세 남자, 6개월 전 담낭 용종 0.98cm → 이번에 1.3cm으로 증가. 치료는?",opts:["경과관찰","ERCP","UDCA","추적 초음파","담낭절제술"],ans:4,exp:"담낭용종이 6개월 내 크기 증가 + 1cm 이상 → 담낭절제술 적응증."},
+{id:27,cat:"순환기",q:"50대 남자, 흉통으로 내원. CK↑, CK-MB↑, Troponin-T↑. EKG에서 V2-V5 ST elevation, II/III/aVF reciprocal change. 진단은?",opts:["전벽 심근경색","하벽 심근경색","불안정 협심증","심막염"],ans:0,exp:"V2-V5 ST elevation = 전벽(anterior wall) MI."},
+{id:28,cat:"순환기",q:"심방세동 심전도. 50대 남자, 고혈압 + 당뇨 있음. 치료는?",opts:["아스피린 단독","와파린 또는 DOAC","율동전환","경과관찰"],ans:1,exp:"심방세동 + 고혈압 + 당뇨 → CHA₂DS₂-VASc 점수 높음 → 항응고제(warfarin 또는 DOAC)."},
+{id:29,cat:"순환기",q:"30세 남성, 고혈압으로 ARB 160mg 복용 중. 계단 올라갈 때 흉통(안정 시 소실), EKG/CXR 정상. BB 복용 중이라면 추가할 약은?",opts:["베라파밀","암로디핀","디곡신","로수바스타틴"],ans:1,exp:"BB 복용 중이면 non-DHP CCB(베라파밀) 병용 금기 → DHP CCB인 암로디핀 추가."},
+{id:30,cat:"피부과",q:"20세 여자, 귀걸이 착용 후 귓볼 발적. 원인 물질은?",opts:["금","수은","니켈","크롬","아연"],ans:2,exp:"귀걸이(특히 금도금) 접촉피부염의 가장 흔한 원인 = 니켈."},
+{id:31,cat:"피부과",q:"30대 여자, 감기약 먹을 때마다 같은 부위에 병변 발생. 진단은?",opts:["고정약진","습진성약진","광과민성약진","두드러기"],ans:0,exp:"같은 약 복용 시 같은 부위에 반복 발생하는 피부 병변 = 고정약진(Fixed drug eruption)."},
+{id:32,cat:"피부과",q:"45세 남성, 두꺼운 인설, 약간의 가려움. 인설 벗기니 점상출혈 발생. 해당 병변의 악화요인은?",opts:["여름/고온","비누","햇빛","피부외상","높은 습도"],ans:3,exp:"건선 + Auspitz 징후(점상출혈) → 악화요인: 피부외상 (쾨브너 현상, Koebner phenomenon)."},
+{id:33,cat:"피부과",q:"발가락 오목각질용해증(pitted keratolysis) 치료는?",opts:["항진균제 연고","스테로이드 연고","20% 알루미늄","항생제 경구","레티노이드"],ans:2,exp:"오목각질융해증 치료 = 20% 알루미늄 클로라이드(땀 억제) + 항생제 도포."},
+{id:34,cat:"근골격",q:"74세 여자, 2일 전 침 맞음. 당뇨 복용 중. 오른쪽 무릎 발적/종창/압통, 체온 38.4, WBC 18000. 진단을 위한 검사는?",opts:["혈액배양","관절액 천자","anti-CCP","류마티스인자","무릎 MRI"],ans:1,exp:"급성 단관절염 + 발열 + 침습적 시술력 → 화농성관절염 의심 → 관절액 천자/분석이 최우선."},
+{id:35,cat:"근골격",q:"양손/손목 관절 통증. 1시간 조조강직, ESR 57, RF(+), ANA(+). 치료제는?",opts:["infliximab","leflunomide","sulfasalazine","cyclosporin","MTX"],ans:4,exp:"류마티스 관절염(RA) 확진 → 1차 DMARD = MTX (methotrexate)."},
+{id:36,cat:"근골격",q:"23세 여자, 쭈그려 앉기/계단 오를 때 양 무릎 통증. 외상 없음. ROM 정상. Q각 증가 소견. 치료는?",opts:["수술","관절 내 스테로이드","대퇴근육 강화운동","보조기 착용","NSAID"],ans:2,exp:"슬개대퇴증후군(PFPS) → 대퇴사두근(특히 VMO) 강화 운동이 1차 치료."},
+{id:37,cat:"근골격",q:"출산 후 아기를 많이 안아주면서 오른쪽 손목 통증. Finkelstein 검사 양성. 치료는?",opts:["휴식","석고고정","국소 스테로이드 주사","수술","NSAID"],ans:2,exp:"드퀘르뱅 건초염(De Quervain's) → 스테로이드 국소 주사 or NSAID. 보기에 따라 논쟁 있음."},
+{id:38,cat:"근골격",q:"골프 친 중년 남성, 견갑부 위 근육에 작은 결절. 누르면 통증이 주변으로 퍼짐. 진단은?",opts:["견갑하신경포착","견갑하점액낭염","섬유근통","근막동통증후군"],ans:3,exp:"Trigger point(단단한 결절) + 연관통 = 근막동통증후군(MPS)."},
+{id:39,cat:"소아과",q:"3세 남아, 5일 이상 발열, 딸기혀, 입술 갈라짐, 손발 부종, 삼출물 없는 결막충혈. 진단은?",opts:["가와사키","성홍열","돌발진"],ans:0,exp:"5일 이상 발열 + 딸기혀 + 결막충혈 + 손발부종 + 입술변화 = 가와사키병 진단기준."},
+{id:40,cat:"소아과",q:"8세 여아, 허벅지/다리 통증. 뛰어논 후 심해지고, 야간에 칭얼, 주물러주면 호전. 아침엔 괜찮음. 조치는?",opts:["활동 자제","아스피린","안심시키기","보조기 착용","근력강화운동"],ans:2,exp:"야간 하지통 + 주물러주면 호전 + 아침에 정상 = 성장통 → 안심시키기(reassurance)."},
+{id:41,cat:"소아과",q:"생후 2개월, 항문에 손가락 넣으니 변과 가스 배출(선천거대결장 의심). 확진검사는?",opts:["대장조영술","직장흡인생검","CT","대장내시경"],ans:1,exp:"선천거대결장(Hirschsprung) 확진 = 직장흡인생검(신경절세포 부재 확인)."},
+{id:42,cat:"소아과",q:"8세 남아, 하던 짓 하다가 앞을 주시하며 눈 깜박거림. 10초 후 아무 일 없던 것처럼 다시 함. 치료는?",opts:["Diazepam","Phenytoin","Primidone","Ethosuximide","Carbamazepine"],ans:3,exp:"결신발작(Absence seizure) → ethosuximide (또는 valproate)."},
+{id:43,cat:"소아과",q:"7세 여아, 전신 부종. 2주 전 감기. Albumin 2.4↓, 24hr urine protein 4433mg↑, ANA(-). 치료는?",opts:["Rituximab","Levamisole","Prednisolone","Cycloserine","Cyclophosphamide"],ans:2,exp:"소아 신증후군 → MCD 의심 → 신생검 없이 prednisolone 먼저 사용."},
+{id:44,cat:"소아과",q:"18개월 남아, 음낭 부종. 펜라이트로 빛이 투과됨. 조치는?",opts:["3세까지 기다린다","고위결찰술","고환고정술","항생제","주사기로 흡인"],ans:1,exp:"18개월 음낭수종(transillumination 양성) → 12개월 이후에도 자연 소실 안 되면 고위결찰술."},
+{id:45,cat:"응급",q:"42세 남성, 수혈 시작 10분 후 발열, 흉통, 호흡곤란. BP 90/60, HR 128. 조치는?",opts:["수혈 중단","혈액 배양","ECMO","혈장분리교환술","NSAID"],ans:0,exp:"수혈 시작 10분 만에 unstable vital → 급성 용혈수혈반응 → 즉시 수혈 중단이 최우선."},
+{id:46,cat:"응급",q:"교통사고로 좌측 11,12 늑골 골절. 입원 2일차 갑자기 두근거림, 어지러움, 좌측 어깨통증. BP 90/60, HR 130. 진단은?",opts:["기흉","비장파열","식도천공","심장눌림증","흉막하농양"],ans:1,exp:"좌측 늑골골절 + 좌측 어깨통증(Kehr's sign) + 저혈압/빈맥 = 비장파열."},
+{id:47,cat:"내분비",q:"45세 남자, 피로/체모감소/성기능장애. BMI 높음. Total testosterone 3.2 (참고치 9-37) 감소. 치료약은?",opts:["Coenzyme Q10","UDCA","Metformin","Thyroxine","Testosterone undecanoate"],ans:4,exp:"테스토스테론 결핍 → testosterone undecanoate 보충."},
+{id:48,cat:"산부인과",q:"38세 여자, 피임 상담. 월경통/과다출혈. 5년 전 임신성 당뇨(현재 치료 중). 3년 전부터 하루 10개피 흡연. 조치는?",opts:["난관결찰술","(기타)","복합호르몬","구리 IUD","레보노게스트렐 IUD"],ans:4,exp:"당뇨+흡연 → 복합경구피임제 금기. 월경통/과다출혈 → 레보노게스트렐 IUD가 최적."},
+{id:49,cat:"산부인과",q:"임신 10주, 도뇨 배양검사 세균 10^5. 무증상. 조치는?",opts:["경과관찰","신장초음파","경구 항생제","입원 정맥 항생제","1주 뒤 재검"],ans:2,exp:"임산부 무증상 세균뇨 → 경구 항생제 치료 필수 (상행 감염으로 급성 신우신염 위험)."},
+{id:50,cat:"산부인과",q:"30대 임산부, 기존 천식. 호흡곤란 내원. 치료는?",opts:["albuterol 흡입","theophylline 경구","prednisolone 경구","beclomethasone 흡입","cromolyn 흡입"],ans:0,exp:"임산부 천식 급성악화 → SABA (albuterol) 흡입이 1차 치료."},
+{id:51,cat:"산부인과",q:"36주 임산부, 양막파수. 외음부에 통증 동반 다발성 수포 관찰. 조치는?",opts:["제왕절개","Acyclovir 투여 후 유도분만"],ans:0,exp:"활동성 HSV 병변 + 분만 임박 → 제왕절개 (수직감염 예방)."},
+{id:52,cat:"소화기",q:"건강검진 위내시경에서 식도정맥류 발견 (출혈 없음). 다음 검사는?",opts:["식도내압검사","식도조직검사","복부초음파","1년 후 추적","식도 24시간 pH"],ans:2,exp:"식도정맥류 → 간경화/문맥고혈압 의심 → 복부초음파로 간 상태 확인 우선."},
+{id:53,cat:"비뇨기",q:"70세 여자, 소변 못 참음. 화장실 못 찾으면 지림. 운동/기침에 의한 유발 없음. 치료는?",opts:["Duloxetine","Tamsulosin","Fesoterodine","Pseudoephedrine","Estrogen cream"],ans:2,exp:"절박성 요실금(urge incontinence) → 항콜린제(fesoterodine) 치료."},
+{id:54,cat:"정신과",q:"30대 여자, 본태성 떨림. 동그라미 비뚤비뚤. 엄마도 비슷. 현재 천식 치료 중. 치료는?",opts:["BB","CCB","BB(propranolol)","Primidone"],ans:3,exp:"본태성 떨림 → propranolol (1차) or primidone. 단, 천식 환자는 BB 금기 → primidone 선택."},
+{id:55,cat:"정신과",q:"85세 남자, 최근 보행 어려움, 안정 시 떨림, 성격 변화(조용하고 우울). 치료제는?",opts:["levodopa","primidone","propranolol","donepezil"],ans:0,exp:"파킨슨병 = 안정 시 떨림 + 서동증 + 강직 + 자세불안정 → levodopa."},
+{id:56,cat:"정신과",q:"체중 감소 있는 우울증 환자. 치료약은?",opts:["fluoxetine","bupropion","mirtazapine","sertraline"],ans:2,exp:"체중감소 동반 우울증 → mirtazapine (식욕 증가/체중 증가 부작용 활용)."},
+{id:57,cat:"정신과",q:"우울증 증상 + 손발 저림. 치료는?",opts:["fluoxetine","bupropion","duloxetine","mirtazapine"],ans:2,exp:"우울증 + 말초 신경병증(통증/저림) → duloxetine (SNRI, 신경병성 통증에도 효과)."},
+{id:58,cat:"정신과",q:"기면증 환자 치료는?",opts:["modafinil","methylphenidate","amphetamine","caffeine"],ans:0,exp:"기면증(narcolepsy) 주간 졸음 → modafinil 1차 치료."},
+{id:59,cat:"정신과",q:"하지불안증후군 치료는?",opts:["gabapentin","pramipexole","levodopa","amitriptyline"],ans:1,exp:"하지불안증후군(RLS) → 도파민 작용제 pramipexole 1차 치료."},
+{id:60,cat:"정신과",q:"편두통 예방약은?",opts:["sumatriptan","propranolol","ergotamine","acetaminophen"],ans:1,exp:"편두통 예방 1차: propranolol (BB). 그 외 valproate, topiramate, amitriptyline."},
+{id:61,cat:"정신과",q:"자기 몸에 냄새가 난다고 확신하는 남성 환자. 진단은?",opts:["강박장애","망상장애","신체이형장애","전환장애"],ans:1,exp:"본인에게서 냄새가 난다는 확고한 믿음(비기괴한 망상) = 망상장애(신체형)."},
+{id:62,cat:"내분비",q:"60대 여자, HbA1c 9.1, FBS 220, AST/ALT 220/240. 치료는?",opts:["glipizide","sitagliptin","dapagliflozin","pioglitazone","Insulin"],ans:4,exp:"HbA1c 9% 이상 → 인슐린 필요. 간수치 상승으로 피오글리타존(TZD) 금기."},
+{id:63,cat:"내분비",q:"간헐적 두통/빈맥 시 호흡곤란, 발한, 고혈압인 20대 남자. 검사는?",opts:["레닌 측정","코티솔 측정","24시간 소변 카테콜아민/메타네프린","알도스테론"],ans:2,exp:"두근거림+발한+두통+고혈압 = 갈색세포종 의심 → 24시간 소변 카테콜아민/메타네프린."},
+{id:64,cat:"호흡기",q:"52세 여자, 기침/가래 3일. 어제부터 객혈. 최근 4-5년 수차례 폐렴. X-ray: 양측 하부 기관지벽 비후/확장. 검사는?",opts:["기관지경","기관지동맥조영술","식도위내시경","흉부 CT","결핵균 도말"],ans:3,exp:"반복 폐렴 + 객혈 + 기관지 비후/확장 → 기관지확장증 의심 → 흉부 CT(진단 gold standard)."},
+{id:65,cat:"호흡기",q:"기관지 천식으로 테오필린/B2 agonist/ICS 사용 중인 여자. 오심, 식욕감소, 두통 지속. 먼저 시행할 검사는?",opts:["위내시경","복부초음파","stool OB","혈중 테오필린 농도","복부 CT"],ans:3,exp:"테오필린 독성 증상(오심, 식욕감소, 두통) → 혈중 테오필린 농도 측정이 우선."},
+{id:66,cat:"감염",q:"27세 여자, TST 작년 5mm→올해 18mm. 호흡기 내과 간호사. 무증상. CXR 정상. 조치는?",opts:["경과관찰","isoniazid 치료","3개월 후 CXR","3개월 후 TST","4제 요법"],ans:1,exp:"TST 전환(10mm 이상 증가) = LTBI → isoniazid 단독 치료."},
+{id:67,cat:"감염",q:"20대 여자, 발열/구역/구토 악화. B형간염 항체 있다고 들음. AST/ALT 1200/2000. 검사는?",opts:["ANA","IgM anti-HAV","IgM anti-HBc","Ceruloplasmin"],ans:1,exp:"급성 간염 증상 + B형간염 면역 있음 → A형 간염 의심 → IgM anti-HAV 검사."},
+{id:68,cat:"근골격",q:"협심증 과거력 있는 통풍 환자. 급성기 지남. Cr 상승. 만성 치료제는?",opts:["콜히친","알로퓨리놀","페북소스타트","벤즈브로마론"],ans:2,exp:"통풍 만성기 + 신기능 저하 + 심혈관질환 → febuxostat (알로퓨리놀보다 심혈관 관련 논쟁 있으나 신기능 저하 시 선호)."},
+{id:69,cat:"근골격",q:"마라톤 좋아하는 여성. 아침 첫걸음 통증 → 호전 → 나중에 다시 통증. 종골 medial tuberosity 압통. 진단은?",opts:["아킬레스건염","족저근막염","피로골절","Morton 신경종"],ans:1,exp:"아침 첫걸음 통증 + 종골 medial tuberosity 압통 = 족저근막염(Plantar fasciitis)."},
+{id:70,cat:"근골격",q:"55세 여자, 입원으로 운동 못 함. 어깨 능동+수동 운동 모두 제한. 진단은?",opts:["회전근개파열","이두건염","유착성관절낭염","충돌증후군"],ans:2,exp:"능동+수동 운동 모두 제한 = 유착성관절낭염(Adhesive capsulitis, 동결견)."},
+{id:71,cat:"근골격",q:"외측대퇴표피신경포착: 허벅지 바깥 앞쪽 감각이상, 운동 정상. 진단은?",opts:["L4 신경근병증","외측대퇴피부신경포착","좌골신경통","대퇴신경병증"],ans:1,exp:"허벅지 바깥 앞쪽 감각이상만 + 운동 정상 = 외측대퇴피부신경포착(meralgia paresthetica)."},
+{id:72,cat:"이비인후과",q:"21세 남자, 귀통증. 1개월 전 수영 시작. 귀 잡아당기면 통증. 열/림프부종 없음. 치료는?",opts:["항생제 점이액","항진균제 점이액","경구 항생제","항생제+스테로이드 점이액"],ans:3,exp:"수영 후 급성 외이도염(이개 견인 통증) → 항생제+스테로이드 점이액 병용."},
+{id:73,cat:"이비인후과",q:"과거 족보 문제: 성대결절 치료는?",opts:["수술","항생제","휴식과 가습공기","스테로이드"],ans:2,exp:"성대결절 → 음성 휴식 + 가습 공기가 1차 치료."},
+{id:74,cat:"안과",q:"55세 남자, 안저검사에서 C/D ratio 증가. 시력 0.2/0.3, 안압 18/19. 다음 검사는?",opts:["시야검사","시유발전위","형광안저혈관조영술","뇌 CT"],ans:0,exp:"C/D ratio 증가 + 안압 경계치 = 녹내장 의심 → 시야검사(Visual field test)."},
+{id:75,cat:"건강검진",q:"검사 양성일 때 진짜 병 있을 확률을 구하는 것은?",opts:["민감도","특이도","양성예측도","음성예측도"],ans:2,exp:"양성예측도(PPV) = TP/(TP+FP) = 검사 양성일 때 실제 질병이 있을 확률."},
+{id:76,cat:"가정의학총론",q:"강원도 탄광촌에서 개원, 다양한 호흡기 질환을 경험하며 치료하겠다. 일차의료 특성은?",opts:["전문성","지역사회 참여","포괄성"],ans:2,exp:"다양한 질환을 다룸 = 포괄성(Comprehensiveness). 가정의학의 핵심 특성."},
+{id:77,cat:"비뇨기",q:"68세 남자, 갑자기 소변 안 나옴. 3일 전 감기약 복용 중. 배뇨곤란 일으킬 수 있는 약물은?",opts:["Naproxen","Loratadine","Levodropropizine","Pseudoephedrine","Dextromethorphan"],ans:3,exp:"Pseudoephedrine(비충혈제거제, α-agonist) → 방광경부 수축 → 배뇨곤란/요폐."},
+{id:78,cat:"응급",q:"뇌경색 발생 6시간 경과. tPA 부적격. 치료는?",opts:["아스피린","다비가트란","tPA"],ans:0,exp:"6시간 경과로 tPA 부적격(4.5시간 이내) → 항혈소판제(aspirin) 투여."},
+{id:79,cat:"응급",q:"DKA 환자, 처음 시행할 치료는?",opts:["인슐린","Normal Saline","중탄산나트륨","칼륨 보충"],ans:1,exp:"DKA 초기 치료 = 수액(NS) → 이후 인슐린/전해질 보충."},
+{id:80,cat:"금연/금주",q:"간수치 높은 알코올 중독 환자. 금주약은?",opts:["naltrexone","acamprosate","disulfiram","topiramate"],ans:1,exp:"간기능 저하 시 → acamprosate (간대사 안 됨). Naltrexone은 간독성 우려."},
+{id:81,cat:"정신과",q:"수면 위생 문제에서 올바른 것은?",opts:["잠자기 전 운동하기","배고프게 잠들지 않기","잠이 안 오면 침대에서 기다리기","낮잠 충분히 자기"],ans:1,exp:"수면 위생: 배고프지 않은 상태로 잠들기, 규칙적 기상, 카페인/알코올 제한, 잠이 안 오면 침대 떠나기."},
+{id:82,cat:"산부인과",q:"가족력상 당뇨 있는 24주 산모. 선별검사는?",opts:["HbA1c","공복혈당","50g 경구 당부하 검사","75g OGTT"],ans:2,exp:"임신성 당뇨 선별: 24-28주에 50g 경구 당부하 검사(50g OGTT)."},
+{id:83,cat:"산부인과",q:"ASCUS 나온 후 HPV(-), Colposcopy(-). 다음 추적은?",opts:["6개월 후 질확대경","12개월 후 질확대경","6개월 후 Pap","12개월 후 Pap+HPV","36개월 후 Pap+HPV"],ans:4,exp:"ASCUS + HPV(-) + Colposcopy(-) → 3년(36개월) 후 Pap+HPV 병용검사 (가정의학 교과서 기준)."},
+{id:84,cat:"내분비",q:"심부전 동반 당뇨 환자. 치료약은?",opts:["sulfonylurea","metformin","pioglitazone","SGLT2 inhibitor"],ans:3,exp:"심부전 동반 당뇨 → SGLT2 inhibitor (empagliflozin, dapagliflozin) = 심부전 예후 개선."},
+{id:85,cat:"호흡기",q:"젊은 남자, 좌측 폐 기흉 (소량). 첫 발생. 갑자기 통증 발생. 처치는?",opts:["바늘 흡인","가슴관 삽관","VATS","개흉수술"],ans:0,exp:"1차 자발기흉 소량 → 바늘 흡인(needle aspiration) or 경과관찰."},
+{id:86,cat:"응급",q:"알프라졸람 과량복용 치료는?",opts:["naloxone","flumazenil","epinephrine","atropine"],ans:1,exp:"벤조디아제핀 과량 → flumazenil (BZD 길항제)."},
+{id:87,cat:"내분비",q:"비만약 금기: 갑상선수질암 가족력이 있는 환자에게 금기인 약은?",opts:["orlistat","phentermine","liraglutide","topiramate"],ans:2,exp:"GLP-1 RA (liraglutide) → 갑상선수질암/MEN2 가족력에서 금기."},
+{id:88,cat:"정신과",q:"벨마비(Bell's palsy) 발병 6일차. 통증/청력 저하 없음. 다음 조치 논쟁. 교과서적으로 발병 3일 이내 스테로이드 시작이 원칙. 6일째라면?",opts:["경과관찰","신경전도검사","아스피린","팜시클로버","뇌 CT"],ans:1,exp:"6일째 → 스테로이드 효과 불확실. 감별진단(벨마비는 배제진단)을 위해 신경전도검사(EMG/NCS) 고려."},
+{id:89,cat:"소화기",q:"고형식/유동식 모두 삼키기 힘듦. 먹다가 식도에 차오르는 느낌. 최근 폐렴/허혈발작 반복. 6개월 전 위내시경 정상. 검사는?",opts:["식도내압검사","식도산도검사","바륨조영술"],ans:0,exp:"고형식+유동식 모두 연하곤란 + 내시경 정상 → 식도이완불능증(Achalasia) 의심 → 식도내압검사(gold standard)."},
+{id:90,cat:"근골격",q:"앉았다가 일어설 때 무릎 안 펴짐+통증. 관절선 따라 부종. 최대 굴곡→외회전→신전 시 '뚝' 소리+통증. 손상 구조물은?",opts:["반월상연골","외측측부인대","내측측부인대","전방십자인대","후방십자인대"],ans:0,exp:"McMurray test 양성(굴곡→외회전→신전 시 click+통증) = 반월상연골 손상."},
+{id:91,cat:"근골격",q:"8세 여아, 팔꿈치 X-ray에서 proximal ulna 골절 + radial head 이동. 손상 가능성 높은 신경은?",opts:["ulnar nerve","radial nerve","axillary nerve","median nerve"],ans:1,exp:"몬테지아 골절(proximal ulna 골절 + radial head 탈구) → radial nerve 손상."},
+{id:92,cat:"감염",q:"VDRL(+), TPHA(+), VDRL 1:16. 과거 매독 진단/성기궤양 없음. 벤자틴 페니실린 240만 1회 근주 후 당일 미열/오한/두통/근육통. 다음 조치는?",opts:["치료 종료","독시사이클린 2주 경구","벤자틴 페니실린 1주 간격 2회 추가 근주","페니실린 탈감작","수성 결정 페니실린 14일"],ans:2,exp:"1차 매독 → 벤자틴 페니실린 240만 단위 총 3회(1주 간격). 당일 반응은 야리쉬-헤르크스하이머 반응으로 정상. 나머지 2회 추가 투여."},
+{id:93,cat:"감염",q:"임질 치료 1달 후에도 요도 분비물 지속. 비임균성 요도염(클라미디아) 의심. 치료는?",opts:["amikacin","ceftriaxone","doxycycline","spectinomycin"],ans:2,exp:"임균 치료 후 증상 지속 → 클라미디아 중복감염 의심 → doxycycline (또는 azithromycin)."},
+{id:94,cat:"비뇨기",q:"젊은 여자, 좌측 옆구리 통증 NRS 7점. CT에서 5mm 좌측 요관 결석. 치료는?",opts:["수분 공급 증가","항생제 정주","ESWL","경요도 결석쇄석","경피신 결석쇄석"],ans:0,exp:"5mm 이하 요관 결석 → 보존적 치료(수분 공급 증가 + 진통제)로 자연 배출 기대."},
+{id:95,cat:"피부과",q:"주사(rosacea) 치료는?",opts:["metronidazole 도포","minocycline 경구","cefazolin","isotretinoin"],ans:0,exp:"주사(rosacea) 1차 치료 = metronidazole 국소 도포."},
+{id:96,cat:"피부과",q:"대상포진 후 신경통 치료는?",opts:["acyclovir","gabapentin/pregabalin","NSAID","스테로이드"],ans:1,exp:"대상포진 후 신경통 → gabapentin 또는 pregabalin (항경련제 계열 신경병성 통증 치료)."},
+{id:97,cat:"혈액",q:"위전절제술 과거력. Hb 8.2, MCV 105. Vit B12 200 (경계). 진단 위한 추가검사는?",opts:["haptoglobin","hemosiderin","ferritin","folate","methylmalonic acid"],ans:4,exp:"위전절제술 → B12 흡수장애 의심. B12 경계치에서 확진 = methylmalonic acid (MMA) 측정."},
+{id:98,cat:"혈액",q:"만성신부전 투석 중 빈혈. 치료는?",opts:["경구 철분제","수혈","EPO(에리스로포이에틴)","B12 보충"],ans:2,exp:"만성신부전 빈혈 = EPO 생산 감소 → EPO(에리스로포이에틴) 투여."},
+{id:99,cat:"감염",q:"57세 남자, 두통/구토. 체온 38.2. Kernig sign(+). CSF: PMN 1500, glucose 36, protein 230. 치료는?",opts:["Ampicillin+ceftriaxone","Ampicillin+clindamycin","Ceftriaxone+Vancomycin","Ampicillin+Vancomycin","Ampicillin+ceftriaxone+vancomycin"],ans:4,exp:"세균성 수막염(PMN↑, glucose↓, protein↑) + 50세 이상 → Ampicillin(Listeria 커버) + Ceftriaxone + Vancomycin(내성균 커버)."},
+{id:100,cat:"내분비",q:"RA로 MTX/스테로이드 복용 중인 30대 후반 폐경전 여성. 골밀도 Z-score -3. 골다공증 치료는?",opts:["Raloxifene","Alendronate","Ibandronate","Bazedoxifene","Romosozumab"],ans:1,exp:"폐경전 여성 + RA + 스테로이드 → 골다공증 치료 1차: bisphosphonate (alendronate). 교과서 기준."},
+{id:101,cat:"가정의학총론",q:"어머니가 모든 것을 주도하고, 딸은 어머니 눈치를 보며 자기 의견을 내지 못하는 가족관계 유형은?",opts:["밀착(Enmeshment)","유리(Disengagement)","삼각관계(Triangulation)","역할전환(Role reversal)"],ans:0,exp:"밀착(Enmeshment)은 가족 구성원 간 심리적 경계가 불분명하여 과도하게 관여하는 관계 패턴이다."},
+{id:102,cat:"가정의학총론",q:"의사가 자신의 진단 가설을 지지하는 증거만 찾고, 반대되는 증거는 무시하는 인지적 오류는?",opts:["가용성 편향(Availability bias)","Rule-in favoritism","고정 편향(Anchoring bias)","대표성 편향(Representativeness bias)"],ans:1,exp:"Rule-in favoritism은 자신의 진단 가설을 확인하는 증거만 선택적으로 찾고, 배제할 증거는 무시하는 오류이다."},
+{id:103,cat:"가정의학총론",q:"안과에서 당뇨망막병증 발견 후 내분비내과로 다시 의뢰하는 것은?",opts:["회송(Referral back)","교차의뢰(Cross-referral)","전원(Transfer)","자문(Consultation)"],ans:1,exp:"교차의뢰는 의뢰받은 과에서 다른 전문과로 다시 의뢰하는 것을 말한다."},
+{id:104,cat:"가정의학총론",q:"불필요한 검사나 과잉진료를 회피하여 환자를 보호하는 예방 수준은?",opts:["1차 예방","2차 예방","3차 예방","4차 예방"],ans:3,exp:"4차 예방은 과잉진료(overdiagnosis, overtreatment)로부터 환자를 보호하는 것을 목적으로 한다."},
+{id:105,cat:"가정의학총론",q:"가정의학의 특성 중, 다양한 건강 문제를 포괄적으로 다루는 보건서비스 제공 원칙은?",opts:["지속성(Continuity)","협조성(Coordination)","포괄성(Comprehensiveness)","지역사회 지향(Community-based)"],ans:2,exp:"포괄성은 연령, 성별, 장기에 관계없이 다양한 건강 문제를 통합적으로 다루는 가정의학의 핵심 원칙이다."},
+{id:106,cat:"가정의학총론",q:"FACES III 평가에서 '유연하게 연결된(Flexibly connected)' 가족이 의미하는 바는?",opts:["가족기능이 매우 불량","가족기능이 양호","가족 해체 위험","가족 갈등이 심각"],ans:1,exp:"FACES III에서 '유연하게 연결된' 가족은 적응성과 응집력이 균형 잡혀 가족기능이 양호한 상태이다."},
+{id:107,cat:"가정의학총론",q:"의사와 환자가 치료 목표와 방법에 대해 함께 논의하고 결정하는 의사소통 모델은?",opts:["온정적 간섭주의","공유의사결정(Shared decision making)","의사 주도 모델","정보 제공 모델"],ans:1,exp:"공유의사결정은 의사의 전문지식과 환자의 선호/가치를 통합하여 함께 치료 방침을 결정하는 모델이다."},
+{id:108,cat:"건강검진",q:"치료군 사건발생률 5%, 대조군 사건발생률 10%일 때 NNT(Number Needed to Treat)는?",opts:["5","10","20","50"],ans:2,exp:"NNT = 1/ARR = 1/(0.10-0.05) = 1/0.05 = 20. 20명을 치료해야 1명에서 사건 예방 가능."},
+{id:109,cat:"건강검진",q:"선별검사에서 진양성(TP) 50명, 위양성(FP) 450명일 때 양성예측도(PPV)는?",opts:["50%","10%","90%","5%"],ans:1,exp:"PPV = TP/(TP+FP) = 50/(50+450) = 50/500 = 10%. 유병률이 낮으면 PPV가 떨어진다."},
+{id:110,cat:"금연/금주",q:"FRAMES 동기면담 기법에서, 환자에게 '음주로 인해 간수치가 올라갔다'고 알려주는 것은 어떤 요소에 해당하는가?",opts:["Feedback","Responsibility","Advice","Empathy"],ans:0,exp:"FRAMES의 F=Feedback: 음주로 인한 건강 영향(간수치 상승 등)에 대한 객관적 피드백을 제공하는 것이다."},
+{id:111,cat:"가정의학총론",q:"환자가 '요즘 짜증이 많이 나요'라고 했을 때, 의사가 '예민해지셨나요?'라고 환자의 말을 그대로 반복하는 면담기법은?",opts:["촉진(Facilitation)","반영(Reflection)","명료화(Clarification)","직면(Confrontation)"],ans:1,exp:"반영(Reflection)은 환자가 한 말의 내용이나 감정을 의사가 다시 되돌려주는 기법으로, 공감을 전달하고 대화를 촉진한다."},
+{id:112,cat:"가정의학총론",q:"외래환자의 약물 순응도를 확인하는 가장 간편한 방법은?",opts:["혈중 약물농도 측정","외래 예약부도 여부 확인","소변 약물대사물 확인","남은 약 개수 세기"],ans:1,exp:"외래 예약부도(appointment non-compliance) 확인은 가장 간편하고 비용이 적게 드는 순응도 평가 방법이다."},
+{id:113,cat:"금연/금주",q:"'오늘이라도 금연하고 싶다'라고 말하는 환자의 금연 행동변화 단계는?",opts:["전숙고기(Precontemplation)","숙고기(Contemplation)","준비기(Preparation)","행동기(Action)"],ans:2,exp:"준비기는 1개월 이내에 행동을 변화시킬 의향이 있는 단계로, 구체적 금연 계획을 세우도록 돕는다."},
+{id:114,cat:"금연/금주",q:"뇌전증 과거력이 있고 심혈관질환 위험이 높은 흡연 환자의 금연약으로 적절한 것은?",opts:["Bupropion","Varenicline","니코틴 패치","Nortriptyline"],ans:1,exp:"Bupropion은 경련 역치를 낮추어 뇌전증 환자에게 금기. Varenicline은 뇌전증에 비교적 안전하며 심혈관 위험도 크지 않다."},
+{id:115,cat:"가정의학총론",q:"일상생활동작(ADL) 중 기능 저하가 가장 먼저 나타나는 항목은?",opts:["식사하기","옷 입기","목욕하기","대소변 조절","이동하기"],ans:2,exp:"목욕하기는 ADL 중 가장 복잡한 동작으로, 기능 저하 시 가장 먼저 장애가 나타난다. (Katz index 순서)"},
+{id:116,cat:"내분비",q:"20세 남자, 다음다뇨, C-peptide 0.1ng/mL, 케톤뇨 양성. 치료는?",opts:["Metformin","Sulfonylurea","인슐린","SGLT2 억제제"],ans:2,exp:"C-peptide가 매우 낮고 케톤뇨 양성 → 제1형 당뇨 → 인슐린 치료가 필수적이다."},
+{id:117,cat:"내분비",q:"70대 당뇨 환자, 체중 증가 우려, 간수치 경미 상승(AST/ALT 50/55). eGFR 정상. 적절한 약제는?",opts:["Pioglitazone","SGLT2 억제제","Sulfonylurea","인슐린"],ans:1,exp:"체중감소 효과 + 간수치 경미 상승 시 사용 가능 + 심혈관 보호 → SGLT2 억제제가 적절하다."},
+{id:118,cat:"내분비",q:"Metformin 복용 중인 당뇨 환자, 과거 췌장염 병력. HbA1c 8.5%로 조절 불량. 추가할 약제는?",opts:["Sitagliptin(DPP-4i)","Empagliflozin(SGLT2i)","Exenatide(GLP-1 RA)","Glimepiride(SU)"],ans:1,exp:"췌장염 병력 → DPP-4i, GLP-1 RA 금기(논쟁 있으나 주의). Empagliflozin(SGLT2i)이 안전한 선택이다."},
+{id:119,cat:"내분비",q:"eGFR 40, AST/ALT 90/100, HbA1c 8.2인 당뇨 환자. 적절한 약제는?",opts:["Metformin","Pioglitazone","Empagliflozin","Glimepiride"],ans:2,exp:"eGFR 40 → Metformin 금기(eGFR<30 절대금기, 30-45 주의). 간수치 상승 → TZD 주의. SGLT2i는 eGFR 20까지 심신보호 목적 사용 가능."},
+{id:120,cat:"내분비",q:"갑상선기능항진증으로 메티마졸 4개월 복용 중. TSH 아직 낮으나 free T4 정상. 다음 조치는?",opts:["메티마졸 증량","메티마졸 유지","메티마졸 중단","방사성요오드 치료"],ans:1,exp:"fT4가 정상 범위에 도달했으면 메티마졸 유지. TSH 정상화는 수개월 더 소요될 수 있다."},
+{id:121,cat:"내분비",q:"갑상선 결절이 발견된 환자, TSH가 감소되어 있다. 다음 검사는?",opts:["FNA","갑상선 스캔(RAIU)","갑상선 초음파","CT"],ans:1,exp:"TSH 감소 → 기능성 결절(자율기능성 결절) 가능성 → 갑상선 스캔으로 열결절(hot nodule) 여부 확인이 우선이다."},
+{id:122,cat:"내분비",q:"TSH 0.01, free T4 정상, 목 전체 종대 소견. 다음 검사는?",opts:["갑상선 항체","Free T3","갑상선 스캔","조직검사"],ans:1,exp:"TSH 억제 + fT4 정상 = T3 thyrotoxicosis 가능성 → free T3 측정이 필요하다."},
+{id:123,cat:"내분비",q:"갑상선 전절제술 후 1일째, 환자가 손가락과 입 주위 저린감을 호소. 가장 먼저 확인할 검사는?",opts:["TSH","Serum calcium","PTH","Neck CT"],ans:1,exp:"갑상선 전절제 후 부갑상선 손상/허혈로 인한 저칼슘혈증 → serum Ca 확인이 최우선이다."},
+{id:124,cat:"내분비",q:"NSCLC 환자, Na 115mEq/L, 혈장삼투압 저하, 소변 Na 상승, 소변 삼투압 상승. 진단은?",opts:["부신기능저하","요붕증","SIADH","일차성 다음증"],ans:2,exp:"악성종양 + 저나트륨 + 저삼투 + 소변Na↑ + 소변삼투압↑ = SIADH (항이뇨호르몬 부적절 분비 증후군)."},
+{id:125,cat:"내분비",q:"무릎 통증으로 관절강 내 스테로이드 주사를 3회 받은 후, 피로감/저혈압/저나트륨. 의심 질환의 확인 검사는?",opts:["24시간 소변 코티솔","Rapid ACTH stimulation test","Dexamethasone 억제검사","혈중 ACTH"],ans:1,exp:"외인성 스테로이드에 의한 부신억제(2차 부신기능저하) 의심 → Rapid ACTH stimulation test로 부신 반응 확인."},
+{id:126,cat:"내분비",q:"당뇨병성 신경병증으로 양발 통증 호소, eGFR 35. 적절한 약제는?",opts:["Duloxetine","Pregabalin","Amitriptyline","Gabapentin"],ans:1,exp:"신기능 저하(eGFR<60) 시 duloxetine 주의 필요. Pregabalin은 용량 조절하여 사용 가능하며 신경병성 통증에 효과적이다."},
+{id:127,cat:"내분비",q:"당뇨병성 말초신경병증, 양발 작열감. 24시간 소변 단백 100mg (정상). 약물 치료는?",opts:["Pregabalin","Gabapentin","Duloxetine","Tramadol"],ans:1,exp:"신기능 정상 + 당뇨신경병증 통증 → gabapentin 또는 pregabalin 모두 1차 약제로 사용 가능하다."},
+{id:128,cat:"내분비",q:"Metformin 장기 복용 + PPI 복용 중인 환자에서 거대적혈모구빈혈 발생 시 의심할 결핍은?",opts:["철분","엽산","비타민 B12 (코발라민)","비타민 B6"],ans:2,exp:"Metformin은 말단 회장에서 B12 흡수를 저해하고, PPI도 B12 흡수를 감소시켜 비타민 B12 결핍을 유발할 수 있다."},
+{id:129,cat:"내분비",q:"비만 치료를 원하는 환자. 두근거림 과거력 있고, 딸이 갑상선 수질암 진단받음. 적절한 비만약은?",opts:["Liraglutide","Phentermine","Orlistat","Naltrexone-bupropion"],ans:2,exp:"갑상선 수질암 가족력 → GLP-1 RA(liraglutide) 금기. 두근거림 → phentermine 주의. Orlistat(지방흡수억제제)가 가장 안전하다."},
+{id:130,cat:"내분비",q:"고지혈증 환자, 경동맥 초음파에서 내막중막두께(IMT) 1.5mm, 잡음(bruit) 청진. 적절한 치료는?",opts:["생활습관 개선만","Ezetimibe","Atorvastatin","Fenofibrate"],ans:2,exp:"경동맥 IMT 증가 + bruit = 죽상경화증 고위험 → 고강도 스타틴(atorvastatin) 치료가 필요하다."},
+{id:131,cat:"내분비",q:"갑상선 결절 2.5cm, K-TIRADS 3 (낮은 의심). 다음 조치는?",opts:["경과관찰","FNA(세침흡인검사)","갑상선 스캔","수술"],ans:1,exp:"K-TIRADS 3 + 크기 ≥1.5cm → FNA 시행 적응증이다."},
+{id:132,cat:"내분비",q:"발열, 전경부 통증(귀로 방사), ESR 상승, RAIU 감소. 치료는?",opts:["메티마졸","NSAID","방사성요오드","레보티록신"],ans:1,exp:"전경부 통증 + ESR↑ + RAIU↓ = 아급성 갑상선염(De Quervain) → NSAID로 증상 조절. 심하면 단기 스테로이드."},
+{id:133,cat:"내분비",q:"임신 1분기(8주)에 갑상선기능항진증 진단. 적절한 항갑상선제는?",opts:["메티마졸(MMI)","PTU(프로필티오우라실)","방사성요오드","레보티록신"],ans:1,exp:"임신 1분기에는 MMI의 기형유발 위험(aplasia cutis, choanal atresia) 때문에 PTU를 사용한다. 2분기부터는 MMI로 전환."},
+{id:134,cat:"내분비",q:"당뇨 환자, 간경화(Child-Pugh B). HbA1c 7.8%. 적절한 경구 혈당강하제는?",opts:["Pioglitazone","Metformin","Linagliptin","Glimepiride"],ans:2,exp:"간경화 → TZD(체액저류/간독성), metformin(유산산증), SU(저혈당) 주의. Linagliptin은 간/신장 대사 의존 낮아 안전하다."},
+{id:135,cat:"내분비",q:"폐경 후 골다공증 여성, 유방암 가족력(모, 언니). 골다공증 치료제로 적절한 것은?",opts:["에스트로겐 보충요법","Raloxifene","Alendronate","Denosumab"],ans:1,exp:"유방암 고위험 → 에스트로겐 금기. Raloxifene(SERM)은 골다공증 치료 + 유방암 위험 감소 효과가 있다."},
+{id:136,cat:"정신과",q:"30년간 항정신병약을 복용한 조현병 환자, 볼을 부풀리고 혀를 반복적으로 내밀며 입을 오물거리는 비자발적 운동. 진단은?",opts:["파킨슨증","급성 근긴장이상","정좌불능(Akathisia)","지연성 운동장애(Tardive dyskinesia)"],ans:3,exp:"장기간 항정신병약 사용 후 구강안면부의 비자발적 반복 운동 = 지연성 운동장애(TD)이다."},
+{id:137,cat:"정신과",q:"양극성장애 환자가 급성 조증 삽화로 내원. 과대망상, 수면 불필요, 다변. 적절한 치료는?",opts:["Fluoxetine","Risperidone","Bupropion","Sertraline"],ans:1,exp:"급성 조증 → 비정형 항정신병약(risperidone, olanzapine 등) 또는 기분조절제(lithium, valproate) 사용."},
+{id:138,cat:"정신과",q:"우울증으로 SSRI 복용 중 성기능장애와 체중 증가로 약을 중단한 환자. 대체 약물은?",opts:["Paroxetine","Bupropion","Mirtazapine","Venlafaxine"],ans:1,exp:"Bupropion은 성기능장애와 체중증가 부작용이 적은 항우울제로, SSRI 부작용 시 좋은 대안이다."},
+{id:139,cat:"정신과",q:"30세 여자, 15분간 갑작스런 흉통, 두근거림, 호흡곤란, 죽을 것 같은 공포감. 심전도/혈액검사 정상. 급성기 치료는?",opts:["Haloperidol IM","Lorazepam IM","Fluoxetine PO","Propranolol PO"],ans:1,exp:"공황발작 급성기 → 벤조디아제핀(lorazepam) IM으로 빠른 증상 조절. 장기 치료는 SSRI."},
+{id:140,cat:"정신과",q:"반복적 실신으로 응급실 방문하는 30대 여성. 의식은 유지되고, 심전도/EEG/뇌영상 모두 정상. 진단은?",opts:["뇌전증","기립성저혈압","전환장애(Conversion disorder)","심인성 비간질발작"],ans:2,exp:"의식 유지 + 모든 검사 정상 + 반복적 실신 = 전환장애(기능신경학적 증상장애). 심리적 갈등이 신체 증상으로 표현된다."},
+{id:141,cat:"정신과",q:"남편 사별 후 울음이 잦고 의욕 저하. 심리 치료 후 5~6개월에 회복. 진단은?",opts:["주요우울장애","적응장애","복합 애도","외상후 스트레스 장애"],ans:1,exp:"스트레스 사건(사별) 후 발생, 6개월 이내 회복 → 적응장애. 주요우울장애와 달리 스트레스원 소실 시 호전된다."},
+{id:142,cat:"정신과",q:"피아니스트, 무대에서 손이 떨리고 심장이 뛰어 연주를 못함. 일상생활엔 문제 없음. 치료는?",opts:["SSRI","Benzodiazepine","Propranolol","CBT 단독"],ans:2,exp:"수행불안(Performance anxiety)에는 수행 전 propranolol(β-blocker)을 투여하여 교감신경 항진 증상을 조절한다."},
+{id:143,cat:"정신과",q:"양극성장애 환자, 동시에 갑상선기능저하증이 있다. 기분조절제로 적절한 것은?",opts:["Lithium","Valproic acid","Carbamazepine","Lamotrigine"],ans:1,exp:"Lithium은 갑상선기능저하를 악화시키므로 금기. Valproic acid가 대안이다. Carbamazepine도 가능하나 약물 상호작용 주의."},
+{id:144,cat:"정신과",q:"코가 비뚤어져 보인다며 반복적으로 성형외과를 방문하지만, 객관적으로 이상 소견 없음. 1차 치료는?",opts:["성형수술","SSRI","항정신병약","벤조디아제핀"],ans:1,exp:"신체이형장애(Body dysmorphic disorder) → SSRI가 1차 치료이다. 수술은 만족도가 낮고 증상이 다른 부위로 전이된다."},
+{id:145,cat:"정신과",q:"6세 남아, 어머니와 떨어질 때 과도한 울음과 배 아픔 호소. 등교 거부. 주말에는 증상 없음. 진단은?",opts:["범불안장애","분리불안장애","학교공포증","적응장애"],ans:1,exp:"양육자와의 분리 시 과도한 불안과 신체 증상 = 분리불안장애. 소아에서 흔하며 등교 거부로 나타날 수 있다."},
+{id:146,cat:"정신과",q:"남편과 심하게 다투다 갑자기 쓰러져 팔다리를 못 움직임. 응급실 도착 후 검사 정상이며, 환자는 증상에 대해 무관심한 태도를 보임. 이 현상은?",opts:["질병불안장애","신체증상장애","전환장애의 la belle indifférence","꾀병(Malingering)"],ans:2,exp:"La belle indifférence(아름다운 무관심)는 전환장애에서 보이는 특징으로, 심각한 신체 증상에 대해 환자가 무관심한 태도를 보인다."},
+{id:147,cat:"정신과",q:"6개월 이상 직장, 건강, 가정 등 다양한 영역에 대해 과도한 걱정을 하며 근긴장, 불면, 안절부절을 호소하는 환자의 진단은?",opts:["공황장애","사회공포증","범불안장애(GAD)","적응장애"],ans:2,exp:"6개월 이상 + 다양한 주제에 대한 과도한 걱정 + 근긴장/수면장애 = 범불안장애(Generalized Anxiety Disorder)."},
+{id:148,cat:"정신과",q:"2일 전 발생한 편측 안면마비, 이마 주름 불가능, 미각 감소. 이통 없음. 치료는?",opts:["경과관찰","Prednisone","Acyclovir 단독","Carbamazepine"],ans:1,exp:"벨마비 발병 72시간(3일) 이내 → prednisone 투여가 회복률을 높인다. Ramsay-Hunt는 이통+수포+항바이러스제 추가."},
+{id:149,cat:"정신과",q:"파킨슨 증상(서동증, 근강직)과 인지기능 저하가 동시에 진행. 시각 환각 동반. 금기인 약물은?",opts:["Quetiapine","Haloperidol","Donepezil","Rivastigmine"],ans:1,exp:"루이소체 치매 → haloperidol 등 전형적 항정신병약은 신경이완제 과민(neuroleptic sensitivity)으로 금기. Quetiapine이 안전한 선택이다."},
+{id:150,cat:"정신과",q:"사회적 상황에서 과도한 불안을 보이는 환자가 친밀한 관계도 회피. 스스로를 부적절하다 느낌. 동반 인격장애는?",opts:["의존성 인격장애","경계성 인격장애","회피성 인격장애","조현형 인격장애"],ans:2,exp:"사회공포증과 잘 동반되는 것은 회피성 인격장애(Avoidant PD)로, 거절/비판에 대한 과민과 사회적 회피가 특징이다."},
+{id:151,cat:"정신과",q:"BMI 35, 목둘레 43cm 남자, 낮 졸림과 아침 두통. 배우자가 코골이와 수면 중 호흡 멈춤을 목격. 확진 검사는?",opts:["흉부 CT","동맥혈가스분석","수면다원검사(Polysomnography)","뇌파검사"],ans:2,exp:"비만 + 주간 졸음 + 코골이 + 무호흡 목격 = 폐쇄성 수면무호흡 의심 → 수면다원검사(PSG)로 확진한다."},
+{id:152,cat:"근골격",q:"60대 남자, 요통이 보행 시 양측 하지로 방사. 앉으면 호전. 허리 신전 시 악화. 적절한 운동은?",opts:["맥켄지 신전운동","윌리엄스 굴곡운동","플랭크 운동","브릿지 운동"],ans:1,exp:"척추관 협착증 → 신전 시 악화, 굴곡 시 호전 → 윌리엄스 굴곡운동이 적절하다. 추간판탈출은 맥켄지 신전운동."},
+{id:153,cat:"근골격",q:"50세 여자, 전신 광범위 통증 3개월. 18개 압통점 중 12개 양성. ESR/CRP 정상. 치료는?",opts:["Prednisolone","Amitriptyline","Methotrexate","Allopurinol"],ans:1,exp:"전신통 + 다발성 압통점 + 염증수치 정상 = 섬유근통(Fibromyalgia) → amitriptyline, pregabalin, duloxetine 등이 1차 약제."},
+{id:154,cat:"근골격",q:"65세 여자, 양측 어깨·골반대 근육통, 1시간 이상 조조강직. ESR 65mm/hr. 근력 정상. 치료는?",opts:["Methotrexate","Prednisone 15-20mg","NSAIDs","물리치료"],ans:1,exp:"근위부 근육통 + 조조강직 + ESR↑ + 근력 정상 = 류마티스 다발근통(PMR) → 저용량 prednisone(15-20mg)이 극적으로 효과적이다."},
+{id:155,cat:"정신과",q:"폐쇄성 수면무호흡증이 확진된 중등도-중증 환자의 1차 치료는?",opts:["체중감량","구강내 장치","CPAP(지속적 양압환기)","수술(UPPP)"],ans:2,exp:"중등도-중증 폐쇄성 수면무호흡증의 1차 치료는 CPAP이다. 체중감량은 보조적 치료."},
+{id:156,cat:"정신과",q:"편측 안면 전기충격 같은 통증이 식사/세수/양치 시 수초간 발작적으로 발생. 1차 치료약은?",opts:["Gabapentin","Carbamazepine","Amitriptyline","Pregabalin"],ans:1,exp:"삼차신경통(Trigeminal neuralgia) → carbamazepine이 1차 치료약이다."},
+{id:157,cat:"정신과",q:"와파린 복용 중인 80세 남자, 갑자기 발음 어눌해지고 한쪽 팔 힘 빠짐 발생 1시간. 가장 먼저 시행할 검사는?",opts:["Brain MRI","Brain CT","경동맥 초음파","심전도"],ans:1,exp:"항응고제 복용 + 급성 신경학적 결손 → 출혈성 뇌졸중 배제 우선 → 비조영 Brain CT가 가장 먼저 시행되어야 한다."},
+{id:158,cat:"정신과",q:"조현병 환자의 환청, 피해망상 등 양성증상 치료에 적절한 약물 계열은?",opts:["SSRI","TCA","비정형 항정신병약","벤조디아제핀"],ans:2,exp:"조현병 양성증상 → 비정형 항정신병약(risperidone, olanzapine, quetiapine 등)이 1차 치료이다."},
+{id:159,cat:"정신과",q:"알코올 금단 2일째, 전신 떨림/발한/불안에 이어 환시와 지남력 장애 발생. 치료는?",opts:["Haloperidol","Lorazepam","Phenytoin","Naltrexone"],ans:1,exp:"알코올 금단 섬망(Delirium tremens) → 벤조디아제핀(lorazepam, diazepam)이 1차 치료이다. 경련 예방 효과도 있다."},
+{id:160,cat:"정신과",q:"긴장형 두통의 예방약으로 적절한 것은?",opts:["Sumatriptan","Amitriptyline","Ergotamine","Indomethacin"],ans:1,exp:"만성 긴장형 두통 예방 → amitriptyline(TCA)이 1차 예방약이다."},
+{id:161,cat:"호흡기",q:"65세 남자, 20년 흡연력. FEV1/FVC 58%, 기관지확장제 투여 후에도 FEV1/FVC 60%. 진단은?",opts:["천식","COPD","폐섬유증","기관지확장증"],ans:1,exp:"FEV1/FVC <0.7 + 기관지확장제 후 비가역적 → COPD 진단. 흡연 병력이 주요 위험인자이다."},
+{id:162,cat:"호흡기",q:"25세 여자, 야간 기침/천명. FEV1/FVC 65%. 기관지확장제 흡입 후 FEV1 15% 증가. 이 결과의 의미는?",opts:["COPD 확진","기관지확장제 반응 양성 → 천식 시사","폐섬유증","정상 소견"],ans:1,exp:"기관지확장제 흡입 후 FEV1 ≥12% 및 ≥200mL 증가 = 기관지확장제 반응 양성 → 천식을 강력히 시사한다."},
+{id:163,cat:"호흡기",q:"천식 환자 초기 유지치료(GINA Step 2)로 적절한 것은?",opts:["SABA 단독","저용량 ICS + Formoterol","고용량 ICS","경구 스테로이드"],ans:1,exp:"GINA 2024 기준 Step 1-2 선호 치료: 저용량 ICS-formoterol 필요 시 흡입(MART). 정기 SABA 단독은 더 이상 권장되지 않는다."},
+{id:164,cat:"호흡기",q:"COPD 급성악화로 내원. 의식 명료, pH 7.30, PaCO2 55mmHg. 산소 투여 중. 다음 치료는?",opts:["기관삽관 및 기계환기","비침습적 양압환기(NIPPV)","고유량 비강 캐뉼라","경과관찰"],ans:1,exp:"COPD 급성악화 + pH 7.25-7.35 + 의식 유지 → NIPPV(비침습적 양압환기)가 적응증이다. pH <7.25 또는 의식 저하 시 기관삽관."},
+{id:165,cat:"호흡기",q:"대량객혈(1시간 내 200mL) 환자. 기도 확보 후에도 출혈 지속. 다음 조치는?",opts:["흉부 CT","기관지동맥색전술","기관지내시경","VATS"],ans:1,exp:"대량객혈에서 기도 확보 후에도 출혈 지속 → 기관지동맥색전술(BAE)이 비수술적 지혈의 1차 치료이다."},
+{id:166,cat:"호흡기",q:"30년간 건설업 종사자, 호흡곤란 점진 악화. BAL(기관지폐포세척)에서 asbestos body 확인. 진단은?",opts:["규폐증","석면폐증","탄광부진폐증","베릴륨폐증"],ans:1,exp:"건설업 + asbestos body = 석면폐증. 흉막판(pleural plaque)이 특징적이며 악성중피종 위험이 증가한다."},
+{id:167,cat:"호흡기",q:"ACE 억제제 복용 중 마른 기침 발생. 환자에게 천식 병력도 있음. 대체 약물은?",opts:["다른 ACEi로 변경","Losartan(ARB)","CCB","BB"],ans:1,exp:"ACEi 기침은 class effect(모든 ACEi에서 발생 가능) → ARB(losartan)로 변경. 천식 병력 → BB 금기."},
+{id:168,cat:"호흡기",q:"5개월 영아, 발열/기침/호흡곤란. X-ray에서 폐과팽창(hyperinflation). 가장 흔한 원인은?",opts:["Mycoplasma","RSV","Influenza","Adenovirus"],ans:1,exp:"영아 + 폐과팽창 + 호흡곤란 = 급성 세기관지염 → RSV(respiratory syncytial virus)가 가장 흔한 원인이다."},
+{id:169,cat:"호흡기",q:"2세 남아, 고열/침 흘림/흡기성 천명/삼킴 곤란. 앞으로 기대어 앉으려 함. 가장 먼저 할 검사는?",opts:["인후 시진","목 측면 X-ray","혈액검사","CT"],ans:1,exp:"급성 후두개염(epiglottitis) 의심 → 무리한 인후 시진은 기도 폐쇄 유발 가능 → 목 측면 X-ray(thumbprint sign)로 확인."},
+{id:170,cat:"호흡기",q:"야간 발한, 체중감소, 2주 이상 기침, CXR에서 상엽 공동(cavity) 병변. 가장 먼저 시행할 검사는?",opts:["흉부 CT","객담 결핵균 도말/배양","IGRA","TST"],ans:1,exp:"활동성 폐결핵 의심 → 객담 AFB 도말/배양이 가장 중요한 확진 검사이다. 3회 시행 권장."},
+{id:171,cat:"호흡기",q:"반복적 기침/객담, CT에서 signet ring sign(기관지 확장). 무증상. 진단은?",opts:["COPD","기관지확장증(Bronchiectasis)","폐섬유증","폐암"],ans:1,exp:"Signet ring sign = 기관지 내경이 동반 폐동맥보다 큰 소견으로 기관지확장증의 CT 특징적 소견이다."},
+{id:172,cat:"호흡기",q:"광산에서 20년 근무한 50세 남자. CXR에서 양측 폐문 림프절 비대, 달걀껍질 석회화(eggshell calcification). 진단은?",opts:["석면폐증","규폐증(Silicosis)","사르코이도시스","결핵"],ans:1,exp:"광산/석재 + 달걀껍질 석회화(eggshell calcification) = 규폐증. PMF(진행성 괴상섬유화)로 진행할 수 있다."},
+{id:173,cat:"호흡기",q:"결핵 치료 시 INH(이소니아지드) 사용 시 예방적으로 동반 투여하는 비타민은?",opts:["비타민 A","비타민 B6(pyridoxine)","비타민 C","비타민 D"],ans:1,exp:"INH는 pyridoxine(비타민 B6) 대사를 방해하여 말초신경병증을 유발할 수 있다. 예방적으로 pyridoxine을 병용한다."},
+{id:174,cat:"감염",q:"인플루엔자 확진된 고위험군(65세 이상) 환자. 발병 48시간 이내. 치료는?",opts:["Amantadine","Oseltamivir","Ribavirin","Acyclovir"],ans:1,exp:"인플루엔자 고위험군 + 48시간 이내 → oseltamivir(타미플루) 항바이러스 치료. Amantadine은 내성 문제로 권장되지 않는다."},
+{id:175,cat:"호흡기",q:"폐렴 CURB-65 점수 2점인 환자의 치료 장소는?",opts:["외래 치료","입원 치료","중환자실","호스피스"],ans:1,exp:"CURB-65 2점 → 입원 치료 고려. 0-1점 외래, 3점 이상 중환자실 고려."},
+{id:176,cat:"소화기",q:"십이지장궤양 H.pylori 제균 치료 완료 후, 제균 성공 여부를 확인하는 가장 적절한 검사는?",opts:["CLO test","요소호기검사(UBT)","혈청 H.pylori IgG","대변 H.pylori 항원"],ans:1,exp:"십이지장궤양 제균 확인 → 비침습적 검사인 요소호기검사(UBT)가 적절. 치료 종료 4주 후 시행. 위궤양은 내시경 추적이 필요."},
+{id:177,cat:"소화기",q:"H.pylori 양성 위궤양의 1차 제균요법은?",opts:["PPI + Amoxicillin + Clarithromycin","PPI + Metronidazole + Levofloxacin","PPI + Bismuth + Tetracycline + Metronidazole","PPI 단독 8주"],ans:0,exp:"H.pylori 1차 제균 3제요법: PPI + Amoxicillin + Clarithromycin 14일. Clarithromycin 내성률 높은 지역에서는 비스무스 4제 고려."},
+{id:178,cat:"소화기",q:"고령 여성, 물을 적게 마시고 약을 바로 누워서 복용하던 중 흉골 뒤 통증과 연하통 발생. 가장 가능한 진단은?",opts:["역류성 식도염","약인성 식도 궤양","식도암","호산구 식도염"],ans:1,exp:"물 적게 + 바로 누워서 약 복용 → 약제가 식도에 체류 → 약인성 식도 궤양/식도염. 테트라사이클린, 비스포스포네이트, NSAID 등이 원인."},
+{id:179,cat:"소화기",q:"AAA 수술 후 심방세동 있는 환자, 갑작스런 복통, 혈변, LDH/CK 상승. 다음 검사는?",opts:["복부 초음파","CT angiography","대장내시경","단순 복부 X-ray"],ans:1,exp:"AAA 수술 + Afib + 급성 복통 + 혈변 + LDH/CK↑ = 장간막 허혈 의심 → CT angiography로 혈관 평가가 가장 적절하다."},
+{id:180,cat:"소화기",q:"20대 남자, 혈변/점액변/뒤무직(tenesmus). 대장내시경에서 직장부터 시작하는 연속적 병변, 점막 충혈/궤양. p-ANCA 양성. 진단은?",opts:["크론병","궤양성 대장염","감염성 장염","허혈성 장염"],ans:1,exp:"직장부터 시작하는 연속 병변 + 점막에 국한 + p-ANCA(+) + 뒤무직 = 궤양성 대장염. 크론병은 비연속/전층 침범."},
+{id:181,cat:"소화기",q:"위절제술 후 식사 시작 15분 후 복부 팽만, 구역, 발한, 현기증 발생. 치료는?",opts:["재수술","소량씩 자주 식사","Octreotide","PPI"],ans:1,exp:"식사 후 15-30분 내 증상 = 조기 덤핑증후군 → 소량씩 나눠 먹기, 탄수화물 제한, 식사 중 수분 섭취 줄이기."},
+{id:182,cat:"소화기",q:"30대 여성, 반복적 복통/설사(하루 3-4회), 배변 후 호전. 체중감소 없음. 혈액검사/대장내시경 정상. 설사형 치료약은?",opts:["Loperamide","Alosetron","Metoclopramide","Lactulose"],ans:1,exp:"IBS-D(설사형 과민성장증후군) 여성 → alosetron(5-HT3 길항제) 사용 가능. 국내에서는 ramosetron이 더 많이 사용된다."},
+{id:183,cat:"감염",q:"민물 생선회를 즐겨 먹는 50대 남자. 초음파에서 담관 확장. 대변검사에서 충란 확인. 치료는?",opts:["Albendazole","Praziquantel","Metronidazole","Ivermectin"],ans:1,exp:"민물고기 + 담관확장 + 충란 = 간흡충증(Clonorchis sinensis) → praziquantel이 1차 치료약이다."},
+{id:184,cat:"소화기",q:"상부위장관 내시경에서 십이지장 구부와 공장에 다발성 궤양. 재발이 반복됨. 의심 질환 확인을 위한 검사는?",opts:["Serum gastrin 측정","H.pylori 검사","복부 CT","Secretin 자극검사"],ans:0,exp:"십이지장 구부 넘어 다발성/재발성 궤양 = 졸링거-엘리슨 증후군(가스트린종) 의심 → 공복 serum gastrin 측정이 우선이다."},
+{id:185,cat:"응급",q:"50대 남자, 갑작스런 상복부 통증, 복부 강직(board-like rigidity). 단순 복부 X-ray에서 free air. 치료는?",opts:["PPI 정주","H.pylori 제균","응급 수술","보존적 치료"],ans:2,exp:"Free air(유리 가스) = 소화관 천공 → 응급 개복술/복강경 수술이 필요하다."},
+{id:186,cat:"소화기",q:"만성 복통, CT에서 췌장 석회화. 지방변 동반. 치료는?",opts:["ERCP","경구 췌장효소 보충제","췌장 절제술","스테로이드"],ans:1,exp:"만성췌장염 + CT 석회화 + 지방변(외분비 기능부전) → 경구 췌장효소 보충제(pancreatic enzyme replacement)로 지방변 개선."},
+{id:187,cat:"소화기",q:"위내시경에서 2cm 점막내 분화형 선암, 궤양 없음. 적절한 치료는?",opts:["위전절제술","위아전절제술","내시경 점막하 박리술(ESD)","항암화학요법"],ans:2,exp:"조기위암 ESD 적응증: 점막내암 + 분화형 + ≤2cm + 궤양(-) → 내시경 점막하 박리술로 완치 가능."},
+{id:188,cat:"소화기",q:"간경화 환자, CT에서 2.5cm 간 종괴가 동맥기 조영증강 후 문맥기에 씻겨나감(washout). 진단은?",opts:["간혈관종","간선종","간세포암(HCC)","전이성 간암"],ans:2,exp:"간경화 + 동맥기 조영증강 + 문맥기/지연기 washout = 전형적 간세포암(HCC) 영상 패턴. 조직검사 없이 진단 가능."},
+{id:189,cat:"소화기",q:"초음파에서 담낭 용종 1.5cm, 그림자(shadowing) 없음. 다음 조치는?",opts:["6개월 후 추적 초음파","UDCA 처방","담낭절제술","ERCP"],ans:2,exp:"담낭 용종 1cm 이상 + shadowing 없음(콜레스테롤 용종이 아닌 선종 가능성) → 담낭절제술 적응증이다."},
+{id:190,cat:"소화기",q:"4도 내치핵(항상 탈출, 손으로 정복 불가). 치료는?",opts:["좌욕 및 식이요법","고무밴드결찰","수술적 치핵절제술","경화요법"],ans:2,exp:"4도 치핵(지속 탈출, 정복 불가) → 수술적 치핵절제술(hemorrhoidectomy)이 적응증이다."},
+{id:191,cat:"순환기",q:"하벽 심근경색에서 ST 분절 상승이 관찰되는 심전도 유도는?",opts:["V1-V4","V5-V6","I, aVL","II, III, aVF"],ans:3,exp:"하벽(inferior wall) MI → II, III, aVF에서 ST elevation. 우관상동맥(RCA) 폐색이 가장 흔한 원인."},
+{id:192,cat:"순환기",q:"60세 남자, 등쪽으로 찢어지는 듯한 급성 흉통. 양팔 혈압 30mmHg 차이. 대동맥 확장 소견. 확진 검사는?",opts:["심전도","심초음파","CT angiography","관상동맥조영술"],ans:2,exp:"찢어지는 흉통 + 양팔 혈압 차이 = 급성 대동맥 박리 의심 → CT angiography가 확진의 표준 검사이다."},
+{id:193,cat:"순환기",q:"호흡곤란, 양측 하지 부종으로 내원한 환자. BNP(B-type Natriuretic Peptide) 상승의 의미는?",opts:["폐색전증 확진","심부전 진단 보조","신부전 확진","간경화 악화"],ans:1,exp:"BNP/NT-proBNP 상승은 심부전의 진단 보조 및 중증도 평가에 유용하다. 높을수록 심부전 가능성 높음."},
+{id:194,cat:"순환기",q:"PSVT 환자, 혈압 80/50mmHg, HR 210bpm으로 혈역학적 불안정. 다음 치료는?",opts:["Adenosine IV","Valsalva 수기","DC cardioversion(동기화 전기충격)","Verapamil IV"],ans:2,exp:"혈역학적으로 불안정한 빈맥(저혈압, 의식 변화 등) → 즉시 동기화 DC cardioversion이 원칙이다."},
+{id:195,cat:"순환기",q:"심근경색 2주 후 흉통 재발. 앞으로 숙이면 호전. ECG에서 미만성 ST 상승(saddle-shaped). 치료는?",opts:["PCI","NSAID/Aspirin","혈전용해제","CABG"],ans:1,exp:"MI 후 심낭염(Dressler syndrome) → 미만성 saddle-shaped ST elevation + 앞으로 숙이면 호전 → NSAID 또는 고용량 aspirin."},
+{id:196,cat:"순환기",q:"대퇴골 골절로 입원 중이던 환자, 갑자기 호흡곤란/빈맥/흉통 발생. D-dimer 상승. 확진 검사는?",opts:["심전도","흉부 X-ray","CT 폐동맥 조영술(CTPA)","심초음파"],ans:2,exp:"수술/부동 후 급성 호흡곤란 + D-dimer↑ = 폐색전증 의심 → CT 폐동맥 조영술(CTPA)로 확진한다."},
+{id:197,cat:"순환기",q:"60세 남자, 보행 시 종아리 통증으로 걸음을 멈추면 호전(간헐적 파행). ABI(발목-상완 혈압비) 0.6. 진단은?",opts:["심부정맥혈전증","말초동맥질환(PAD)","정맥부전","척추관 협착증"],ans:1,exp:"간헐적 파행(exertional calf pain, rest relief) + ABI <0.9 = 말초동맥질환(PAD). ABI 0.6은 중등도."},
+{id:198,cat:"순환기",q:"30세 남자 흡연자, 손가락/발가락 통증과 변색. 말초 맥박 소실. 진단을 위한 검사는?",opts:["심초음파","혈관 조영술","정맥 초음파","D-dimer"],ans:1,exp:"젊은 남성 + 심한 흡연 + 사지 말단 허혈 = 버거씨병(Buerger's disease, TAO) 의심 → 혈관 조영술(corkscrew appearance 확인)."},
+{id:199,cat:"순환기",q:"고혈압 환자, ARB + CCB 조절 안 됨(150/95mmHg). 3제 병용으로 추가할 약은?",opts:["BB","Thiazide 유사 이뇨제","Loop 이뇨제","α-blocker"],ans:1,exp:"RAS 차단제(ARB) + CCB 2제 불충분 → 3제 병용 시 thiazide/thiazide-like 이뇨제 추가가 가이드라인 권고이다."},
+{id:200,cat:"순환기",q:"비판막성 심방세동 환자에서 CHA₂DS₂-VASc 2점 이상일 때 권장되는 항응고제 계열은?",opts:["Aspirin","Clopidogrel","DOAC (Direct Oral Anticoagulant)","Heparin"],ans:2,exp:"비판막성 Afib + CHA₂DS₂-VASc ≥2 → DOAC(rivaroxaban, apixaban, edoxaban, dabigatran)이 warfarin보다 선호된다."},
+{id:201,cat:"피부과",q:"10대 남자, 몸통에 타원형 분홍색 반(herald patch) 발생 후 2주 뒤 몸통 전체로 크리스마스 트리 패턴 발진 확산. 치료는?",opts:["경구 항진균제","경구 스테로이드","경과관찰(자연 소실)","광선치료"],ans:2,exp:"Herald patch + 크리스마스 트리 분포 = 장미색비강진(Pityriasis rosea). 자연 소실(6-8주)되므로 경과관찰이 원칙."},
+{id:202,cat:"피부과",q:"목 뒤에 3년간 반복적으로 긁어서 피부가 두꺼워지고 태선화(lichenification)된 병변. 치료는?",opts:["항진균제","국소 스테로이드 + 긁지 않기","항히스타민 단독","광선치료"],ans:1,exp:"만성 단순 태선(Lichen simplex chronicus) = 반복적 소양/긁기로 인한 태선화 → 국소 스테로이드 + 긁는 습관 교정."},
+{id:203,cat:"피부과",q:"여름에 악화되는 갈색 반점이 상체에 다발성으로 분포. KOH에서 스파게티와 미트볼 소견. 경구 치료는?",opts:["Terbinafine","Itraconazole","Griseofulvin","Fluconazole"],ans:1,exp:"어루러기(Tinea versicolor) → Malassezia furfur 감염. 경구 itraconazole 또는 fluconazole. KOH: spaghetti and meatball appearance."},
+{id:204,cat:"피부과",q:"5세 남아, 두피에 원형 탈모반 + 인설 + 후두부 림프절 종대. KOH(+). 치료는?",opts:["국소 항진균제","Griseofulvin 경구","Terbinafine 크림","국소 스테로이드"],ans:1,exp:"두부 백선(Tinea capitis) → 국소 항진균제로는 모낭까지 침투 불가 → 경구 griseofulvin이 1차 치료. Terbinafine도 대안."},
+{id:205,cat:"피부과",q:"30대 여성, 양측 볼에 갈색 색소침착, 여름에 악화. 1차 치료는?",opts:["레이저 치료","Hydroquinone 도포","경구 비타민 C","화학박피"],ans:1,exp:"기미(Melasma) → 자외선 차단 + hydroquinone 도포(표백제)가 1차 치료. 레이저는 악화 위험이 있어 신중히 결정."},
+{id:206,cat:"피부과",q:"수영장 다니는 6세 소아, 몸통에 중심 함몰이 있는 2-3mm 구진 다수. 치료는?",opts:["Acyclovir","소파술(curettage)","경구 항생제","경과관찰 단독"],ans:1,exp:"전염성연속종(Molluscum contagiosum) → MCV(Molluscum Contagiosum Virus). 소파술(curettage)이 가장 흔한 치료법."},
+{id:207,cat:"피부과",q:"양측 하지에 동전 모양(coin-shaped)의 습진성 병변. 경계가 명확하고 소양감 동반. 진단은?",opts:["접촉피부염","아토피피부염","동전습진(Nummular eczema)","건선"],ans:2,exp:"동전 모양 경계 명확한 습진성 병변 = 동전습진(Nummular eczema). 보습제 + 국소 스테로이드 치료."},
+{id:208,cat:"피부과",q:"서혜부에 적갈색 반이 대칭적으로 분포. 우드등(Wood's lamp)에서 산호색(coral red) 형광. 진단은?",opts:["칸디다 감염","홍색음선(Erythrasma)","고부백선","접촉피부염"],ans:1,exp:"서혜부/겨드랑이 + 우드등 산호색 형광 = 홍색음선(Erythrasma). Corynebacterium minutissimum 감염. Erythromycin 도포/경구 치료."},
+{id:209,cat:"피부과",q:"20대 남자, 구순 헤르페스 재발 후 수일 뒤 손등/팔에 과녁 모양(target lesion) 발진. 재발 방지 치료는?",opts:["경구 스테로이드","Valacyclovir","국소 항진균제","Azathioprine"],ans:1,exp:"HSV 관련 다형홍반(Erythema multiforme) 재발 → HSV 재발 억제를 위한 valacyclovir 예방적 투여가 재발을 줄인다."},
+{id:210,cat:"피부과",q:"손등에 반복되는 습진. 직업력상 미용사. 원인 물질을 확인하기 위한 검사는?",opts:["피부단자검사(Prick test)","첩포검사(Patch test)","KOH 검사","피부생검"],ans:1,exp:"직업성/접촉 피부염 원인 물질 확인 → 첩포검사(Patch test, 지연형 과민 검사)가 표준 검사이다."},
+{id:211,cat:"근골격",q:"C7 신경근병증에서 나타나는 소견이 아닌 것은?",opts:["가운데손가락 감각 저하","삼두근 반사 감소","이두근 반사 감소","손목/손가락 신전력 약화"],ans:2,exp:"C7: 가운데손가락 감각↓ + 삼두근반사↓ + 손목/손가락 신전↓. 이두근 반사 감소는 C5-C6 신경근병증 소견이다."},
+{id:212,cat:"근골격",q:"L4 신경근병증에서 약화되는 근력과 감소되는 반사는?",opts:["족배굴곡 약화 / 아킬레스건반사↓","무릎 신전력 약화 / 슬개건반사↓","엄지발가락 신전 약화 / 반사 변화 없음","족저굴곡 약화 / 아킬레스건반사↓"],ans:1,exp:"L4: 대퇴사두근(무릎 신전)↓ + 슬개건반사↓ + 하퇴 내측 감각↓."},
+{id:213,cat:"근골격",q:"L5 신경근병증의 특징적 소견은?",opts:["아킬레스건반사 소실","족배굴곡 및 엄지발가락 신전력 약화","무릎 신전력 약화","대퇴 전면 감각 저하"],ans:1,exp:"L5: 족배굴곡↓ + 엄지발가락 신전(EHL)↓ + 발등 감각↓. 뚜렷한 반사 변화가 없을 수 있다(tibialis posterior 반사만 해당)."},
+{id:214,cat:"근골격",q:"요통 환자, L-spine 측면 X-ray에서 L5가 S1 위에서 앞으로 미끄러진 소견. 진단은?",opts:["추간판탈출증","척추관 협착증","척추전방전위증(Spondylolisthesis)","강직성 척추염"],ans:2,exp:"척추체가 하위 척추 위에서 전방으로 활주 = 척추전방전위증. Meyerding 분류로 중증도 평가."},
+{id:215,cat:"근골격",q:"60세 여자, DIP/PIP에 골성 결절(Heberden/Bouchard's node). 사용 시 통증 악화, 휴식 시 호전. 조조강직 15분. 진단은?",opts:["류마티스 관절염","골관절염(Osteoarthritis)","통풍","건선 관절염"],ans:1,exp:"DIP 결절(Heberden) + PIP 결절(Bouchard) + 사용 시 악화 + 조조강직 <30분 = 골관절염(OA)."},
+{id:216,cat:"근골격",q:"넘어지며 손을 짚은 20대 남자. Snuffbox(해부학적 코담배갑) 압통. X-ray 정상. 2주 후 재촬영에서 주상골 골절선 확인. 장기 치료는?",opts:["보존적 석고 고정","조기 수술(내고정)","물리치료","경과관찰"],ans:1,exp:"주상골 골절은 혈류 불량으로 무혈성 괴사(AVN) 위험이 높다. 전위 골절이나 지연 진단 시 골이식/내고정이 필요하다."},
+{id:217,cat:"근골격",q:"30대 여자, 손목 등쪽에 1cm 크기 낭성 종물. 물렁물렁하고 약간 불편. 진단 및 치료는?",opts:["결절종(Ganglion cyst) → 보존적 치료/경과관찰","류마티스 결절 → MTX","통풍 결절 → 알로퓨리놀","건초거대세포종 → 절제"],ans:0,exp:"손목 등쪽의 낭성 종물 = 결절종(Ganglion cyst). 대부분 무해하며 보존적 치료. 불편하면 흡인/절제 가능."},
+{id:218,cat:"근골격",q:"급성 통풍 발작 환자, AST/ALT 120/130, eGFR 40. 급성기 치료로 적절한 것은?",opts:["Colchicine 고용량","NSAID","Prednisolone","Allopurinol"],ans:2,exp:"급성 통풍 + 간수치↑(NSAID 주의) + 신기능↓(NSAID, colchicine 주의) → prednisolone(경구 스테로이드)이 안전한 선택이다."},
+{id:219,cat:"근골격",q:"통풍 만성기, 심혈관질환 동반. 요산 저하제로 적절한 것은?",opts:["Allopurinol","Febuxostat","Benzbromarone","Probenecid"],ans:1,exp:"심혈관 동반 통풍 만성기 → febuxostat. 다만 CARES 연구 논쟁이 있으나, 신기능 저하 시 allopurinol보다 선호되는 경우가 있다."},
+{id:220,cat:"근골격",q:"3세 소아, 보호자가 팔을 잡아 끌어올린 후 팔을 사용하지 않음. 팔꿈치 부위 약간 굴곡 위치. 정복 방법은?",opts:["팔꿈치 과신전","팔꿈치 굴곡 + 전완 회외(supination)","견인 정복","수술"],ans:1,exp:"Pulled elbow(요골두 아탈구) → 팔꿈치 굴곡 + 전완 회외(supination) 또는 과회전(hyperpronation)으로 정복. 'click' 느껴지면 성공."},
+{id:221,cat:"산부인과",q:"임신 27주, 조기 양막파수 확인. 태아 심박 정상, 감염 징후 없음. 가장 중요한 처치는?",opts:["즉시 제왕절개","Betamethasone(폐성숙 촉진제)","옥시토신 유도분만","경과관찰만"],ans:1,exp:"34주 미만 조기 양막파수 → 태아 폐성숙을 위한 betamethasone(또는 dexamethasone) 투여가 핵심. 감염 감시 병행."},
+{id:222,cat:"감염",q:"임산부가 쯔쯔가무시병(Scrub typhus)으로 진단됨. 적절한 항생제는?",opts:["Doxycycline","Azithromycin","Chloramphenicol","Ciprofloxacin"],ans:1,exp:"쯔쯔가무시 1차 치료는 doxycycline이나, 임산부에게는 금기(태아 치아/뼈 영향) → azithromycin이 안전한 대안이다."},
+{id:223,cat:"산부인과",q:"무방비 성관계 12시간 경과. 사후피임을 원함. 72시간 이내 가장 적절한 방법은?",opts:["구리 IUD 삽입","Levonorgestrel 경구","Mifepristone","Ulipristal acetate"],ans:1,exp:"72시간 이내 사후피임 → levonorgestrel(1.5mg 단회 또는 0.75mg 2회) 경구가 가장 흔히 사용된다."},
+{id:224,cat:"산부인과",q:"무방비 성관계 4일(96시간) 경과. 가장 효과적인 사후피임법은?",opts:["Levonorgestrel","에스트로겐-프로게스틴 병합","구리 IUD 삽입","경과관찰"],ans:2,exp:"5일(120시간) 이내까지 가장 효과적인 사후피임법 = 구리 IUD 삽입 (실패율 <0.1%). Levonorgestrel은 72시간 이후 효과↓."},
+{id:225,cat:"산부인과",q:"임신 8주, 풍진(rubella) 환자와 접촉. 풍진 항체 없음. 다음 조치는?",opts:["즉시 MMR 접종","즉시 면역글로불린","2주 뒤 풍진 IgM/IgG 항체 재검","Acyclovir 투여"],ans:2,exp:"임산부에게 MMR(생백신)은 금기. 풍진 항체 없는 상태에서 접촉 → 2주 뒤 항체 검사로 감염 여부 확인이 우선."},
+{id:226,cat:"산부인과",q:"임신 32주, 태아 예상 체중이 10 백분위수 미만. 제대동맥 도플러 정상. 추적 계획은?",opts:["즉시 분만","1주마다 초음파","2-3주마다 초음파 추적","4주마다 초음파"],ans:2,exp:"태아 성장 제한(FGR) + 제대동맥 도플러 정상 → 2-3주마다 초음파로 성장 추적 관찰. 도플러 이상 시 더 자주 추적."},
+{id:227,cat:"산부인과",q:"임산부, 임신 중 반복 요로감염(UTI) 예방을 위한 약제는?",opts:["Ciprofloxacin","Nitrofurantoin","Doxycycline","TMP-SMX"],ans:1,exp:"임산부 반복 UTI 예방 → nitrofurantoin 또는 cephalexin이 안전하다. Fluoroquinolone, TMP-SMX(1분기), doxycycline은 금기."},
+{id:228,cat:"산부인과",q:"6주 무월경, 하복부 통증, 질출혈. β-hCG 양성이나 자궁 내 임신낭 미확인. 부속기에 종괴. 의심 진단은?",opts:["불완전유산","절박유산","자궁외임신(Ectopic pregnancy)","포상기태"],ans:2,exp:"β-hCG(+) + 자궁 내 임신낭 미확인 + 부속기 종괴 = 자궁외임신 의심. 확인 후 methotrexate 또는 수술 치료."},
+{id:229,cat:"산부인과",q:"임산부에게 Tdap(파상풍-디프테리아-백일해) 접종 권장 시기는?",opts:["임신 전","임신 12-16주","임신 27-36주","출산 직후"],ans:2,exp:"임산부 Tdap → 27-36주(3분기 초)에 접종하여 태아에게 백일해 항체를 전달한다."},
+{id:230,cat:"소아과",q:"2세 소아, 개 짖는 기침(barking cough), 흡기성 천명, 미열. 1차 치료는?",opts:["항생제","경구 Dexamethasone","Nebulized albuterol","기관삽관"],ans:1,exp:"크루프(Croup, 급성 후두기관기관지염) → 경구 dexamethasone 단회 투여가 1차 치료. 심하면 racemic epinephrine 흡입 추가."},
+{id:231,cat:"소아과",q:"6개월 영아, 간헐적 심한 복통(다리를 배에 끌어당김), 점액혈변(currant jelly stool). 치료는?",opts:["응급 개복술","공기/바륨 정복술","항생제 치료","경과관찰"],ans:1,exp:"영아 + 간헐적 복통 + 점액혈변 = 장중첩증(Intussusception) → 공기/바륨 관장 정복이 1차 치료. 복막자극 시 수술."},
+{id:232,cat:"소아과",q:"2세 소아, 39.5℃ 고열과 함께 전신 강직-간대 발작 3분간 지속 후 소실. 신경학적 검사 정상. 치료는?",opts:["항경련제 유지 치료","해열제(아세트아미노펜) + 안심","뇌파검사","항생제"],ans:1,exp:"단순 열성경련: 15분 미만, 전신성, 24시간 내 1회 → 항경련제 불필요. 해열제 투여 + 보호자 안심이 원칙."},
+{id:233,cat:"소아과",q:"소아 예방접종에서 BCG 접종 권장 시기는?",opts:["생후 4주 이내","생후 2개월","생후 6개월","생후 12개월"],ans:0,exp:"BCG(결핵 예방) → 생후 4주 이내 접종이 권장된다. 국내에서는 피내용 BCG가 표준이다."},
+{id:234,cat:"응급",q:"개에 물린 상처. 가장 먼저 시행할 처치는?",opts:["1차 봉합","충분한 세척 + 항생제","파상풍 면역글로불린 단독","경과관찰"],ans:1,exp:"교상(bite wound) 초기 처치 → 충분한 세척이 가장 중요 + 예방적 항생제(amoxicillin-clavulanate) + 파상풍/광견병 예방 확인."},
+{id:235,cat:"응급",q:"깨끗한 상처를 입은 환자, 파상풍 접종력 불명. 적절한 조치는?",opts:["경과관찰","Td/Tdap 접종","TIG(파상풍 면역글로불린) 단독","Td + TIG"],ans:1,exp:"깨끗한 상처 + 접종력 불명 → Td/Tdap 접종. 오염/심한 상처 + 접종력 불명이면 Td + TIG 병용."},
+{id:236,cat:"응급",q:"화재 현장 구조 환자, 안면 그을음/코털 그을림/쉰 목소리. 가장 먼저 할 처치는?",opts:["흉부 X-ray","100% O₂ 투여 + 기도 삽관 준비","화상 부위 드레싱","수액 주입"],ans:1,exp:"안면 그을음/코털 소실/쉰 목소리 = 흡입 손상(inhalation injury) → 기도 부종 진행 전 조기 기관삽관이 핵심. 100% O₂ 투여."},
+{id:237,cat:"응급",q:"동상(Frostbite) 환자의 현장 응급처치로 적절한 것은?",opts:["차가운 물에 담그기","38-42℃ 따뜻한 물에 담그기","마사지로 문지르기","직접 불에 쬐기"],ans:1,exp:"동상 → 38-42℃ 따뜻한 물에 15-30분 가온(rewarming). 문지르기/직접 가열은 조직 손상을 악화시킨다."},
+{id:238,cat:"응급",q:"열사병(Heat stroke) 환자, 체온 41℃, 의식 저하. 가장 효과적인 냉각 방법은?",opts:["해열제 투여","냉수에 담그기(cold water immersion)","선풍기 바람","얼음팩 겨드랑이/서혜부"],ans:1,exp:"열사병 → 냉수 담그기(cold water immersion)가 가장 빠르고 효과적인 냉각법이다. 해열제는 효과 없음."},
+{id:239,cat:"응급",q:"뺨을 맞은 후 이통과 청력 감소. 이경검사에서 고막 천공 확인. 초기 치료는?",opts:["즉시 고막성형술","경구 항생제 + 물 들어가지 않게 주의","스테로이드 점이액","경과관찰만"],ans:1,exp:"외상성 고막천공 → 대부분 자연 치유(수주-수개월). 감염 예방을 위한 경구 항생제 + 귀에 물 안 들어가게 주의."},
+{id:240,cat:"혈액",q:"70세 남자, 요통, 빈혈(Hb 9), 고칼슘혈증, 혈청 단백 증가. 두개골 X-ray에서 punched-out lesion. 진단은?",opts:["전이성 골암","다발골수종(Multiple myeloma)","원발성 부갑상선항진증","파제트병"],ans:1,exp:"고령 + 빈혈 + 고칼슘 + 골용해성 병변(punched-out) + 단백증가 = 다발골수종(MM). SPEP/UPEP + 골수생검으로 확진."},
+{id:241,cat:"감염",q:"20대 남자, 발열/인후통/경부 림프절 비대. PBS에서 비정형 림프구. 아목시실린 투여 후 전신 발진. 진단은?",opts:["A군 연쇄구균 인두염","EBV 감염성 단핵구증","CMV 감염","HIV 급성감염"],ans:1,exp:"비정형 림프구 + 아목시실린 후 발진 = EBV 감염성 단핵구증(Infectious mononucleosis). 이종항체검사(Monospot)/EBV VCA IgM으로 확진."},
+{id:242,cat:"감염",q:"75세 남자, 결혼식 뷔페 다녀온 후 발열/기침/폐렴. 항산균 도말 음성. Legionella 소변항원 양성. 치료는?",opts:["Amoxicillin","Levofloxacin","Cefazolin","Vancomycin"],ans:1,exp:"Legionella 폐렴(재향군인병) → 세포내 감염균 → fluoroquinolone(levofloxacin) 또는 macrolide(azithromycin)가 1차 치료."},
+{id:243,cat:"감염",q:"열대지역 여행 후 주기적 발열/오한/발한. PBS에서 적혈구 내 말라리아 원충. 열대열 말라리아 중증 치료는?",opts:["Chloroquine","Artesunate IV","Quinine 경구","Mefloquine"],ans:1,exp:"중증/열대열(P. falciparum) 말라리아 → IV artesunate가 1차 치료. Chloroquine은 열대열 내성으로 부적절."},
+{id:244,cat:"감염",q:"HIV 오염 주사침에 찔린 의료인. 가장 먼저 시행할 조치는?",opts:["6주 뒤 ELISA","즉시 항레트로바이러스제(PEP) + ELISA","면역글로불린 투여","경과관찰"],ans:1,exp:"HIV 직업적 노출 → 가능한 빨리(72시간 이내) PEP(노출 후 예방, 항레트로바이러스 3제) 시작 + baseline ELISA 검사."},
+{id:245,cat:"감염",q:"당뇨 환자, 하지 발적/열감/부종, 경계가 명확한 홍반이 확산. 발열 동반. 1차 항생제는?",opts:["Cephalexin 경구","Cefazolin IV","Metronidazole","Vancomycin"],ans:1,exp:"봉와직염/단독 + 전신 증상(발열) → IV 항생제 필요 → cefazolin IV가 1차. 경증이면 경구 cephalexin."},
+{id:246,cat:"감염",q:"벼세우기 작업 후 발열/두통/근육통/결막충혈/황달. 의심 질환은?",opts:["쯔쯔가무시","렙토스피라증","한탄바이러스","장티푸스"],ans:1,exp:"벼세우기/홍수 접촉 + 결막충혈 + 황달 + 근육통 = 렙토스피라증(Leptospirosis). Doxycycline 또는 penicillin으로 치료."},
+{id:247,cat:"감염",q:"캄보디아 여행 중 덜 익힌 닭고기 섭취 후 수양성→혈성 설사. 의심 원인균은?",opts:["Salmonella","Campylobacter","E.coli O157","Vibrio"],ans:1,exp:"동남아 + 덜 익힌 가금류 + 수양성→혈성 설사 = Campylobacter 장염. 길랭-바레 증후군과 연관될 수 있다."},
+{id:248,cat:"감염",q:"동남아 여행 후 고열/두통/안와통증/발진/혈소판 감소. 진단은?",opts:["지카바이러스 감염","뎅기열(Dengue fever)","말라리아","치쿤구니야"],ans:1,exp:"고열 + 안와 후 통증 + 발진 + 혈소판↓ = 뎅기열. 지카는 보통 경미하고 고열이 드물다. NS1 항원/IgM으로 확진."},
+{id:249,cat:"감염",q:"대상포진 발진 72시간 이내 내원한 60세 환자. 1차 항바이러스제는?",opts:["Acyclovir/Valacyclovir","Oseltamivir","Ganciclovir","Ribavirin"],ans:0,exp:"대상포진 → 72시간 이내 항바이러스제(acyclovir, valacyclovir, famciclovir) 시작이 신경통 예방에 중요하다."},
+{id:250,cat:"금연/금주",q:"간기능 검사 정상인 알코올 사용장애 환자의 금주 유지 약물은?",opts:["Disulfiram","Naltrexone","Acamprosate","Topiramate"],ans:1,exp:"간기능 정상 → naltrexone 사용 가능(간독성 주의하나 정상이면 OK). 음주 갈망 감소 효과. 간기능 이상 시 acamprosate."},
+{id:251,cat:"금연/금주",q:"만성 알코올 중독 환자, 복시/보행실조/혼돈 발생. 가장 먼저 투여할 약물은?",opts:["포도당","Thiamine(비타민 B1)","Diazepam","Naltrexone"],ans:1,exp:"복시+보행실조+혼돈 = 베르니케 뇌병증(Wernicke encephalopathy) → thiamine(비타민 B1) IV를 포도당보다 먼저 투여해야 한다."},
+{id:252,cat:"소화기",q:"건강검진에서 비알코올성 지방간 진단된 남자. BMI 28. AST/ALT 경미 상승. 1차 치료는?",opts:["UDCA 투여","체중감량(생활습관 개선)","Vitamin E","Metformin"],ans:1,exp:"비알코올성 지방간(NAFLD) 1차 치료 = 체중감량(7-10% 감소 시 지방간 호전). 약물치료보다 생활습관 개선이 우선."},
+{id:253,cat:"내분비",q:"Phentermine이 금기인 경우는?",opts:["BMI 35 이상","조절되지 않는 고혈압/심혈관질환","간기능 경미 상승","갑상선기능저하증"],ans:1,exp:"Phentermine(교감신경흥분제) → 심혈관질환, 조절 안 되는 고혈압, 녹내장, 약물남용력 등에서 금기이다."},
+{id:254,cat:"비뇨기",q:"CT에서 방광 내 종괴가 우연히 발견됨. 다음 검사는?",opts:["MRI","방광경(Cystoscopy)","소변세포진검사만","경과관찰"],ans:1,exp:"방광 내 종괴 → 방광경(Cystoscopy)으로 직접 관찰 + 조직검사가 필수적이다."},
+{id:255,cat:"비뇨기",q:"50대 여성, 기침/재채기/웃을 때 소변이 샘. 패드 검사 양성. 1차 치료는?",opts:["항콜린제","케겔운동(골반저근 운동)","수술(TVT/TOT)","Duloxetine"],ans:1,exp:"복압성 요실금(Stress urinary incontinence) → 1차: 골반저근 운동(케겔운동). 효과 없으면 duloxetine 또는 수술 고려."},
+{id:256,cat:"혈액",q:"혈소판 수 38,000으로 보고되었으나 환자에게 출혈 증상 없음. PBS에서 혈소판 덩어리 확인. 진단은?",opts:["ITP","DIC","가성 혈소판 감소증(Pseudothrombocytopenia)","TTP"],ans:2,exp:"EDTA 튜브에서 혈소판 응집 → 가성 혈소판 감소증. PBS에서 혈소판 뭉침 확인. Citrate 튜브로 재검하면 정상."},
+{id:257,cat:"혈액",q:"거대적혈모구빈혈 환자에서 B12와 엽산 모두 결핍. 먼저 보충해야 하는 것은?",opts:["엽산 먼저","비타민 B12 먼저","동시 투여","경과관찰"],ans:1,exp:"B12 + 엽산 동시 결핍 → B12를 먼저 투여. 엽산만 먼저 투여하면 B12 결핍에 의한 신경학적 손상이 악화될 수 있다."},
+{id:258,cat:"가정의학총론",q:"CPX(임상수행시험)에서 병력청취 시 통증의 체계적 접근법(OPQRST)에 해당하지 않는 것은?",opts:["Onset(발생시기)","Provocation(악화/완화요인)","Quality(양상)","Duration(지속시간)"],ans:3,exp:"OPQRST: Onset, Provocation/Palliation, Quality, Region/Radiation, Severity, Timing. Duration은 별도 항목이 아닌 Timing에 포함."},
+{id:259,cat:"근골격",q:"구강건조/안구건조 + Anti-Ro(SS-A)/Anti-La(SS-B) 양성. 진단은?",opts:["SLE","류마티스 관절염","쇼그렌 증후군(Sjögren syndrome)","전신경화증"],ans:2,exp:"건조 증상(구강/안구) + Anti-Ro/Anti-La 양성 = 쇼그렌 증후군. Schirmer test, 침샘생검으로 확진."},
+{id:260,cat:"근골격",q:"SLE(전신홍반루푸스) 선별검사로 가장 적절한 것은?",opts:["Anti-dsDNA","Anti-Smith","ANA(항핵항체)","Anti-Ro"],ans:2,exp:"ANA는 SLE 선별검사로 민감도가 매우 높다(>95%). 특이도는 낮아 양성 시 Anti-dsDNA, Anti-Smith 등으로 확인한다."},
+{id:261,cat:"내분비",q:"하지 부종이 오후에 악화, 아침에 호전. 검사상 심장/신장/간 이상 없음. 치료는?",opts:["이뇨제 장기 투여","탄력스타킹 착용 + 다리 올리기","알부민 주사","스테로이드"],ans:1,exp:"특발성 부종(Idiopathic edema) → 이뇨제 남용은 오히려 악화. 탄력스타킹 + 다리 올리기 + 염분 제한이 기본 치료."},
+{id:262,cat:"이비인후과",q:"식사 후 반복적으로 턱밑(악하선 부위) 통증과 부종 발생, 식사 후 1시간 내 호전. 진단은?",opts:["이하선염","악하선 타석증(Sialolithiasis)","림프절염","갑상설관낭종"],ans:1,exp:"식사 관련 악하선 부종(타액 분비 증가 시 악화, 식후 호전) = 타석증. 촉진/X-ray/초음파로 결석 확인. 소결석은 마사지, 큰 것은 제거."},
+{id:263,cat:"건강검진",q:"50세 이상 성인에서 대상포진 예방을 위해 권장되는 백신은?",opts:["생백신(Zostavax)","재조합 백신(Shingrix)","MMR","BCG"],ans:1,exp:"50세 이상 → 재조합 대상포진 백신(Shingrix, RZV) 2회 접종 권장. 생백신(Zostavax)보다 효과가 우월하고 면역저하자에게도 사용 가능."},
+{id:264,cat:"산부인과",q:"임신 20주 이후 혈압 150/100mmHg, 단백뇨 양성으로 발견. 1차 항고혈압제는?",opts:["ACE 억제제","Labetalol","Losartan","Hydrochlorothiazide"],ans:1,exp:"임신성 고혈압/전자간증 → ACEi/ARB는 태아 독성으로 금기. Labetalol, methyldopa, nifedipine이 안전하다."},
+{id:265,cat:"건강검진",q:"대장암 선별검사에서 45세부터 시행 가능한 검사는?",opts:["복부 CT","대장내시경","직장수지검사 단독","CA 19-9"],ans:1,exp:"2021 USPSTF 업데이트: 대장암 선별 시작 연령을 50세에서 45세로 하향. 대장내시경 10년 주기 또는 분변잠혈검사 매년."},
+{id:266,cat:"안과",q:"당뇨 환자, 안저검사에서 미세혈관류/점상출혈/경성삼출물. 시력 보존. 비증식성 당뇨망막병증 관리는?",opts:["즉시 레이저 광응고","유리체절제술","혈당 조절 + 주기적 안저검사","Anti-VEGF 주사"],ans:2,exp:"비증식성 당뇨망막병증(NPDR) → 혈당/혈압 철저 관리 + 주기적 안저검사로 추적. 레이저/Anti-VEGF는 증식성 또는 황반부종 시."},
+{id:267,cat:"이비인후과",q:"50세 남자, 아침에 일어나니 한쪽 귀가 갑자기 안 들림. 이명 동반. 이학적 검사 정상. 치료는?",opts:["경과관찰","고용량 경구 스테로이드","항생제","항바이러스제"],ans:1,exp:"돌발성 감각신경성 난청(Sudden SNHL) → 고용량 경구 스테로이드를 가능한 빨리 시작(2주 이내). 원인 불명이 대부분."},
+{id:268,cat:"가정의학총론",q:"임상 의사결정에서 최근 경험한 사례를 과대평가하여 빈도를 왜곡하는 인지적 오류는?",opts:["고정 편향(Anchoring)","확증 편향(Confirmation bias)","가용성 편향(Availability bias)","후견 편향(Hindsight bias)"],ans:2,exp:"가용성 편향(Availability bias)은 최근 경험하거나 기억에 남는 사례를 과대평가하여 발생 빈도를 왜곡 판단하는 오류이다."},
+{id:269,cat:"건강검진",q:"30갑년 이상 흡연력이 있는 55-74세 성인에서 권장되는 폐암 선별검사는?",opts:["흉부 X-ray","객담세포진검사","저선량 흉부 CT(LDCT)","PET-CT"],ans:2,exp:"30갑년 이상 + 55-80세(또는 55-74세) + 현재 흡연 또는 15년 내 금연 → 매년 저선량 CT(LDCT)로 폐암 선별 권장(USPSTF/NLST)."},
+{id:270,cat:"감염",q:"B형간염 표면항원(HBsAg) 양성, HBeAg 양성, HBV DNA 10⁷ IU/mL, ALT 120. 적절한 치료는?",opts:["경과관찰","Tenofovir 또는 Entecavir","인터페론 단독","Lamivudine"],ans:1,exp:"만성 B형간염 + HBeAg(+) + 높은 바이러스 양 + ALT 상승 → 항바이러스 치료 적응증. Tenofovir 또는 entecavir(높은 내성 장벽)가 1차 선택."},
+{"cat": "역학/EBM", "q": "어떤 약물의 임상시험에서 치료군 사망률 10%, 대조군 사망률 15%였다. NNT는?", "opts": ["5", "10", "20", "50", "100"], "ans": 2, "exp": "ARR = 15% - 10% = 5% = 0.05. NNT = 1/0.05 = 20.", "id": 271},
+{"cat": "역학/EBM", "q": "질병의 원인을 밝히기 위해 환자군과 대조군을 설정하여 과거 노출력을 비교하는 연구 설계는?", "opts": ["코호트 연구", "환자-대조군 연구", "단면연구", "무작위배정 대조시험", "생태학적 연구"], "ans": 1, "exp": "환자-대조군 연구(Case-control study): 결과(질병)가 있는 군과 없는 군에서 과거 노출을 비교. OR(교차비) 산출.", "id": 272},
+{"cat": "역학/EBM", "q": "유방암 선별검사의 민감도가 90%, 특이도가 80%이다. 유병률이 1%인 인구에서 양성예측도(PPV)에 가장 큰 영향을 미치는 것은?", "opts": ["민감도", "특이도", "유병률", "검사의 재현성", "검사 비용"], "ans": 2, "exp": "PPV는 유병률에 가장 크게 영향 받음. 유병률이 낮으면 위양성이 많아져 PPV 감소.", "id": 273},
+{"cat": "역학/EBM", "q": "암 선별검사에서 '조기발견으로 생존기간이 길어 보이지만 실제 사망시점은 변하지 않는 편향'은?", "opts": ["선택 편향", "회상 편향", "선행시간 편향", "길이시간 편향", "출판 편향"], "ans": 2, "exp": "Lead time bias: 선별검사로 조기에 진단되면 진단~사망 시간이 길어 보이나, 실제로 생존 연장은 아닐 수 있음.", "id": 274},
+{"cat": "역학/EBM", "q": "RCT에서 환자와 의료진 모두 치료군/대조군 배정을 모르게 하는 것을 무엇이라 하는가?", "opts": ["단일맹검", "이중맹검", "무작위배정", "교차설계", "의향분석"], "ans": 1, "exp": "이중맹검(Double-blind): 연구자와 대상자 모두 배정을 모름 → 수행 비뚤림 최소화.", "id": 275},
+{"cat": "역학/EBM", "q": "다음 중 근거수준이 가장 높은 연구는?", "opts": ["전문가 의견", "환자-대조군 연구", "코호트 연구", "무작위배정 대조시험", "체계적 문헌고찰/메타분석"], "ans": 4, "exp": "근거 피라미드: 체계적 문헌고찰/메타분석 > RCT > 코호트 > 환자-대조군 > 단면연구 > 전문가 의견.", "id": 276},
+{"cat": "역학/EBM", "q": "선별검사에서 질병이 없는 사람 중 검사 결과가 음성인 비율을 나타내는 것은?", "opts": ["민감도", "특이도", "양성예측도", "음성예측도", "정확도"], "ans": 1, "exp": "특이도(Specificity) = TN/(TN+FP). 질병이 없는 사람 중 음성으로 나오는 비율.", "id": 277},
+{"cat": "역학/EBM", "q": "환자-대조군 연구에서 산출할 수 있는 연관성 지표는?", "opts": ["상대위험도(RR)", "기여위험도(AR)", "교차비(OR)", "발생률", "유병률"], "ans": 2, "exp": "환자-대조군 연구에서는 발생률을 직접 구할 수 없어 RR 대신 OR(Odds Ratio)를 사용.", "id": 278},
+{"cat": "노인의학", "q": "75세 남성이 야간에 갑자기 혼동, 환시, 초조 증상을 보인다. 입원 2일차이며 요로감염 치료 중이다. 가장 가능한 진단은?", "opts": ["알츠하이머 치매", "혈관성 치매", "섬망", "우울증 가성치매", "루이소체 치매"], "ans": 2, "exp": "급성 발생, 의식 변동, 환시, 야간 악화 → 섬망. 유발인자(요로감염, 입원 환경변화)가 있음.", "id": 279},
+{"cat": "노인의학", "q": "80세 여성, 다약제 복용 중(6종). 최근 어지러움과 낙상이 반복된다. 가장 먼저 해야 할 것은?", "opts": ["뇌 MRI 촬영", "약물 목록 검토 및 조정", "보행보조기 처방", "골밀도 검사", "물리치료 의뢰"], "ans": 1, "exp": "노인 낙상의 흔한 원인 → 다약제 복용(polypharmacy). 가장 먼저 약물 목록을 검토하여 낙상 유발 약물(BZD, 항고혈압제 등)을 조정.", "id": 280},
+{"cat": "노인의학", "q": "노인의 일상생활수행능력(ADL) 평가에 포함되지 않는 것은?", "opts": ["식사하기", "옷입기", "전화사용", "목욕하기", "이동하기"], "ans": 2, "exp": "전화사용은 IADL(도구적 일상생활수행능력)에 해당. ADL은 식사, 옷입기, 목욕, 이동, 화장실, 배변 등 기본적 활동.", "id": 281},
+{"cat": "노인의학", "q": "70세 남성의 낙상 위험을 평가하기 위해 시행하는 검사로, 의자에서 일어나 3m 걷고 돌아와 앉는 시간을 측정하는 것은?", "opts": ["Romberg 검사", "Timed Up and Go (TUG)", "Berg Balance Scale", "6분 보행검사", "악력 측정"], "ans": 1, "exp": "TUG(Timed Up and Go): ≥12초 소요 시 낙상 고위험. 간편하고 신뢰도 높은 낙상 위험 평가.", "id": 282},
+{"cat": "노인의학", "q": "노인에게 수면제로 benzodiazepine을 사용할 때 가장 문제가 되는 부작용은?", "opts": ["간독성", "신독성", "낙상 및 골절", "피부 발진", "구역"], "ans": 2, "exp": "BZD는 노인에서 과진정, 인지기능 저하, 낙상/골절 위험을 증가시킴. Beers criteria에서 부적절 약물로 분류.", "id": 283},
+{"cat": "노인의학", "q": "82세 여성, MMSE 18점(만점 30). ADL 독립적이나 IADL(재정관리, 약 관리)에서 도움 필요. 인지장애의 단계는?", "opts": ["정상 노화", "경도인지장애(MCI)", "경도 치매", "중등도 치매", "중증 치매"], "ans": 2, "exp": "MMSE 18점 + IADL 장애 → 경도 치매. MCI는 IADL 독립적, 중등도 치매는 ADL도 장애.", "id": 284},
+{"cat": "완화의료", "q": "말기 암 환자의 통증 조절에서 WHO 3단계 진통 사다리의 3단계 약물은?", "opts": ["acetaminophen", "ibuprofen", "tramadol", "morphine", "gabapentin"], "ans": 3, "exp": "WHO 3단계: 1단계 비오피오이드(acetaminophen, NSAIDs) → 2단계 약한 오피오이드(tramadol, codeine) → 3단계 강한 오피오이드(morphine, fentanyl, oxycodone).", "id": 285},
+{"cat": "완화의료", "q": "오피오이드의 부작용 중 내성이 발생하지 않아 지속적으로 관리해야 하는 것은?", "opts": ["오심", "진정", "호흡억제", "변비", "가려움"], "ans": 3, "exp": "변비는 오피오이드 사용 시 내성이 생기지 않는 유일한 주요 부작용. 완하제를 항상 동반 처방해야 함.", "id": 286},
+{"cat": "완화의료", "q": "말기 환자에게 나쁜 소식을 전할 때 사용하는 SPIKES 프로토콜에서 'P'가 의미하는 것은?", "opts": ["Planning", "Perception", "Permission", "Prognosis", "Privacy"], "ans": 1, "exp": "SPIKES: S(Setting) P(Perception-환자가 아는 정도) I(Invitation) K(Knowledge) E(Emotions) S(Strategy/Summary).", "id": 287},
+{"cat": "완화의료", "q": "호스피스 완화의료 대상 기준으로 적절한 것은?", "opts": ["기대여명 12개월 이하", "기대여명 6개월 이하", "기대여명 3개월 이하", "기대여명 1개월 이하", "기대여명 1년 이상"], "ans": 1, "exp": "호스피스 대상: 기대여명 6개월 이하 말기 환자. 한국에서는 말기암, 후천면역결핍, 만성 호흡기질환, 간경변 등.", "id": 288},
+{"cat": "영양학", "q": "만성 알코올 중독 환자에서 안구운동장애, 운동실조, 의식변화가 나타났다. 가장 먼저 투여해야 할 것은?", "opts": ["folate", "vitamin B12", "thiamine (vitamin B1)", "vitamin C", "niacin"], "ans": 2, "exp": "베르니케 뇌병증(Wernicke's encephalopathy) → thiamine(B1) IV 즉시 투여. 포도당 투여 전에 thiamine 먼저!", "id": 289},
+{"cat": "영양학", "q": "INH(isoniazid) 장기 복용 시 예방적으로 보충해야 하는 비타민은?", "opts": ["비타민 A", "비타민 B1", "비타민 B6", "비타민 C", "비타민 D"], "ans": 2, "exp": "INH는 pyridoxine(B6) 길항 → 말초신경병증 예방을 위해 B6 보충.", "id": 290},
+{"cat": "영양학", "q": "3D(Diarrhea, Dermatitis, Dementia) 증상이 특징인 비타민 결핍은?", "opts": ["비타민 B1", "비타민 B3 (niacin)", "비타민 B6", "비타민 B12", "비타민 C"], "ans": 1, "exp": "펠라그라(Pellagra): niacin(B3) 결핍 → 3D: 설사(Diarrhea), 피부염(Dermatitis), 치매(Dementia).", "id": 291},
+{"cat": "영양학", "q": "잇몸 출혈, 모낭 주위 출혈, 상처 치유 지연이 있는 환자에서 의심되는 결핍은?", "opts": ["비타민 A", "비타민 C", "비타민 D", "비타민 K", "아연"], "ans": 1, "exp": "괴혈병(Scurvy): 비타민 C 결핍 → 잇몸 출혈, 모낭 주위 출혈, 상처 치유 지연.", "id": 292},
+{"cat": "영양학", "q": "임신을 계획 중인 여성에게 신경관결손(NTD) 예방을 위해 권장하는 보충제와 용량은?", "opts": ["비타민 A 5000 IU", "엽산 0.4 mg/일", "비타민 D 1000 IU", "철분 60 mg/일", "칼슘 1000 mg/일"], "ans": 1, "exp": "NTD 예방: 임신 전~임신 초기 엽산(folic acid) 0.4 mg/일. 과거 NTD 출산력 있으면 4 mg/일.", "id": 293},
+{"cat": "직업환경의학", "q": "소음 작업장에서 10년간 일한 45세 남성. 청력검사에서 4000Hz에서 가장 큰 역치 상승을 보인다. 진단은?", "opts": ["전음성 난청", "돌발성 난청", "소음성 난청", "노인성 난청", "약물 유발 난청"], "ans": 2, "exp": "소음성 난청: 85dB 이상 장기 노출 → 4000Hz에서 가장 먼저 역치 상승(C5 dip). 감각신경성 난청.", "id": 294},
+{"cat": "직업환경의학", "q": "배터리 공장 근무 남성, 복통, 변비, 손목하수(wrist drop). 말초혈액도말에서 basophilic stippling. 원인은?", "opts": ["수은", "카드뮴", "납", "크롬", "벤젠"], "ans": 2, "exp": "납중독: 복통, 변비, 말초신경병(손목하수), basophilic stippling. 배터리/페인트 공장 노출.", "id": 295},
+{"cat": "직업환경의학", "q": "비스코스 레이온 공장 근로자에게 망막 미세혈관류와 관상동맥 질환이 발생했다. 원인 물질은?", "opts": ["벤젠", "이황화탄소", "납", "석면", "톨루엔"], "ans": 1, "exp": "이황화탄소(CS2): 비스코스 레이온 제조 → 망막 미세혈관류, 관상동맥질환, 말초신경병.", "id": 296},
+{"cat": "직업환경의학", "q": "건설 현장에서 30년 근무. 흉부 CT에서 흉막비후(pleural plaque)와 간질성 섬유화 소견. 장기 추적 시 가장 주의해야 할 합병증은?", "opts": ["규폐증", "악성 중피종/폐암", "결핵", "폐색전증", "기흉"], "ans": 1, "exp": "석면 노출 → 석면폐 + pleural plaque → 장기적으로 악성 중피종, 폐암 위험 증가. 잠복기 20-40년.", "id": 297},
+{"cat": "여행의학", "q": "동남아시아 여행 예정인 30세 남성, 말라리아 예방약을 출발 1-2일 전부터 복용하려 한다. 적절한 약물은?", "opts": ["chloroquine", "mefloquine", "atovaquone-proguanil", "doxycycline", "primaquine"], "ans": 2, "exp": "Atovaquone-proguanil(Malarone): 출발 1-2일 전 시작 → 여행 중 → 귀국 후 7일. Mefloquine은 2주 전 시작.", "id": 298},
+{"cat": "여행의학", "q": "해발 4000m 등산을 계획하는 여행자에게 고산병 예방을 위해 처방할 약물은?", "opts": ["dexamethasone", "acetazolamide", "sildenafil", "nifedipine", "ibuprofen"], "ans": 1, "exp": "고산병 예방: acetazolamide (출발 1일 전 시작). 치료: 하강이 가장 중요 + dexamethasone(뇌부종).", "id": 299},
+{"cat": "여행의학", "q": "인도 여행 중 급성 수양성 설사가 발생했다. 여행자 설사의 자가치료로 적절한 항생제는?", "opts": ["amoxicillin", "metronidazole", "azithromycin", "vancomycin", "cephalexin"], "ans": 2, "exp": "여행자 설사 자가치료: fluoroquinolone(ciprofloxacin) 또는 azithromycin (동남아: FQ 내성 Campylobacter → azithromycin 선호).", "id": 300},
+{"cat": "이비인후과", "q": "50세 여성, 체위 변환 시 수초간의 회전성 어지러움이 반복된다. Dix-Hallpike 검사 양성. 치료는?", "opts": ["항히스타민 투여", "Epley maneuver", "저염식이", "이뇨제", "스테로이드"], "ans": 1, "exp": "BPPV(양성 발작성 체위성 현훈): 체위 변환 시 수초~1분 어지러움 + Dix-Hallpike(+) → Epley maneuver(이석 정복술).", "id": 301},
+{"cat": "이비인후과", "q": "40세 남성, 반복되는 회전성 어지러움(수시간 지속), 이명, 청력 감소, 이충만감. 진단은?", "opts": ["BPPV", "메니에르병", "전정신경염", "돌발성 난청", "청신경종"], "ans": 1, "exp": "메니에르병: 반복 발작성 현훈(20분~12시간) + 편측 변동성 난청 + 이명 + 이충만감.", "id": 302},
+{"cat": "이비인후과", "q": "35세 여성, 2일 전 갑자기 오른쪽 귀가 안 들림. 3일 이내 3개 주파수 이상 30dB 이상 감소. 가장 적절한 치료는?", "opts": ["경과관찰", "항생제", "고용량 스테로이드", "항바이러스제", "고실내 주사"], "ans": 2, "exp": "돌발성 난청(SSNHL): 응급! 고용량 경구 스테로이드(prednisolone)가 1차. 치료 늦으면 회복률 감소.", "id": 303},
+{"cat": "이비인후과", "q": "어린이집 다니는 2세 아이, 3일간 발열, 귀 잡아당기며 울음. 고막 발적, 팽윤. 1차 항생제는?", "opts": ["azithromycin", "ciprofloxacin", "amoxicillin", "cephalexin", "TMP-SMX"], "ans": 2, "exp": "급성 중이염(AOM) 소아 1차 치료: amoxicillin (고용량 80-90mg/kg/day).", "id": 304},
+{"cat": "이비인후과", "q": "알레르기 비염의 1차 치료로 가장 효과적인 것은?", "opts": ["경구 항히스타민", "비강 내 스테로이드", "비충혈제거제", "류코트리엔 길항제", "면역요법"], "ans": 1, "exp": "알레르기 비염 1차 치료: 비강 내 코르티코스테로이드(fluticasone, mometasone 등)가 가장 효과적.", "id": 305},
+{"cat": "안과", "q": "60세 여성, 어두운 영화관에서 갑자기 한쪽 눈 통증, 두통, 오심/구토. 동공 산대, 충혈. 가장 가능한 진단은?", "opts": ["개방각 녹내장", "급성 폐쇄각 녹내장", "백내장", "망막박리", "전방출혈"], "ans": 1, "exp": "급성 폐쇄각 녹내장: 동공 산대 후(어두운 곳) → 방수 유출 차단 → 안압 급상승 → 통증+두통+구토. 응급.", "id": 306},
+{"cat": "안과", "q": "급성 폐쇄각 녹내장의 응급 처치로 가장 먼저 해야 할 것은?", "opts": ["수정체 적출", "레이저 홍채절개", "pilocarpine 점안 + 안압 하강제", "스테로이드 점안", "항생제 점안"], "ans": 2, "exp": "급성 폐쇄각 녹내장 응급: pilocarpine(축동) + 안압 하강제(timolol, acetazolamide) → 이후 레이저 홍채절개술.", "id": 307},
+{"cat": "안과", "q": "당뇨병 15년차 환자, 안저검사에서 미세혈관류, 경성삼출물, 신생혈관 발견. 치료는?", "opts": ["경과관찰", "안약 투여", "범망막광응고술", "백내장 수술", "안구적출"], "ans": 2, "exp": "증식성 당뇨망막병증(신생혈관 O) → 범망막광응고술(PRP) ± anti-VEGF 유리체강내 주사.", "id": 308},
+{"cat": "전해질/신장", "q": "SIADH로 인한 저나트륨혈증의 1차 치료는?", "opts": ["생리식염수 투여", "3% NaCl 투여", "수분 제한", "loop 이뇨제", "demeclocycline"], "ans": 2, "exp": "SIADH → 희석성 저나트륨혈증 → 1차 치료: 수분 제한 (하루 800-1000mL).", "id": 309},
+{"cat": "전해질/신장", "q": "Na 118 mEq/L, 경련 있는 환자. 치료는?", "opts": ["수분 제한", "경구 Na 보충", "3% NaCl 정맥주사", "생리식염수 빠르게 주입", "등장성 포도당 수액"], "ans": 2, "exp": "심한 증상성 저나트륨혈증(경련) → 3% NaCl (고장성 식염수). 교정속도 < 10 mEq/L/24시간 (삼투성 탈수초 증후군 예방).", "id": 310},
+{"cat": "전해질/신장", "q": "CKD 환자에서 eGFR < 15이고 요독 증상(오심, 가려움, 의식변화)이 있다. 적절한 조치는?", "opts": ["ACEi 증량", "EPO 투여", "투석 시작", "인결합제 투여", "비타민 D 보충"], "ans": 2, "exp": "eGFR < 15 + 요독 증상 → CKD G5 (말기) → 투석(혈액투석 or 복막투석) 시작.", "id": 311},
+{"cat": "전해질/신장", "q": "고칼륨혈증 환자의 ECG에서 가장 먼저 나타나는 변화는?", "opts": ["QRS 넓어짐", "P파 소실", "Peaked T wave", "Sine wave", "ST 하강"], "ans": 2, "exp": "고칼륨혈증 ECG 순서: Peaked T wave → PR 연장/P파 소실 → wide QRS → sine wave → 심정지.", "id": 312},
+{"cat": "전해질/신장", "q": "고칼륨혈증(K 7.2)에서 심장 보호를 위해 가장 먼저 투여하는 것은?", "opts": ["kayexalate", "인슐린+포도당", "calcium gluconate", "furosemide", "sodium bicarbonate"], "ans": 2, "exp": "고칼륨혈증 응급 → 1순위: calcium gluconate(심근 보호) → 2순위: insulin+glucose(K 세포 내 이동) → kayexalate(K 배출).", "id": 313},
+{"cat": "전해질/신장", "q": "CKD 환자에서 단백뇨를 동반한 고혈압의 1차 치료제는?", "opts": ["CCB", "thiazide", "ACEi/ARB", "BB", "alpha-blocker"], "ans": 2, "exp": "CKD + 단백뇨 → ACEi/ARB: 혈압 조절 + 단백뇨 감소 + 신기능 보호 효과.", "id": 314},
+{"cat": "상담기법", "q": "금연 상담 시 '담배를 끊어야 하는 건 아는데 아직 실행할 준비는 안 됐어요'라고 하는 환자는 변화단계 중 어디에 해당하는가?", "opts": ["계획전단계", "계획단계", "준비단계", "행동단계", "유지단계"], "ans": 1, "exp": "계획단계(Contemplation): 변화의 필요성은 인식하나 아직 실행 계획이 없음. 6개월 이내 변화를 고려 중.", "id": 315},
+{"cat": "상담기법", "q": "동기면담(Motivational Interviewing)의 핵심 기법 OARS에서 'R'이 의미하는 것은?", "opts": ["Reassure", "Reflect", "Recommend", "Remind", "Revise"], "ans": 1, "exp": "OARS: Open questions(개방형 질문) / Affirm(인정) / Reflect(반영적 경청) / Summarize(요약). R = Reflect.", "id": 316},
+{"cat": "상담기법", "q": "가족 기능을 평가하는 Family APGAR에서 'A'가 의미하는 것은?", "opts": ["Anxiety", "Attachment", "Adaptability", "Autonomy", "Affect"], "ans": 2, "exp": "Family APGAR: Adaptability(적응도) / Partnership(협력도) / Growth(성장도) / Affection(애정도) / Resolve(친밀도).", "id": 317},
+{"cat": "상담기법", "q": "3세대 이상의 가족 구성원, 질병, 관계를 도식화하여 가족 구조를 파악하는 도구는?", "opts": ["가족 APGAR", "가계도(Genogram)", "에코맵(Ecomap)", "생활사건 차트", "가족생활주기"], "ans": 1, "exp": "가계도(Genogram): 3세대 이상 가족의 구조, 관계, 질병력을 도식화. 가정의학에서 가족 평가의 핵심 도구.", "id": 318},
+{"cat": "알레르기", "q": "벌에 쏘인 후 전신 두드러기, 호흡곤란, 혈압 저하가 발생했다. 가장 먼저 투여할 약물은?", "opts": ["epinephrine IM", "diphenhydramine IV", "methylprednisolone IV", "생리식염수", "salbutamol 흡입"], "ans": 0, "exp": "아나필락시스 1차 치료: epinephrine IM (대퇴 외측, 성인 0.3-0.5mg). 항히스타민/스테로이드는 보조.", "id": 319},
+{"cat": "알레르기", "q": "아나필락시스 치료 후 최소 관찰 시간은?", "opts": ["30분", "1시간", "2시간", "4-6시간", "24시간"], "ans": 3, "exp": "아나필락시스 치료 후 이상반응(biphasic reaction) 재발 가능 → 최소 4-6시간 관찰.", "id": 320},
+{"cat": "알레르기", "q": "ACEi 복용 중 입술과 혀의 부종(혈관부종)이 발생했다. 적절한 조치는?", "opts": ["ACEi 증량", "ACEi 유지 + 항히스타민", "ACEi 중단 후 ARB로 변경", "ACEi 중단 후 BB로 변경", "ACEi 중단 후 CCB로 변경"], "ans": 2, "exp": "ACEi 유발 혈관부종 → ACEi 중단. ARB는 교차반응 위험이 낮아 대체 가능 (단, 주의깊게 관찰).", "id": 321},
+{"cat": "알레르기", "q": "Gell-Coombs 분류에서 접촉피부염(옻나무)은 어떤 유형의 과민반응인가?", "opts": ["Type I (즉시형)", "Type II (세포독성)", "Type III (면역복합체)", "Type IV (지연형)"], "ans": 3, "exp": "접촉피부염 = Type IV 과민반응 (지연형, T세포 매개). 48-72시간 후 발생. TST(결핵반응검사)도 같은 유형.", "id": 322},
+{"cat": "성의학", "q": "55세 남성, 발기부전 호소. 당뇨, 고혈압 있음. Nitrate 제제는 사용하지 않음. 1차 약물은?", "opts": ["testosterone IM", "sildenafil", "alprostadil 요도내 주입", "yohimbine", "vacuum device"], "ans": 1, "exp": "발기부전 1차 치료: PDE5 억제제(sildenafil, tadalafil). Nitrate 비사용자에서 안전.", "id": 323},
+{"cat": "성의학", "q": "PDE5 억제제의 절대 금기는?", "opts": ["고혈압", "당뇨병", "질산염(nitrate) 제제 병용", "ACEi 복용", "스타틴 복용"], "ans": 2, "exp": "PDE5i + nitrate → 치명적 저혈압. 절대 금기! (니트로글리세린, ISDN 등 모든 nitrate)", "id": 324},
+{"cat": "내분비", "q": "이상지질혈증의 1차 치료 약물은?", "opts": ["fibrate", "ezetimibe", "statin", "niacin", "PCSK9 억제제"], "ans": 2, "exp": "이상지질혈증 1차: statin (HMG-CoA reductase inhibitor). LDL 감소에 가장 효과적.", "id": 325},
+{"cat": "내분비", "q": "statin 복용 중 근육통이 발생했다. 확인해야 할 검사는?", "opts": ["간기능 검사", "CK (creatine kinase)", "TSH", "혈당", "요산"], "ans": 1, "exp": "스타틴 유발 근병증(myopathy) → CK 측정. CK 정상 상한치 10배 이상 + 증상 → 횡문근융해증 의심.", "id": 326},
+{"cat": "내분비", "q": "TG 650 mg/dL인 환자에서 가장 우려되는 합병증은?", "opts": ["심근경색", "뇌졸중", "급성 췌장염", "간경변", "신부전"], "ans": 2, "exp": "TG ≥ 500 mg/dL → 급성 췌장염 위험 증가. fibrate 또는 omega-3를 우선 사용.", "id": 327},
+{"cat": "내분비", "q": "대사증후군의 진단기준에 해당하지 않는 것은?", "opts": ["허리둘레 남 ≥90cm", "TG ≥ 150", "HDL 남 < 40", "LDL ≥ 130", "공복혈당 ≥ 100"], "ans": 3, "exp": "대사증후군 5가지 기준: 허리둘레, TG, HDL, 혈압(≥130/85), 공복혈당. LDL은 포함되지 않음.", "id": 328},
+{"cat": "순환기", "q": "임산부 고혈압에서 사용 가능한 약물은?", "opts": ["ACEi", "ARB", "labetalol", "atenolol", "spironolactone"], "ans": 2, "exp": "임산부 고혈압: labetalol, nifedipine, methyldopa 사용 가능. ACEi/ARB는 태아 기형 유발 → 절대 금기.", "id": 329},
+{"cat": "순환기", "q": "양측 신동맥 협착이 있는 고혈압 환자에서 금기인 약물은?", "opts": ["CCB", "thiazide", "ACEi", "hydralazine", "alpha-blocker"], "ans": 2, "exp": "양측 신동맥 협착 + ACEi/ARB → GFR 급격히 감소 가능 → 금기. CCB, thiazide는 사용 가능.", "id": 330},
+{"cat": "감염", "q": "항생제 복용 후 물설사가 지속된다. 대변 검사에서 C. difficile 독소 양성. 1차 치료는?", "opts": ["metronidazole 경구", "vancomycin 경구", "ciprofloxacin", "amoxicillin", "ceftriaxone"], "ans": 1, "exp": "CDI(C. difficile infection) 1차 치료: vancomycin 경구 또는 fidaxomicin. 경증에서도 vancomycin 경구 선호(2021 IDSA 가이드라인).", "id": 331},
+{"cat": "감염", "q": "대상포진이 발생한 후 72시간 이내의 적절한 치료는?", "opts": ["경과관찰", "항생제", "항바이러스제(acyclovir/valacyclovir)", "스테로이드 단독", "면역글로불린"], "ans": 2, "exp": "대상포진: 72시간 이내 항바이러스제 시작 → 통증 감소, 이환기간 단축, 대상포진 후 신경통 위험 감소.", "id": 332},
+{"cat": "감염", "q": "HIV 양성인 환자에서 항레트로바이러스 치료(cART)의 시작 시점은?", "opts": ["CD4 < 200일 때", "CD4 < 350일 때", "CD4 < 500일 때", "진단 즉시", "AIDS 정의 질환 발생 시"], "ans": 3, "exp": "현재 가이드라인: HIV 진단 즉시 cART 시작 (CD4 수와 무관). 전파 방지 + 예후 개선.", "id": 333},
+{"cat": "감염", "q": "단순 방광염(하부 요로감염)의 1차 경구 항생제로 적절한 것은?", "opts": ["ciprofloxacin", "amoxicillin", "nitrofurantoin", "ceftriaxone", "vancomycin"], "ans": 2, "exp": "단순 방광염 1차: nitrofurantoin (5일) 또는 TMP-SMX (3일). Fluoroquinolone은 단순 UTI에서 1차로 권장하지 않음.", "id": 334},
+{"cat": "소화기", "q": "위식도역류질환(GERD)의 1차 약물 치료는?", "opts": ["H2 blocker", "PPI", "sucralfate", "metoclopramide", "antacid"], "ans": 1, "exp": "GERD 1차: PPI (omeprazole, esomeprazole 등) 8주 투여. 생활습관 교정 병행.", "id": 335},
+{"cat": "소화기", "q": "급성 췌장염의 가장 흔한 2가지 원인은?", "opts": ["약물과 외상", "담석과 알코올", "감염과 자가면역", "고지혈증과 약물", "외상과 담석"], "ans": 1, "exp": "급성 췌장염 원인: 담석(40%) > 알코올(30%) > 기타(약물, 고TG, ERCP 후 등).", "id": 336},
+{"cat": "소화기", "q": "간경변 환자에서 복수가 있을 때 1차 치료는?", "opts": ["복수천자", "TIPS", "저염식 + 이뇨제(spironolactone)", "알부민 수혈", "간이식"], "ans": 2, "exp": "간경변 복수 1차: 저염식(Na < 2g/일) + 이뇨제(spironolactone ± furosemide). 난치성 복수 → 대량 복수천자 or TIPS.", "id": 337},
+{"cat": "소화기", "q": "간성뇌증의 치료제는?", "opts": ["metronidazole", "neomycin", "lactulose", "rifaximin", "lactulose + rifaximin"], "ans": 2, "exp": "간성뇌증 1차: lactulose (장 내 암모니아 배출 촉진). 2차: rifaximin 추가.", "id": 338},
+{"cat": "호흡기", "q": "천식의 진단에서 기관지확장제 투여 후 FEV1이 몇 % 이상 증가하면 가역적 기도폐쇄로 판단하는가?", "opts": ["5%", "8%", "12%", "20%", "30%"], "ans": 2, "exp": "기관지확장제 후 FEV1 12% 이상 + 200mL 이상 증가 → 가역적 기도폐쇄 = 천식 시사.", "id": 339},
+{"cat": "호흡기", "q": "아스피린 복용 후 천식이 악화되는 환자에게 적절한 약물은?", "opts": ["고용량 ICS", "leukotriene antagonist (montelukast)", "long-acting beta agonist", "theophylline", "ipratropium"], "ans": 1, "exp": "아스피린 유발 천식(AERD): COX-1 억제 → 류코트리엔 과다 → 기관지수축. Montelukast(류코트리엔 길항제)가 효과적.", "id": 340},
+{"cat": "피부과", "q": "홍색음선(erythrasma)을 진단하기 위해 사용하는 검사는?", "opts": ["KOH 검사", "Tzanck 검사", "우드등(Wood's lamp)", "첩포검사", "피부생검"], "ans": 2, "exp": "홍색음선: Corynebacterium minutissimum → 우드등에서 산호색(coral-red) 형광.", "id": 341},
+{"cat": "피부과", "q": "칸디다증 vs 피부사상균 감염을 감별할 때 KOH 검사에서 가성균사(pseudohyphae)가 보이면?", "opts": ["피부사상균", "칸디다", "말라세지아", "방선균", "스포로트릭스"], "ans": 1, "exp": "칸디다: KOH에서 가성균사(pseudohyphae) + 효모형 세포. 피부사상균: 진균사(true hyphae).", "id": 342},
+{"cat": "피부과", "q": "60대 남성, 옆구리에 띠 모양 수포성 병변. 통증이 심함. 치료는?", "opts": ["스테로이드 연고", "경구 항히스타민", "acyclovir 경구", "항생제 연고", "NSAID"], "ans": 2, "exp": "대상포진: 피부분절 따른 띠 모양 수포 + 통증 → 72시간 내 항바이러스제(acyclovir/valacyclovir) 시작.", "id": 343},
+{"cat": "산부인과", "q": "폐경 후 여성의 안면홍조에 대한 1차 치료는?", "opts": ["SSRI", "호르몬보충요법(HRT)", "gabapentin", "clonidine", "생활습관 교정"], "ans": 1, "exp": "폐경 후 혈관운동 증상(안면홍조) 1차: HRT (에스트로겐 ± 프로게스테론). 자궁 있으면 프로게스테론 병합 필수.", "id": 344},
+{"cat": "산부인과", "q": "자궁이 있는 폐경 여성에게 HRT 시 에스트로겐만 단독 투여하면 위험한 합병증은?", "opts": ["유방암", "자궁내막암", "난소암", "뇌졸중", "골다공증"], "ans": 1, "exp": "에스트로겐 단독 → 자궁내막 증식 → 자궁내막암 위험 증가. 자궁이 있으면 반드시 프로게스테론 병합.", "id": 345},
+{"cat": "산부인과", "q": "폐경 후 질 건조감과 성교통에 가장 적절한 치료는?", "opts": ["경구 에스트로겐", "국소 질 에스트로겐", "SSRI", "gabapentin", "clonidine"], "ans": 1, "exp": "비뇨생식기 위축 증상 → 국소 질 에스트로겐(크림, 정제, 링)이 1차. 전신 부작용 최소.", "id": 346},
+{"cat": "산부인과", "q": "자궁경부암 선별검사에서 30세 이상 여성에게 권장되는 방법은?", "opts": ["Pap smear만 매년", "Pap + HPV 검사 5년마다", "HPV 검사만 3년마다", "colposcopy 5년마다", "자궁내막 조직검사"], "ans": 1, "exp": "30세 이상: Pap + HPV 병용검사 5년마다 (또는 Pap만 3년마다). 21-29세: Pap만 3년마다.", "id": 347},
+{"cat": "소아과", "q": "생후 2개월 아이가 처음으로 사회적 미소를 보인다. 이는 어떤 발달 영역의 이정표인가?", "opts": ["대운동", "미세운동", "언어", "사회성/정서", "인지"], "ans": 3, "exp": "사회적 미소(social smile): 생후 2개월경 나타나는 중요한 사회성 발달 이정표.", "id": 348},
+{"cat": "소아과", "q": "생후 3일 된 신생아, 황달. 총빌리루빈 15 mg/dL. 혈액형: 엄마 O형, 아기 B형. Direct Coombs 양성. 진단은?", "opts": ["생리적 황달", "모유 황달", "ABO 부적합 용혈성 황달", "담도폐쇄", "간염"], "ans": 2, "exp": "생후 24시간 이후 황달 + 엄마 O형/아기 B형 + Direct Coombs(+) → ABO 부적합 용혈성 질환. 광선치료 or 교환수혈.", "id": 349},
+{"cat": "소아과", "q": "영아 산통으로 진단된 생후 6주 아기의 보호자에게 가장 적절한 조언은?", "opts": ["약물 치료 시작", "분유 변경", "보호자 안심 + 달래기 방법 교육", "응급실 방문 권고", "복부 초음파"], "ans": 2, "exp": "영아 산통: 3개월 미만, 하루 3시간↑, 주 3일↑ 울음. 자연 소실됨 → 보호자 안심이 핵심. 기질적 이상 배제 후.", "id": 350},
+{"cat": "예방접종", "q": "50세 이상 성인에게 대상포진 예방을 위해 권장되는 백신은?", "opts": ["생백신(ZVL)", "재조합 백신(RZV)", "acyclovir 예방 투여", "면역글로불린", "접종 불필요"], "ans": 1, "exp": "2023 이후 권장: RZV(재조합 백신, Shingrix) 2회 접종(0, 2-6개월). 생백신(Zostavax)보다 효과 우수, 면역저하자에도 가능.", "id": 351},
+{"cat": "예방접종", "q": "MMR 백신 접종 후 임신 회피 기간은?", "opts": ["2주", "4주", "8주", "12주", "6개월"], "ans": 1, "exp": "MMR은 생백신 → 접종 후 최소 4주(1개월)간 임신 회피. 임산부에게 접종 금기.", "id": 352},
+{"cat": "예방접종", "q": "다음 중 생백신이 아닌 것은?", "opts": ["MMR", "수두", "BCG", "인플루엔자(불활화)", "로타바이러스"], "ans": 3, "exp": "불활화 인플루엔자 백신은 사백신 → 임산부도 접종 가능. 생백신: MMR, 수두, BCG, 로타, 황열, 경구폴리오.", "id": 353},
+{"cat": "예방접종", "q": "B형간염 백신 3회 접종 후 anti-HBs가 음성이다. 다음 조치는?", "opts": ["추가 접종 불필요", "1회 재접종 후 anti-HBs 확인", "3회 재접종", "면역글로불린", "접종력과 무관하게 검사 불필요"], "ans": 1, "exp": "B형간염 백신 3회 후 anti-HBs(-) → 1회 재접종 후 1-2개월 뒤 anti-HBs 확인. 여전히 (-) → 나머지 2회 접종.", "id": 354},
+{"cat": "비뇨기", "q": "60세 남성, 야간뇨, 빈뇨, 잔뇨감, 요줄기 약화. PSA 정상. 1차 약물은?", "opts": ["finasteride", "tamsulosin", "sildenafil", "ciprofloxacin", "oxybutynin"], "ans": 1, "exp": "BPH(양성 전립선 비대증) 1차: alpha-blocker (tamsulosin). 전립선 >40g이면 5α-reductase inhibitor(finasteride) 추가.", "id": 355},
+{"cat": "비뇨기", "q": "16세 남아, 갑작스런 좌측 음낭 통증, 구역. 고환이 횡위치, Cremasteric reflex 소실. 가장 적절한 조치는?", "opts": ["항생제 투여", "NSAID + 경과관찰", "응급 수술적 탐색", "음낭 초음파 후 결정", "CT 촬영"], "ans": 2, "exp": "고환 염전: 6시간 이내 수술(정복+고정) → 고환 보존. 초음파로 시간 지체하지 말고 임상 의심 시 즉시 수술.", "id": 356},
+{"cat": "금연/금주", "q": "불면증의 1차 치료로 가장 권장되는 것은?", "opts": ["zolpidem", "benzodiazepine", "인지행동치료(CBT-I)", "melatonin", "항히스타민제"], "ans": 2, "exp": "만성 불면증 1차: CBT-I(인지행동치료). 약물(zolpidem, BZD 등)보다 장기 효과 우월, 부작용 적음.", "id": 357},
+{"cat": "금연/금주", "q": "폐쇄성 수면무호흡증이 진단된 BMI 32 환자의 1차 치료는?", "opts": ["구강 내 장치", "UPPP 수술", "양압환기(CPAP)", "체중감량 단독", "수면제"], "ans": 2, "exp": "중등도 이상 OSA 1차: CPAP. 체중감량은 보조적. 경도 OSA: 구강 내 장치 or 체중감량 고려.", "id": 358},
+{"cat": "근골격", "q": "50세 여성, 안구건조 + 구강건조, ANA(+), anti-SSA(Ro)(+). 진단은?", "opts": ["SLE", "류마티스 관절염", "쇼그렌 증후군", "경피증", "다발성근염"], "ans": 2, "exp": "쇼그렌 증후군(Sjögren's): 안구건조(keratoconjunctivitis sicca) + 구강건조(xerostomia) + anti-SSA(Ro)/anti-SSB(La)(+).", "id": 359},
+{"cat": "근골격", "q": "40세 남성, 허리통증이 3개월 이상 지속. 아침에 뻣뻣하고 운동하면 좋아짐. HLA-B27(+). 진단은?", "opts": ["기계적 요통", "추간판탈출증", "강직성 척추염", "척추관 협착증", "섬유근통"], "ans": 2, "exp": "강직성 척추염: 젊은 남성, 3개월↑ 염증성 허리통증(아침 강직, 운동 시 호전, 휴식 시 악화), HLA-B27(+), SI관절 변화.", "id": 360},
+{"cat": "근골격", "q": "통풍 환자에게 급성 발작 예방을 위해 요산저하제 시작 시 동시에 투여하는 약물은?", "opts": ["allopurinol", "febuxostat", "colchicine", "probenecid", "pegloticase"], "ans": 2, "exp": "요산저하제(allopurinol/febuxostat) 시작 시 급성 발작 예방: colchicine 저용량 or NSAID 3-6개월 병행.", "id": 361},
+{"cat": "내분비", "q": "당뇨병 환자에서 심부전이 동반된 경우 우선적으로 추가할 약물은?", "opts": ["sulfonylurea", "SGLT2 inhibitor", "DPP-4 inhibitor", "thiazolidinedione", "alpha-glucosidase inhibitor"], "ans": 1, "exp": "당뇨+심부전 → SGLT2i(empagliflozin, dapagliflozin): HbA1c↓ + 심부전 입원 감소 + 신장보호 효과.", "id": 362},
+{"cat": "내분비", "q": "당뇨병 환자에서 eGFR 20으로 심한 신기능 저하. Metformin 사용 불가. 가장 적절한 경구 약제는?", "opts": ["gliclazide", "pioglitazone", "linagliptin", "canagliflozin", "acarbose"], "ans": 2, "exp": "Linagliptin(DPP-4i): 간대사 → 신기능과 무관하게 용량 조절 불필요. eGFR<30에서도 안전.", "id": 363},
+{"cat": "내분비", "q": "Metformin의 가장 심각한 부작용은?", "opts": ["저혈당", "체중 증가", "젖산산증(lactic acidosis)", "간독성", "췌장염"], "ans": 2, "exp": "Metformin의 드물지만 심각한 부작용: 젖산산증. eGFR<30, 간부전, 조영제 사용 시, 탈수/저산소 시 위험 증가.", "id": 364},
+{"cat": "건강검진", "q": "다음 중 국가암검진사업에 포함되지 않는 것은?", "opts": ["위암", "대장암", "유방암", "전립선암", "간암"], "ans": 3, "exp": "한국 국가암검진 6대 암: 위, 대장, 간, 유방, 자궁경부, 폐. 전립선암은 포함되지 않음.", "id": 365},
+{"cat": "건강검진", "q": "폐암 선별검사(LDCT)의 대상은?", "opts": ["모든 55세 이상", "30갑년 이상 흡연력이 있는 54-74세", "20갑년 이상 현재 흡연자", "기침이 있는 모든 환자", "모든 COPD 환자"], "ans": 1, "exp": "폐암 LDCT 선별: 30갑년 이상 흡연력 + 54-74세 + 현재 흡연 또는 금연 15년 이내. 매년 시행.", "id": 366},
+{"cat": "정신과", "q": "성격장애 중 사회공포증과 가장 흔히 동반되는 것은?", "opts": ["반사회성", "연극성", "회피성", "자기애성", "강박성"], "ans": 2, "exp": "사회공포증 + 동반 인격장애 → 회피성 인격장애: 거절/비판에 대한 과민, 사회적 억제, 부적절감.", "id": 367},
+{"cat": "정신과", "q": "자기 몸에서 냄새가 난다고 확신하며 여러 병원을 방문하나 검사상 이상 없음. 진단은?", "opts": ["건강불안장애", "신체이형장애", "전환장애", "망상장애(신체형)", "강박장애"], "ans": 3, "exp": "자기 몸에서 냄새가 난다는 확고한 믿음(교정 불가능) → 망상장애의 신체형(somatic type).", "id": 368},
+{"cat": "정신과", "q": "외상 후 스트레스 장애(PTSD)의 1차 약물 치료는?", "opts": ["BZD", "SSRI", "haloperidol", "lithium", "carbamazepine"], "ans": 1, "exp": "PTSD 1차 약물: SSRI (sertraline, paroxetine 등). BZD는 효과 없고 오히려 PTSD에 해로울 수 있음.", "id": 369},
+{"cat": "혈액", "q": "30세 여성, 건강검진에서 PLT 80,000. 다른 수치 모두 정상. PBS에서 혈소판 뭉침 관찰. 진단은?", "opts": ["ITP", "재생불량빈혈", "TTP", "가성혈소판감소증", "DIC"], "ans": 3, "exp": "다른 수치 정상 + PBS에서 혈소판 뭉침(clumping) → 가성혈소판감소증(pseudothrombocytopenia). EDTA 유발. Citrate 튜브로 재검.", "id": 370},
+{"cat": "혈액", "q": "헤파린 투여 5일 후 혈소판이 기저치의 50% 이하로 감소. 가장 적절한 조치는?", "opts": ["헤파린 용량 증가", "헤파린 중단 + 대체 항응고제(argatroban)", "혈소판 수혈", "관찰 유지", "warfarin으로 즉시 변경"], "ans": 1, "exp": "HIT(Heparin-Induced Thrombocytopenia) 의심 → 즉시 헤파린 중단 + 대체 항응고제(argatroban, fondaparinux). 혈소판 수혈은 금기(혈전 악화).", "id": 371},
+{"cat": "응급", "q": "식당에서 식사 중 갑자기 기도폐쇄. 의식 있고 기침 불가. 적절한 처치는?", "opts": ["등 두드리기만", "하임리히법(복부밀어올리기)", "CPR", "기관절개", "산소 투여"], "ans": 1, "exp": "의식 있는 성인 기도이물 완전폐쇄 → 하임리히법(Heimlich maneuver): 복부밀어올리기. 의식 잃으면 CPR 시작.", "id": 372},
+{"cat": "응급", "q": "밀폐된 공간에서 연탄 사용 후 두통, 오심, 벚꽃색 피부. 치료는?", "opts": ["naloxone", "atropine", "100% 산소", "N-acetylcysteine", "flumazenil"], "ans": 2, "exp": "일산화탄소(CO) 중독: 두통, 오심, cherry-red skin → 100% O2 공급. 의식저하/심하면 고압산소요법(HBO).", "id": 373},
+{"cat": "응급", "q": "유기인계 농약 음독 환자, 침 분비 증가, 동공 축소, 서맥. 해독제는?", "opts": ["naloxone + 활성탄", "atropine + pralidoxime", "flumazenil", "N-acetylcysteine", "calcium gluconate"], "ans": 1, "exp": "유기인계 중독(콜린에스터라제 억제) → 무스카린 효과(침분비↑, 동공축소, 서맥) → atropine + pralidoxime(2-PAM).", "id": 374},
+{"cat": "응급", "q": "아세트아미노펜 과량 복용 환자의 해독제는?", "opts": ["naloxone", "flumazenil", "N-acetylcysteine (NAC)", "pralidoxime", "vitamin K"], "ans": 2, "exp": "아세트아미노펜 과량 → 간독성 → N-acetylcysteine(NAC)이 해독제. Rumack-Matthew nomogram으로 치료 결정.", "id": 375},
+{"cat": "가정의학총론", "q": "Prochaska의 변화단계모형에서 '1개월 이내에 행동을 변화시킬 계획이 있는' 단계는?", "opts": ["계획전단계", "계획단계", "준비단계", "행동단계", "유지단계"], "ans": 2, "exp": "준비단계(Preparation): 1개월 이내 구체적 행동 변화 계획. 이 단계에서 구체적 실행 계획 수립을 도와야 함.", "id": 376},
+{"cat": "가정의학총론", "q": "가정의학의 원리 중 '동일 환자를 시간 경과에 따라 지속적으로 관리하는 것'을 무엇이라 하는가?", "opts": ["포괄성", "지속성", "통합성", "예방지향성", "가족 중심 돌봄"], "ans": 1, "exp": "지속성(Continuity): 시간 경과에 따른 지속적 관리. 포괄성: 다양한 건강문제 다루기. 통합성: 여러 분야의 통합적 접근.", "id": 377},
+{"cat": "금연/금주", "q": "알코올 사용장애 선별을 위해 가장 널리 사용되는 도구는?", "opts": ["CAGE", "AUDIT", "MMSE", "PHQ-9", "GAD-7"], "ans": 1, "exp": "AUDIT(Alcohol Use Disorders Identification Test): WHO 개발, 10문항, 가장 포괄적인 알코올 선별 도구. CAGE는 4문항(간편하지만 덜 민감).", "id": 378},
+{"cat": "금연/금주", "q": "알코올 금단 중 가장 위험한 합병증으로, 마지막 음주 48-96시간 후 발생하며 사망 위험이 있는 것은?", "opts": ["금단 경련", "알코올성 환각", "진전섬망(DT)", "베르니케 뇌병증", "코르사코프 증후군"], "ans": 2, "exp": "진전섬망(Delirium Tremens): 48-96시간 후, 심한 자율신경 불안정 + 환각 + 섬망 → 사망 가능 → BZD(diazepam/lorazepam)로 치료.", "id": 379},
+{"cat": "내분비", "q": "골다공증 치료제 중 '골형성 촉진제'에 해당하는 것은?", "opts": ["alendronate", "denosumab", "raloxifene", "romosozumab", "calcitonin"], "ans": 3, "exp": "Romosozumab: 항-sclerostin 항체 → 골형성 촉진 + 골흡수 억제. 초고위험 골절 환자에 사용. Bisphosphonate/denosumab은 골흡수 억제제.", "id": 380},
+{"cat": "순환기", "q": "만성 심부전(HFrEF)에서 예후를 개선하는 4대 약물이 아닌 것은?", "opts": ["ACEi/ARB/ARNI", "Beta-blocker", "MRA (spironolactone)", "SGLT2 inhibitor", "digoxin"], "ans": 4, "exp": "HFrEF 4대 약물: ACEi/ARB/ARNI + BB + MRA + SGLT2i → 사망률 감소. Digoxin은 증상 개선만(사망률 감소 X).", "id": 381},
+{"cat": "순환기", "q": "심방세동에서 항응고 치료 적응을 결정하는 CHA₂DS₂-VASc 점수에서 가장 높은 점수(2점)를 받는 항목 2가지는?", "opts": ["고혈압과 당뇨", "나이 ≥75세와 뇌졸중/TIA 병력", "심부전과 혈관질환", "나이 65-74와 여성", "고혈압과 심부전"], "ans": 1, "exp": "CHA₂DS₂-VASc에서 2점: Age≥75(A₂) + Stroke/TIA(S₂). 나머지(CHF, HTN, DM, Vascular dz, Age 65-74, Sex-female)는 각 1점.", "id": 382},
+{"cat": "감염", "q": "B형간염 만성 보유자에서 간암 선별검사의 적절한 간격은?", "opts": ["매년", "6개월", "3개월", "2년", "5년"], "ans": 1, "exp": "간암 고위험군(B형간염 보유자, 간경변) → 6개월마다 복부 초음파 + AFP 측정.", "id": 383},
+{"cat": "소화기", "q": "크론병과 궤양성 대장염을 감별할 때, 크론병의 특징은?", "opts": ["직장에서 시작", "연속 병변", "비연속(skip) 병변 + 전층 염증", "점막에 국한된 염증", "p-ANCA 양성"], "ans": 2, "exp": "크론병: 구강~항문 어디든 + 비연속(skip lesion) + 전층 염증 + 누공/협착. 궤양성 대장염: 직장 시작 + 연속 + 점막/점막하 염증.", "id": 384},
+{"cat": "근골격", "q": "척추관 협착증에서 권장되는 운동은?", "opts": ["맥켄지 신전운동", "윌리엄스 굴곡운동", "웨이트 트레이닝", "달리기", "플랭크"], "ans": 1, "exp": "척추관 협착증: 앞으로 숙이면 호전(보행기 사용), 뒤로 젖히면 악화 → 윌리엄스 굴곡운동(flexion exercise) 권장. cf. 추간판탈출: 맥켄지 신전운동.", "id": 385},
+{"cat": "소화기", "q": "[2020기출] 알코올성 간경변증으로 치료 중인 60세 남자가 하루 전부터 열이 나고 배가 팽만해졌다. 복수천자 액: 백혈구 1,200/mm3, 다형백혈구 80%. 조치는?", "opts": ["Norfloxacin 경구 투여", "Spironolactone 경구 투여", "Furosemide 주사", "Vasopressin 주사", "Cefotaxime 주사"], "ans": 4, "exp": "자발성 세균성 복막염(SBP): 복수 다형백혈구 ≥250/mm3 → 3세대 세팔로스포린(cefotaxime) IV 치료.", "id": 386},
+{"cat": "가정의학총론", "q": "[2020기출] 40세 남자, 동네 가정의원에서 걱정하던 윗배 불편함을 만족스럽게 해결하였다. 관련성이 높은 일차의료 속성은?", "opts": ["포괄성", "지속성", "최초접촉", "조정", "가족지향"], "ans": 2, "exp": "접근성/최초접촉: 비용 걱정 없이 쉽게 방문하여 건강 문제를 해결하는 일차의료의 핵심 속성.", "id": 387},
+{"cat": "순환기", "q": "[2020기출] 75세 남자, 흉통 10분 지속. 관상동맥우회술 과거력, BP 90/60, 양폐 수포음, CK-MB/Troponin 2배↑. 처치는?", "opts": ["경과 관찰", "베타차단제 추가", "관상동맥우회술", "심장관상동맥중재술(PCI)", "NSAID 추가"], "ans": 3, "exp": "급성 MI(효소↑+ST변화 의심) + 혈역학적 불안정(저혈압) → 응급 PCI(경피적 관상동맥 중재술).", "id": 388},
+{"cat": "감염", "q": "[2020기출] 27세 남자, 5일 전 필리핀 귀국 후 고열(40도), 오한, 두통, 복부 발진, 서맥, WBC 3,800. 조치는?", "opts": ["심장초음파", "혈액배양검사", "혈청 ANA 검사", "발진 부위 조직검사", "복부 CT"], "ans": 1, "exp": "필리핀 여행 후 고열+상대적 서맥+WBC↓+복부 발진 → 장티푸스 의심 → 혈액배양검사 시행.", "id": 389},
+{"cat": "감염", "q": "[2020기출] 폐결핵 치료 중 약제 감수성: INH-R, EMB-S, RIF-S, PZA-S. 치료는?", "opts": ["엽절제술", "최대 용량으로 변경", "모두 다른 결핵약으로 변경", "INH 중단 나머지로 6개월", "INH 대신 levofloxacin 추가하여 6개월"], "ans": 4, "exp": "INH 단독 내성: INH를 levofloxacin으로 대체하고 RIF+EMB+PZA+FQ로 6개월 치료. RIF 감수성이므로 다제내성 아님.", "id": 390},
+{"cat": "정신과", "q": "[2020기출] 72세 여자, 수년간 기억력 저하, 1년 전부터 화 자주 냄. 과거 기억은 보존, 최근 기억 회상 어려움. 진단은?", "opts": ["섬망", "치매", "조현병", "해리장애", "주요우울장애"], "ans": 1, "exp": "서서히 진행하는 인지기능 저하 + 최근 기억 장애 + 행동 변화 → 알츠하이머형 치매.", "id": 391},
+{"cat": "소아과", "q": "[2020기출] 12세 여아, 하지 자반 + 복통 + 관절통. IgA 405↑, PLT 정상. 진단은?", "opts": ["Dermatomyositis", "Henoch-Schonlein purpura", "SLE", "ITP", "TTP"], "ans": 1, "exp": "HSP(Henoch-Schönlein purpura): 하지 자반 + 복통 + 관절통 + IgA↑ + PLT 정상. 소아에서 흔한 혈관염.", "id": 392},
+{"cat": "근골격", "q": "[2020기출] 58세 여자, 목/어깨/엉덩이 통증 1개월, 조조강직, 근력정상, ESR 60↑, RF(-). 진단은?", "opts": ["Gouty arthritis", "Behcet's syndrome", "Rheumatoid arthritis", "Polymyalgia rheumatica", "SLE"], "ans": 3, "exp": "PMR: 50세↑ + 근위부 근육통 + 조조강직 + ESR↑ + RF(-) + 근력정상. prednisone에 극적 반응.", "id": 393},
+{"cat": "영양학", "q": "[2020기출] 52세 남자, 양 발바닥 화끈거림+감각저하. 과음력, 당뇨, 체중감소. 진단 검사는?", "opts": ["Electrolyte", "Ferritin", "C-peptide", "NCV", "Vitamin B1, B12"], "ans": 4, "exp": "알코올+영양결핍+말초신경병증 → B1(각기병/베르니케), B12 결핍 의심. 당뇨 신경병증과 감별 필요.", "id": 394},
+{"cat": "소화기", "q": "[2020기출] 35세 여자, 무통성 혈변, 배변 시 항문 돌출(자연환납). 2도 내치핵 치료는?", "opts": ["수술", "온수 좌욕", "냉동 요법", "고무결찰요법", "우유 섭취 권장"], "ans": 3, "exp": "2도 내치핵(배변 시 돌출, 자연 환납) → 고무결찰요법이 표준 치료. 3-4도는 수술 고려.", "id": 395},
+{"cat": "내분비", "q": "[2020기출] 45세 여자, 더위과민+심계항진, TSH 0.01↓, fT4 5.1↑, 갑상선종대(-), 안구돌출(-). 확진 검사는?", "opts": ["Neck sonography", "Thyroid scan", "Free T3", "Liver function test", "Sella CT"], "ans": 1, "exp": "갑상선중독증인데 종대/안구돌출 없음 → 그레이브스 vs 갑상선염 감별 필요 → Thyroid scan(RAIU)으로 감별.", "id": 396},
+{"cat": "전해질/신장", "q": "[2020기출] 65세 여자, 피로+근력저하. ACEi+thiazide 복합제 복용 1달. 확인할 검사는?", "opts": ["인", "칼슘", "칼륨", "포도당", "나트륨"], "ans": 2, "exp": "ACEi(고칼륨 경향) + thiazide(저칼륨 경향) 복합 → 주로 thiazide에 의한 저칼륨혈증 위험 → 칼륨 확인.", "id": 397},
+{"cat": "전해질/신장", "q": "[2020기출] 75세 남자, 3일간 설사 10회/일, 무뇨. BP 90/60, HR 120. BUN/Cr 83/4.2, K 2.8. 수액은?", "opts": ["0.9% 식염수", "5% 포도당", "25% 알부민", "하트만액", "젖산화링거액"], "ans": 0, "exp": "탈수+저혈압+빈맥+전신질소혈증 → 일단 0.9% NS로 혈량 회복. K 보충은 수액 후 별도로.", "id": 398},
+{"cat": "가정의학총론", "q": "[2020기출] 임질 남편이 외도 사실을 부인에게 숨겨달라고 요청. 의사가 부인에게 알리지 않음. 위배될 수 있는 원칙은?", "opts": ["자율성 존중", "악행 금지", "선행", "거시 배당", "미시 배당"], "ans": 0, "exp": "부인의 알 권리(자율성)를 침해. 부인은 본인의 건강에 대한 정보를 알 권리가 있으므로 자율성 존중 원칙 위배 가능.", "id": 399},
+{"cat": "응급", "q": "[2020기출] 42세 남자, 동상. 감각없음+투명수포+홍반, 감염증거 없음. 조치는?", "opts": ["조직제거술", "국소 항생제 도포", "아스피린 경구", "40-42도 물에 담그기", "수포 제거 후 Aloe vera"], "ans": 3, "exp": "동상 치료: 40-42도 따뜻한 물에 15-30분 담그기(rapid rewarming). 감염 없으면 항생제 불필요.", "id": 400},
+{"cat": "혈액", "q": "[2020기출] 48세 남자, 피곤+식욕감소+체중감소. MCV 119↑, Hb 7.5, Reticulocyte↓. 필요한 검사는?", "opts": ["혈청 철", "혈청 납", "골수 생검", "대변 잠혈반응", "혈청 엽산과 코발라민"], "ans": 4, "exp": "MCV↑(거대적혈모구빈혈) + Reticulocyte↓ → B12 또는 folate 결핍 의심 → 혈청 엽산+코발라민 측정.", "id": 401},
+{"cat": "예방접종", "q": "[2020기출] 70세 여자, 손자 인플루엔자 접촉. 고혈압+당뇨. 1주 전 인플루엔자 접종 받음. 조치는?", "opts": ["Aspirin 투여", "Oseltamivir 투여", "격리병동 입원", "면역글로불린 투여", "백신 추가 접종"], "ans": 1, "exp": "고위험군(70세, 만성질환) + 인플루엔자 밀접접촉 + 접종 1주(면역 아직 미형성) → Oseltamivir 예방 투여.", "id": 402},
+{"cat": "건강검진", "q": "[2020기출] 50세 남자, BMI 28.4, 혈액검사/내시경 정상. 심장검사 원함. 평생건강관리 차원에서 권고할 것은?", "opts": ["허리둘레 측정", "심전도 검사", "운동부하검사", "관상동맥조영술", "아스피린 예방요법"], "ans": 0, "exp": "비만(BMI 28.4) → 대사증후군 선별: 허리둘레 측정이 우선. 증상 없는 환자에게 운동부하/관상동맥 조영은 부적절.", "id": 403},
+{"cat": "소아과", "q": "[2020기출] 9개월 남아, 좌측 음낭 부종, 크기 변동, 무통, 투광검사 양성. 조치는?", "opts": ["2세까지 관찰", "항생제 투여", "주사기로 흡인", "고위결찰술", "고환고정술"], "ans": 0, "exp": "교통성 음낭수종(투광검사+, 크기 변동) → 1-2세까지 자연 소실 가능 → 관찰. 지속 시 고위결찰술.", "id": 404},
+{"cat": "노인의학", "q": "[2020기출] 75세 남자, 친구 사망 후 우울감+기력저하. 통증없음, 체중변화없음, 보청기/돋보기 사용. 우선 시행할 검사는?", "opts": ["간이영양 평가", "노인우울척도 평가", "간이정신상태 검사", "연명의료계획서 작성", "일상생활수행능력 평가"], "ans": 1, "exp": "친구 사별 후 우울감+기력저하 → 노인우울척도(GDS) 평가가 우선. 인지기능 문제보다 우울증 선별이 먼저.", "id": 405},
+{"cat": "내분비", "q": "[2020기출] 39세 여자, 골밀도 이상. Ca 11.0↑, P 2.7↓. 다음 시행할 검사는?", "opts": ["비타민 D", "갑상선기능", "요단백 전기영동", "부갑상선호르몬(PTH)", "요추 MRI"], "ans": 3, "exp": "고칼슘+저인 → 원발성 부갑상선항진증 의심 → PTH 측정으로 확인.", "id": 406},
+{"cat": "호흡기", "q": "[2020기출] 68세 남자, COPD 7년, 최근 감기 후 호흡곤란 악화, RR 24. 치료는?", "opts": ["산소 투여", "경험적 항생제", "경구 스테로이드", "비침습적 양압환기", "기관 삽관"], "ans": 2, "exp": "COPD 급성악화: 전신 스테로이드(경구 prednisolone 5일)가 핵심 치료. 감염 동반 시 항생제도 병용.", "id": 407},
+{"cat": "산부인과", "q": "[2020기출] 임신 32주, 질 소양감+치즈양 흰 분비물+냄새없음. 임신당뇨. 치료는?", "opts": ["Clindamycin 경구", "Fluconazole 경구", "Metronidazole 경구", "Clotrimazole 국소", "Hydrocortisone 국소"], "ans": 3, "exp": "임산부 칸디다 질염 → 경구 fluconazole 금기(기형 위험) → Clotrimazole 국소 도포가 안전.", "id": 408},
+{"cat": "내분비", "q": "[2020기출] 30세 남자, 고혈압+저칼륨+근무력감, 이뇨제로 악화. 레닌 0.1↓. 진단 검사는?", "opts": ["Low dose dex 억제검사", "IV saline loading", "24시간 소변 카테콜아민", "Renal scan", "CRH 자극검사"], "ans": 1, "exp": "고혈압+저칼륨+저레닌 → 원발성 알도스테론증 의심 → 확진: IV saline loading test (식염수 부하검사).", "id": 409},
+{"cat": "금연/금주", "q": "[2020기출] 37세 남자, 코골이 심하고 주간 졸림, 수면 8시간인데 피곤, 체중 10kg↑. 검사는?", "opts": ["혈색소", "전해질", "갑상선기능", "코르티솔/ACTH", "수면다원검사"], "ans": 4, "exp": "코골이+주간 졸림+비만 → 폐쇄성 수면무호흡증 의심 → 수면다원검사(polysomnography)로 확진.", "id": 410},
+{"cat": "근골격", "q": "[2020기출] 26세 여자, 스키 넘어짐 후 무릎 부종, Lachman 검사 양성. 손상 구조물은?", "opts": ["외측부인대(LCL)", "내측부인대(MCL)", "전방십자인대(ACL)", "후방십자인대(PCL)", "반월판"], "ans": 2, "exp": "Lachman 검사 양성 = 전방십자인대(ACL) 파열. 스포츠 손상에서 가장 흔한 무릎 인대 손상.", "id": 411},
+{"cat": "호흡기", "q": "[2020기출] 65세 남자, 3년간 기침/가래/호흡곤란. 45갑년. 폐기능: FEV1 25%, FEV1/FVC 55%. COPD 치료는?", "opts": ["SABA prn", "LAMA", "LAMA+LABA", "LAMA+LABA+ICS", "폐이식 고려"], "ans": 3, "exp": "FEV1 25%(매우 심한 COPD, GOLD 4) + 빈번한 악화 → LAMA+LABA+ICS 3제 요법. 증상 심하면 폐이식 고려.", "id": 412},
+{"cat": "순환기", "q": "[2020기출] 55세 남자, 간헐적 심계항진 5년. 고혈압+당뇨. 심전도상 불규칙한 RR 간격, f파. 치료제는?", "opts": ["Aspirin", "Warfarin", "Amiodarone", "Verapamil", "Metoprolol"], "ans": 1, "exp": "심방세동(f파, 불규칙 RR) + 고혈압 + 당뇨 → CHA₂DS₂-VASc ≥2 → 항응고제(Warfarin or DOAC) 필요.", "id": 413},
+{"cat": "신경과", "q": "[2020기출] 고혈압 60세 남자, 2일 전 우측 안면마비(이마주름 없어짐, 눈 감기 어려움). 그 외 신경학적 이상 없음. 치료는?", "opts": ["경과관찰", "acyclovir", "스테로이드", "항혈소판제", "뇌 MRI"], "ans": 2, "exp": "말초성 안면마비(벨마비): 이마주름 소실 → 말초성. 발병 3일 이내 스테로이드 시작 (7-10일).", "id": 414},
+{"cat": "이비인후과", "q": "[2020기출] 42세 여자, 갑자기 어지러움 빙글빙글 2시간 지속, 한쪽 귀 먹먹함+청력저하+이명. 진단은?", "opts": ["BPPV", "메니에르병", "전정신경염", "돌발성 난청", "중추성 현훈"], "ans": 1, "exp": "반복 발작성 회전성 현훈(수시간) + 이충만감 + 편측 청력저하 + 이명 = 메니에르병.", "id": 415},
+{"cat": "산부인과", "q": "[2020기출] 임신 20주, 남편 임질. 요도 분비물 그람염색: 그람음성 쌍알균. 임산부 치료는?", "opts": ["Doxycycline", "Ciprofloxacin", "Ceftriaxone IM", "Azithromycin 단독", "Metronidazole"], "ans": 2, "exp": "임산부 임균감염: doxycycline/ciprofloxacin 금기 → ceftriaxone IM(+azithromycin 병합). 임산부 안전.", "id": 416},
+{"cat": "정신과", "q": "[2020기출] 30세 여자, 10년 이상 비관적/허무적, 입맛↓, 집중력↓. 진단은?", "opts": ["주요우울장애", "지속성 우울장애(기분저하증)", "범불안장애", "적응장애", "인격장애"], "ans": 1, "exp": "2년 이상 지속되는 만성 우울감+비관적 사고 → 지속성 우울장애(기분저하증, dysthymia). 주요우울장애는 2주 이상.", "id": 417},
+{"cat": "예방접종", "q": "[2020기출] ITP 환자, 비장절제 예정. 수술 전 접종해야 하는 백신은?", "opts": ["인플루엔자", "폐렴구균", "대상포진", "A형간염", "B형간염"], "ans": 1, "exp": "비장절제 전(최소 2주 전) 폐렴구균+수막구균+Hib 백신 접종 필수. 무비증 → 캡슐화 세균 감염 위험↑.", "id": 418},
+{"cat": "산부인과", "q": "[2020기출] 28세 여자, 3개월간 체중 10kg↑, 무월경 6개월, 자색 복부선조, 중심성 비만. 검사는?", "opts": ["갑상선기능", "임신검사", "OGTT", "24시간 소변 유리코티솔", "LH/FSH"], "ans": 3, "exp": "중심성 비만+자색 선조+무월경+체중↑ → 쿠싱증후군 의심 → 24시간 소변 유리 코티솔 or overnight dex 억제검사.", "id": 419},
+{"cat": "영양학", "q": "[2020기출] 가임기 여성 신경관 결손 예방 엽산 최소 권장용량은?", "opts": ["0.1 mg", "0.2 mg", "0.4 mg", "1.0 mg", "4.0 mg"], "ans": 2, "exp": "NTD 예방: 가임기 여성 엽산 0.4 mg/일. 과거 NTD 출산력 있으면 4.0 mg/일.", "id": 420},
+{"cat": "호흡기", "q": "[2020기출] 17세 남자, 호흡곤란+기침, 한 달에 1번 야간 호흡곤란. 폐기능: FEV1/FVC↓, 기관지확장제 반응(+). 치료는?", "opts": ["SABA prn만", "저용량 ICS", "저용량 ICS+LABA", "중용량 ICS+LABA", "경구 스테로이드"], "ans": 1, "exp": "경증 지속성 천식(주간 >1/주, 야간 >2/월) → 2단계: 저용량 ICS 유지. SABA prn만으로는 부족.", "id": 421},
+{"cat": "비뇨기", "q": "[2020기출] 34세 여자, 반복적 감각이상+저칼륨+대사성 알칼리증+정상 혈압. 레이노현상, 항핵항체 양성. 치료로 적절한 것은?", "opts": ["ACEi", "spironolactone", "KCl 보충", "thiazide", "NSAIDs"], "ans": 2, "exp": "저칼륨혈증 + 대사성 알칼리증 → KCl 보충이 기본. 원인 감별 후 추가 치료.", "id": 422},
+{"cat": "정신과", "q": "[2022기출] 30세 여자, 항상 타인의 관심 끌고 싶어함, 유혹적 외모/복장, 극적이고 과장된 행동. 성격장애 유형은?", "opts": ["경계성", "연극성", "의존성", "편집성", "반사회성"], "ans": 1, "exp": "연극성 인격장애(Histrionic PD): 과도한 관심 추구, 유혹적 행동, 극적/과장된 감정 표현.", "id": 423},
+{"cat": "정신과", "q": "[2022기출] 23세 여자, 3개월 전 교통사고 후 2개월간 공포+회피+악몽+놀람반응. 진단은?", "opts": ["공황장애", "적응장애", "범불안장애", "급성 스트레스 장애", "외상후 스트레스 장애(PTSD)"], "ans": 4, "exp": "외상 후 1개월 이상 재경험+회피+과각성+부정적 인지/감정 → PTSD. 1개월 미만이면 급성 스트레스 장애.", "id": 424},
+{"cat": "소아과", "q": "[2022기출] 3세 여아, 반복 요로감염(1년간 3회). DMSA 이상. 소변배양 음성. 적절한 검사는?", "opts": ["신생검", "신초음파", "정맥내 요로조영술", "복부 CT", "배뇨 방광 요도 조영술(VCUG)"], "ans": 4, "exp": "반복 요로감염 소아 → 방광요관역류(VUR) 확인 필요 → 배뇨 방광 요도 조영술(VCUG).", "id": 425},
+{"cat": "가정의학총론", "q": "[2022기출] 32세 여자, 속쓰림+야간기침, 집앞 가정의학과의원 방문하여 해결. 일차의료 속성은?", "opts": ["조정", "포괄성", "지속성", "최초 접촉", "가족 지향"], "ans": 3, "exp": "비용 걱정 없이 쉽게 접근 가능한 가정의학과의원 → 최초 접촉(first contact) 기능.", "id": 426},
+{"cat": "소화기", "q": "[2022기출] 59세 남자, 위내시경: fundic gland polyp. 소화불량/속쓰림 외 무증상. 조치는?", "opts": ["용종절제술", "위부분절제술", "PPI 유지요법", "경험적 H.pylori 제균", "경과 관찰 및 정기 내시경"], "ans": 4, "exp": "Fundic gland polyp: 양성, 암 위험 매우 낮음 → 경과 관찰. PPI 장기사용과 연관될 수 있음.", "id": 427},
+{"cat": "소화기", "q": "[2022기출] 55세 남자, 우상복부 통증+발열. 담석력. 초음파: 담석+담낭벽 비후. AST/ALT 490/500↑, ALP 1085↑, Tbil 3.2↑. 진단은?", "opts": ["급성 췌장염", "급성 담관담낭염", "총담관 낭종", "췌장두부암"], "ans": 1, "exp": "담석+발열+담낭벽비후+간수치/담도효소 현저히 상승+황달 → 급성 담관담낭염(cholangitis + cholecystitis).", "id": 428},
+{"cat": "혈액", "q": "[2022기출] 21세 남자, 적갈색 소변(아침에 진하고 오후 옅어짐), 창백+황달, Hb 7.8, PLT 10만, Tbil 3.8(indirect 주). 진단은?", "opts": ["Thalassemia", "Pernicious anemia", "Sickle cell anemia", "Hereditary spherocytosis", "Paroxysmal nocturnal hemoglobinuria (PNH)"], "ans": 4, "exp": "아침 첫 소변이 가장 진한 적갈색(수면 중 산성화 → 보체 활성화 → 용혈 악화) → PNH의 특징적 소견.", "id": 429},
+{"cat": "내분비", "q": "[2022기출] 53세 여자, 체중↑ 6개월간 5kg, 우울+피로+불면+기억력↓. TSH 9.98↑, fT4 0.35↓, anti-TPO 245↑. 치료는?", "opts": ["estrogen", "fluoxetine", "liraglutide", "levothyroxine", "methimazole"], "ans": 3, "exp": "TSH↑ + fT4↓ + anti-TPO(+) = 하시모토 갑상선기능저하증 → levothyroxine 보충 치료.", "id": 430},
+{"cat": "내분비", "q": "[2022기출] 65세 여자, 전신무력감+통증. 당뇨 메트포르민 복용. ACTH <1.1↓, cortisol 0.5↓. 검사는?", "opts": ["ACTH 자극검사", "anti-TPO", "고용량 dex 억제검사", "인슐린 유발 저혈당", "저용량 dex 억제검사"], "ans": 0, "exp": "ACTH↓ + cortisol↓ → 이차성 부신기능저하(뇌하수체 문제). ACTH 자극검사로 부신 반응 확인.", "id": 431},
+{"cat": "순환기", "q": "[2022기출] 70세 남자, 보행 시 다리통증, 급히 걸으면 악화, 서면 호전. 피부 위축+차가움. 50갑년. 진단은?", "opts": ["척추협착증", "말초신경병증", "말초동맥질환", "하지불안증후군", "심부정맥혈전증"], "ans": 2, "exp": "간헐적 파행(보행 시 통증, 휴식 시 호전) + 피부 위축+냉감 + 흡연력 → 말초동맥질환(PAD).", "id": 432},
+{"cat": "안과", "q": "[2022기출] 38세 여성, 당뇨 처음 진단 후 안저검사에서 비증식성 당뇨망막병증 발견. 조치는?", "opts": ["유리체절제술", "6개월에 1회 안저검사", "1년에 1회 안저검사", "범망막광응고술", "Anti-VEGF 주사"], "ans": 1, "exp": "비증식성 당뇨망막병증 → 6개월에 1회 안저검사로 추적. 증식성으로 진행 시 범망막광응고술.", "id": 433},
+{"cat": "피부과", "q": "[2022기출] 6세 남아, 얼굴에 홍반→수포→고름물집→노란색 딱지. 유치원 친구들도 동일 병변. 치료는?", "opts": ["상처 부위 소독", "항생제 국소도포", "항진균제 국소도포", "스테로이드제 국소도포", "항바이러스제 국소도포"], "ans": 1, "exp": "전염성 농가진(impetigo): 황색포도구균/연쇄구균. 전염성 높음. 국소 항생제(mupirocin) 도포. 광범위시 경구항생제.", "id": 434},
+{"cat": "순환기", "q": "[2022기출] 건선 환자에서 피해야 할 혈압강하제는?", "opts": ["알파 차단제", "CCB", "ARB", "ACEi", "베타차단제"], "ans": 4, "exp": "건선에서 베타차단제는 건선 악화 유발 가능 → 금기/주의. ACEi도 일부 보고 있으나 BB가 가장 대표적.", "id": 435},
+{"cat": "감염", "q": "[2022기출] 35세 여자, 발열+우측 옆구리통증+오심구토. CVA 압통(+). 소변: 아질산염(+), WBC 50-60/HPF. 치료는?", "opts": ["Ampicillin 경구", "Ceftriaxone 정맥", "Vancomycin 정맥", "Cefpodoxime 경구", "Ciprofloxacin 경구"], "ans": 1, "exp": "급성 신우신염 + 구토(경구약 어려움) → IV 항생제: Ceftriaxone 정맥주사. 경구 가능하면 FQ도 가능.", "id": 436},
+{"cat": "산부인과", "q": "[2022기출] 비만 30세, 임신 24주, 과거 임신성 당뇨 병력. 적절한 선별검사는?", "opts": ["당화혈색소", "50g OGTT", "75g OGTT", "100g OGTT", "공복+식후 2시간 혈당"], "ans": 1, "exp": "임신성 당뇨 선별: 24-28주에 50g OGTT(1시간 혈당 측정). 양성이면 100g OGTT로 확진.", "id": 437},
+{"cat": "소화기", "q": "[2022기출] 52세 남자, 십이지장 궤양+CLO(+). 2주 제균요법 후 확인 검사 시기와 방법은?", "opts": ["1주 후 UBT", "2주 후 CLO", "2주 후 UBT", "4주 후 CLO", "4주 후 UBT"], "ans": 4, "exp": "십이지장궤양 제균 확인: 제균 완료 4주 후 요소호기검사(UBT). 위궤양은 내시경+조직검사.", "id": 438},
+{"cat": "호흡기", "q": "[2022기출] 67세 남자, 3개월간 마른기침+호흡곤란 진행. 40갑년. 안정 시 SpO2 98%, 50m 보행 후 84%↓. 양쪽 하부 미세 거품소리. 진단은?", "opts": ["기관지확장증", "사이질폐질환(ILD)", "COPD", "폐색전증", "심부전"], "ans": 1, "exp": "운동 시 탈산소화(98→84%) + 양측 하부 미세 거품소리(velcro crackle) → 사이질폐질환(IPF 등).", "id": 439},
+{"cat": "산부인과", "q": "[2022기출] 29세 여자, 분만 3일째 수유 중 양쪽 유방 통증. 유방 가득참, 발적 없음, WBC 정상, 체온 37.9. 조치는?", "opts": ["수액 투여", "Fluconazole", "유방마사지", "Clindamycin", "유방 바늘흡인"], "ans": 2, "exp": "분만 후 양측 유방울혈(engorgement): 발적없음+WBC정상 → 감염 아님 → 유방마사지+수유지속+냉/온찜질.", "id": 440},
+{"cat": "소화기", "q": "[2022기출] 63세 남자, 복통+구토 2일. 폐렴 치료 중. 장음 감소, 복부팽만, 공명음. 단순복부촬영 이상. 조치는?", "opts": ["식도위내시경", "대장내시경", "비위관 삽입", "응급 수술", "항생제 변경"], "ans": 2, "exp": "장폐색(복통+구토+장음감소+복부팽만+X-ray 이상) → 초기 보존적 치료: 비위관(NG tube) 감압 + 금식 + 수액.", "id": 441}
+];
+
+let mode='quiz',currentCat='전체',currentQ=0,quizSet=[],answered={},wrongSet=new Set(),bookmarks=new Set();
+const LS_KEY='fm_quiz_';
+function loadState(){try{const d=JSON.parse(localStorage.getItem(LS_KEY+'state')||'{}');answered=d.answered||{};wrongSet=new Set(d.wrongSet||[]);bookmarks=new Set(d.bookmarks||[])}catch(e){}}
+function saveState(){localStorage.setItem(LS_KEY+'state',JSON.stringify({answered,wrongSet:[...wrongSet],bookmarks:[...bookmarks]}))}
+function getCats(){return['전체',...[...new Set(questions.map(q=>q.cat))]]}
+function updateStats(){const done=Object.keys(answered).length;const correct=Object.values(answered).filter(v=>v).length;const wrong=done-correct;document.getElementById('st-done').textContent=done;document.getElementById('st-correct').textContent=correct;document.getElementById('st-wrong').textContent=wrong;document.getElementById('st-rate').textContent=done?Math.round(correct/done*100)+'%':'0%';document.getElementById('total-q').textContent=questions.length}
+function renderCats(){const el=document.getElementById('cat-filters');el.innerHTML=getCats().map(c=>`<div class="cat-btn${c===currentCat?' active':''}" data-cat="${c}">${c} (${c==='전체'?questions.length:questions.filter(q=>q.cat===c).length})</div>`).join('');el.querySelectorAll('.cat-btn').forEach(b=>b.onclick=()=>{currentCat=b.dataset.cat;renderCats();render()})}
+function getFiltered(){let qs=currentCat==='전체'?[...questions]:questions.filter(q=>q.cat===currentCat);const search=document.getElementById('search-box').value.trim().toLowerCase();if(search)qs=qs.filter(q=>(q.q+q.opts.join('')+q.exp+(q.cat||'')).toLowerCase().includes(search));return qs}
+function render(){const area=document.getElementById('quiz-area');const pb=document.getElementById('progress-bar');const sb=document.getElementById('search-box');pb.classList.add('hidden');sb.classList.add('hidden');if(mode==='quiz'){quizSet=getFiltered();currentQ=0;if(!quizSet.length){area.innerHTML='<p style="text-align:center;color:var(--text2)">해당 카테고리에 문제가 없습니다.</p>';return}renderQuiz()}else if(mode==='study'){sb.classList.remove('hidden');renderStudy()}else if(mode==='wrong'){renderWrong()}else if(mode==='bookmark'){renderBookmark()}else if(mode==='random'){quizSet=shuffle([...questions]).slice(0,20);currentQ=0;renderQuiz()}}
+function renderQuiz(){const area=document.getElementById('quiz-area');const pb=document.getElementById('progress-bar');pb.classList.remove('hidden');if(currentQ>=quizSet.length){const correct=quizSet.filter(q=>answered[q.id]).length;const pct=Math.round(correct/quizSet.length*100);area.innerHTML=`<div class="result-card"><div class="score">${pct}%</div><div class="msg">${quizSet.length}문제 중 ${correct}문제 정답</div><div class="btn-row" style="justify-content:center"><button class="btn btn-primary" onclick="currentQ=0;render()">다시 풀기</button><button class="btn btn-secondary" onclick="mode='wrong';render()">오답 보기</button></div></div>`;return}document.getElementById('progress-fill').style.width=((currentQ)/quizSet.length*100)+'%';const q=quizSet[currentQ];const isAnswered=q.id in answered;const bm=bookmarks.has(q.id);area.innerHTML=`<div class="q-card"><div class="q-num"><span>${currentQ+1} / ${quizSet.length}</span><span><span class="bookmark-btn${bm?' active':''}" onclick="toggleBm(${q.id})">★</span> <span class="q-cat">${q.cat}</span></span></div><div class="q-text">${q.q}</div><div class="options">${q.opts.map((o,i)=>{let cls='opt';if(isAnswered){const sel=answered[q.id+'_sel'];if(i===q.ans)cls+=' correct show-correct';if(i===sel&&sel!==q.ans)cls+=' wrong';if(i===sel&&sel===q.ans)cls+=' correct'}return`<div class="${cls}" data-i="${i}" onclick="selectOpt(${q.id},${i})">${String.fromCharCode(9312+i)} ${o}</div>`}).join('')}</div><div class="explanation${isAnswered?' show':''}"><h4>해설</h4>${q.exp}</div>${isAnswered?`<div class="btn-row"><button class="btn btn-primary" onclick="nextQ()">다음 문제 →</button></div>`:''}</div>`}
+function selectOpt(qid,i){if(qid in answered)return;const q=questions.find(x=>x.id===qid);const correct=i===q.ans;answered[qid]=correct;answered[qid+'_sel']=i;if(!correct)wrongSet.add(qid);else wrongSet.delete(qid);saveState();updateStats();renderQuiz()}
+function nextQ(){currentQ++;renderQuiz()}
+function toggleBm(id){bookmarks.has(id)?bookmarks.delete(id):bookmarks.add(id);saveState();render()}
+function renderStudy(){const qs=getFiltered();const area=document.getElementById('quiz-area');if(!qs.length){area.innerHTML='<p style="text-align:center;color:var(--text2)">검색 결과가 없습니다.</p>';return}area.innerHTML=qs.map(q=>`<div class="study-card"><div class="q-num"><span>#${q.id}</span><span><span class="bookmark-btn${bookmarks.has(q.id)?' active':''}" onclick="toggleBm(${q.id})">★</span> <span class="q-cat">${q.cat}</span></span></div><div class="q">${q.q}</div><div class="a">정답: ${String.fromCharCode(9312+q.ans)} ${q.opts[q.ans]}</div><div class="e">${q.exp}</div></div>`).join('')}
+function renderWrong(){const area=document.getElementById('quiz-area');const ws=[...wrongSet].map(id=>questions.find(q=>q.id===id)).filter(Boolean);if(!ws.length){area.innerHTML='<div class="mode-desc">오답이 없습니다! 🎉</div>';return}area.innerHTML=`<div class="mode-desc">틀린 문제 ${ws.length}개</div><div class="btn-row" style="margin-bottom:16px"><button class="btn btn-primary" onclick="quizSet=[...wrongSet].map(id=>questions.find(q=>q.id===id)).filter(Boolean);currentQ=0;mode='quiz';renderQuiz()">오답 다시 풀기</button><button class="btn btn-danger" onclick="wrongSet.clear();saveState();render()">오답 초기화</button></div>`+ws.map(q=>`<div class="study-card"><div class="q-num"><span>#${q.id}</span><span class="q-cat">${q.cat}</span></div><div class="q">${q.q}</div><div class="a">정답: ${String.fromCharCode(9312+q.ans)} ${q.opts[q.ans]}</div><div class="e">${q.exp}</div></div>`).join('')}
+function renderBookmark(){const area=document.getElementById('quiz-area');const bs=[...bookmarks].map(id=>questions.find(q=>q.id===id)).filter(Boolean);if(!bs.length){area.innerHTML='<div class="mode-desc">북마크한 문제가 없습니다. ★를 눌러 추가하세요.</div>';return}area.innerHTML=`<div class="mode-desc">북마크 ${bs.length}개</div><div class="btn-row" style="margin-bottom:16px"><button class="btn btn-primary" onclick="quizSet=[...bookmarks].map(id=>questions.find(q=>q.id===id)).filter(Boolean);currentQ=0;mode='quiz';renderQuiz()">북마크 퀴즈</button></div>`+bs.map(q=>`<div class="study-card"><div class="q-num"><span>#${q.id}</span><span><span class="bookmark-btn active" onclick="toggleBm(${q.id})">★</span> <span class="q-cat">${q.cat}</span></span></div><div class="q">${q.q}</div><div class="a">정답: ${String.fromCharCode(9312+q.ans)} ${q.opts[q.ans]}</div><div class="e">${q.exp}</div></div>`).join('')}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');mode=t.dataset.mode;render()});
+document.getElementById('search-box').addEventListener('input',()=>{if(mode==='study')renderStudy()});
+loadState();updateStats();renderCats();render();
+</script>
+</body>
+</html>

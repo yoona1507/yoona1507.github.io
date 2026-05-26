@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>일본어 문법 정리 (JLPT N5~N3)</title>
+<style>
+  /* ==================== 공통 ==================== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  :root {
+    --fg: #1a1a1a;
+    --fg-muted: #555;
+    --bg: #fafafa;
+    --paper: #ffffff;
+    --accent: #c9184a;
+    --accent-soft: #ffd6e0;
+    --blue: #0077b6;
+    --blue-soft: #caf0f8;
+    --green: #2a9d8f;
+    --green-soft: #d4f1ed;
+    --gold: #b8860b;
+    --gold-soft: #fff3cd;
+    --border: #e0e0e0;
+    --border-strong: #888;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+      "Noto Sans JP", "Noto Sans KR", "Apple SD Gothic Neo",
+      -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  ruby { ruby-align: center; }
+  rt { font-size: 0.55em; color: var(--fg-muted); font-weight: 400; letter-spacing: 0; }
+
+  .page {
+    max-width: 820px;
+    margin: 30px auto;
+    padding: 50px 60px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+  }
+
+  /* ==================== 화면 전용 액션바 ==================== */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar .title { font-weight: 700; margin-right: auto; font-size: 14px; }
+  .toolbar button, .toolbar a {
+    padding: 8px 14px;
+    font: 600 13px/1 inherit;
+    color: #fff;
+    background: var(--accent);
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toolbar a.secondary {
+    background: transparent;
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+  }
+  .toolbar button:hover { background: #a00e3a; }
+
+  /* ==================== 타이포그래피 ==================== */
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+    border-bottom: 4px solid var(--accent);
+    padding-bottom: 12px;
+  }
+  h1 .sub { display: block; font-size: 14px; font-weight: 500; color: var(--fg-muted); margin-top: 6px; }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 48px 0 16px;
+    padding: 10px 16px;
+    background: linear-gradient(90deg, var(--accent-soft), transparent);
+    border-left: 6px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 28px 0 10px;
+    color: var(--accent);
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 16px 0 6px;
+    color: var(--fg);
+  }
+
+  p { margin: 8px 0; }
+  ul, ol { margin: 6px 0 6px 22px; padding: 0; }
+  li { margin: 3px 0; }
+
+  .jp { font-size: 1.05em; }
+  .ko { color: var(--fg-muted); font-size: 0.92em; }
+  .romaji { color: #888; font-size: 0.85em; font-style: italic; }
+
+  /* ==================== 표 ==================== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 14px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f0f0f0;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  tbody tr:nth-child(odd) { background: #fafafa; }
+  td.center { text-align: center; }
+  td.jp { font-size: 15px; }
+
+  /* ==================== 박스 ==================== */
+  .box {
+    margin: 14px 0;
+    padding: 14px 18px;
+    border-radius: 6px;
+    border-left: 4px solid var(--blue);
+    background: var(--blue-soft);
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .box.tip { border-color: var(--gold); background: var(--gold-soft); }
+  .box.warn { border-color: var(--accent); background: var(--accent-soft); }
+  .box.example { border-color: var(--green); background: var(--green-soft); }
+  .box .label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.1);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .example-list { list-style: none; margin: 0; padding: 0; }
+  .example-list li {
+    padding: 6px 0;
+    border-bottom: 1px dashed #ddd;
+  }
+  .example-list li:last-child { border-bottom: 0; }
+  .example-list .jp { display: block; }
+  .example-list .ko { display: block; margin-top: 2px; }
+
+  /* 품사/레벨 태그 */
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .tag.n5 { background: #d4f1ed; color: #0a7363; }
+  .tag.n4 { background: #caf0f8; color: #005a80; }
+  .tag.n3 { background: #ffd6e0; color: #a80e38; }
+  .tag.n2 { background: #fff3cd; color: #7a5a00; }
+
+  .grammar-item {
+    margin: 16px 0;
+    padding: 14px 16px;
+    background: #fafafa;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .grammar-item h4 { margin: 0 0 4px; font-size: 16px; }
+  .grammar-item .meaning { color: var(--fg-muted); font-size: 13px; margin-bottom: 4px; }
+  .grammar-item .pattern {
+    display: inline-block;
+    background: #fff;
+    padding: 2px 8px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-bottom: 8px;
+    font-family: "SF Mono", Menlo, monospace;
+  }
+
+  .toc {
+    margin: 20px 0 30px;
+    padding: 20px 24px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    page-break-after: always;
+    break-after: page;
+  }
+  .toc h2 { margin: 0 0 12px; font-size: 18px; background: none; border: 0; padding: 0; }
+  .toc ol { columns: 2; column-gap: 30px; margin-left: 18px; }
+  .toc li { margin: 4px 0; break-inside: avoid; }
+  .toc a { color: var(--fg); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+
+  .page-break { page-break-before: always; break-before: page; }
+
+  /* ==================== 홈 버튼 ==================== */
+  .hub-home-btn {
+    position: fixed;
+    top: 60px;
+    left: 16px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font: 600 12px/1 inherit;
+    color: var(--fg);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+  .hub-home-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* ==================== 프린트 ==================== */
+  @media print {
+    @page { size: A4; margin: 16mm 14mm; }
+    body { background: #fff; font-size: 11pt; line-height: 1.55; }
+    .toolbar, .hub-home-btn { display: none !important; }
+    .page {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    h1 { font-size: 22pt; }
+    h2 { font-size: 15pt; margin-top: 20pt; }
+    h3 { font-size: 12pt; margin-top: 14pt; }
+    h4 { font-size: 11pt; }
+    .box, .grammar-item, table { page-break-inside: avoid; break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    rt { font-size: 0.5em; }
+  }
+
+  @media (max-width: 640px) {
+    .page { margin: 0; padding: 24px 16px; border-radius: 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 19px; }
+    h3 { font-size: 16px; }
+    .toc ol { columns: 1; }
+    .hub-home-btn { top: 56px; }
+    table { font-size: 13px; }
+    th, td { padding: 6px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar" role="toolbar" aria-label="문서 동작">
+  <span class="title">📘 일본어 문법 정리 (JLPT N5~N3)</span>
+  <a class="secondary" href="../index.html">← 홈</a>
+  <a class="secondary" href="../grammar-quiz/index.html">📝 연습문제</a>
+  <button onclick="window.print()" title="PDF로 저장 (⌘P / Ctrl+P)">🖨️ PDF로 저장</button>
+</div>
+
+<a class="hub-home-btn" href="../index.html" aria-label="허브 홈으로 이동">← 홈</a>
+
+<main class="page">
+
+<h1>
+  일본어 문법 정리
+  <span class="sub">JLPT N5~N3 · 동사 변형 · 수동/사역 · 핵심 문법 표현</span>
+</h1>
+
+<div class="box tip">
+  <span class="label">📖 사용 안내</span>
+  <p style="margin:0;">
+    한자 위의 작은 글씨가 <strong>후리가나(ふりがな)</strong>입니다.
+    PDF로 저장하려면 오른쪽 위 <strong>🖨️ PDF로 저장</strong> 버튼을 누르거나
+    <strong>⌘P (Mac) / Ctrl+P (Windows)</strong> → "PDF로 저장" 을 선택하세요.
+  </p>
+</div>
+
+<nav class="toc" aria-label="목차">
+  <h2>📑 목차</h2>
+  <ol>
+    <li><a href="#ch1">1. 동사의 3가지 분류</a></li>
+    <li><a href="#ch2">2. 동사 활용 총정리 표</a></li>
+    <li><a href="#ch3">3. て형·た형 만들기</a></li>
+    <li><a href="#ch4">4. 수동형 (受け身)</a></li>
+    <li><a href="#ch5">5. 사역형 (使役)</a></li>
+    <li><a href="#ch6">6. 사역수동형 (使役受け身)</a></li>
+    <li><a href="#ch7">7. 가능형·의지형·명령형</a></li>
+    <li><a href="#ch8">8. 조건형 (ば / たら / なら / と)</a></li>
+    <li><a href="#ch9">9. 형용사 활용 (い형·な형)</a></li>
+    <li><a href="#ch10">10. 주요 조사 정리</a></li>
+    <li><a href="#ch11">11. JLPT N5 핵심 문법</a></li>
+    <li><a href="#ch12">12. JLPT N4 핵심 문법</a></li>
+    <li><a href="#ch13">13. JLPT N3 핵심 문법</a></li>
+    <li><a href="#ch14">14. 경어 (敬語) 기초</a></li>
+  </ol>
+</nav>
+
+<!-- ==================== 1. 동사 분류 ==================== -->
+<section id="ch1">
+<h2>1. 동사의 3가지 분류</h2>
+
+<p>일본어 동사는 활용 방식에 따라 3그룹으로 나뉘어요. 이것만 정확히 구분하면 모든 변형이 쉬워집니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:16%">그룹</th>
+      <th style="width:28%">특징</th>
+      <th style="width:28%">구분 방법</th>
+      <th>예시</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>1그룹</strong><br><span class="ko">5단동사<br>(う동사)</span></td>
+      <td>끝이 <strong>う단</strong>으로 끝남<br>(う, く, ぐ, す, つ, ぬ, ぶ, む, る)</td>
+      <td>る로 안 끝나거나,<br>る 앞이 あ·う·お단</td>
+      <td class="jp">
+        <ruby>書<rt>か</rt></ruby>く (쓰다)<br>
+        <ruby>話<rt>はな</rt></ruby>す (말하다)<br>
+        <ruby>帰<rt>かえ</rt></ruby>る (돌아가다) ⚠️
+      </td>
+    </tr>
+    <tr>
+      <td><strong>2그룹</strong><br><span class="ko">1단동사<br>(る동사)</span></td>
+      <td>끝이 <strong>る</strong>로 끝남<br>る 앞이 <strong>い단 · え단</strong></td>
+      <td>る 앞의 소리 확인</td>
+      <td class="jp">
+        <ruby>見<rt>み</rt></ruby>る (보다)<br>
+        <ruby>食<rt>た</rt></ruby>べる (먹다)<br>
+        <ruby>起<rt>お</rt></ruby>きる (일어나다)
+      </td>
+    </tr>
+    <tr>
+      <td><strong>3그룹</strong><br><span class="ko">불규칙</span></td>
+      <td>딱 2개만 존재</td>
+      <td>외워버리기</td>
+      <td class="jp">
+        する (하다)<br>
+        <ruby>来<rt>く</rt></ruby>る (오다)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box warn">
+  <span class="label">⚠️ 함정 동사 (예외 1그룹)</span>
+  <p>형태는 2그룹처럼 보이지만 <strong>1그룹</strong>인 동사들. 반드시 암기!</p>
+  <ul class="jp" style="margin-top:6px;">
+    <li><ruby>帰<rt>かえ</rt></ruby>る (돌아가다) · <ruby>入<rt>はい</rt></ruby>る (들어가다) · <ruby>走<rt>はし</rt></ruby>る (달리다)</li>
+    <li><ruby>知<rt>し</rt></ruby>る (알다) · <ruby>切<rt>き</rt></ruby>る (자르다) · <ruby>要<rt>い</rt></ruby>る (필요하다)</li>
+    <li><ruby>喋<rt>しゃべ</rt></ruby>る (수다 떨다) · <ruby>滑<rt>すべ</rt></ruby>る (미끄러지다) · <ruby>散<rt>ち</rt></ruby>る (떨어지다)</li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 2. 활용 총정리 ==================== -->
+<section id="ch2">
+<h2>2. 동사 활용 총정리 표</h2>
+
+<p>각 그룹별로 어떻게 변형되는지 한눈에 비교하세요. <span class="jp"><ruby>書<rt>か</rt></ruby>く</span> (쓰다, 1그룹), <span class="jp"><ruby>食<rt>た</rt></ruby>べる</span> (먹다, 2그룹), <span class="jp">する</span> (하다, 3그룹) 으로 예시를 통일했습니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>활용형</th>
+      <th>의미 / 쓰임</th>
+      <th>1그룹 <span class="jp"><ruby>書<rt>か</rt></ruby>く</span></th>
+      <th>2그룹 <span class="jp"><ruby>食<rt>た</rt></ruby>べる</span></th>
+      <th>3그룹 <span class="jp">する</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>사전형</strong><br>(辞書形)</td>
+      <td>기본형, 반말</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>く</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べる</td>
+      <td class="jp">する</td>
+    </tr>
+    <tr>
+      <td><strong>ます형</strong></td>
+      <td>정중형 (~합니다)</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>きます</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べます</td>
+      <td class="jp">します</td>
+    </tr>
+    <tr>
+      <td><strong>ない형</strong></td>
+      <td>부정 (~하지 않다)</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>かない</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べない</td>
+      <td class="jp">しない</td>
+    </tr>
+    <tr>
+      <td><strong>て형</strong></td>
+      <td>연결 (~하고/해서)</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>いて</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べて</td>
+      <td class="jp">して</td>
+    </tr>
+    <tr>
+      <td><strong>た형</strong></td>
+      <td>과거 (~했다)</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>いた</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べた</td>
+      <td class="jp">した</td>
+    </tr>
+    <tr>
+      <td><strong>의지형</strong><br>(意向形)</td>
+      <td>~하자/하려 하다</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>こう</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べよう</td>
+      <td class="jp">しよう</td>
+    </tr>
+    <tr>
+      <td><strong>명령형</strong></td>
+      <td>~해! (거친 명령)</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>け</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べろ</td>
+      <td class="jp">しろ/せよ</td>
+    </tr>
+    <tr>
+      <td><strong>가정형</strong><br>(ば형)</td>
+      <td>~하면</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>けば</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べれば</td>
+      <td class="jp">すれば</td>
+    </tr>
+    <tr>
+      <td><strong>가능형</strong></td>
+      <td>~할 수 있다</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>ける</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べられる</td>
+      <td class="jp">できる</td>
+    </tr>
+    <tr>
+      <td><strong>수동형</strong><br>(受け身)</td>
+      <td>~당하다/받다</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>かれる</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べられる</td>
+      <td class="jp">される</td>
+    </tr>
+    <tr>
+      <td><strong>사역형</strong><br>(使役)</td>
+      <td>~시키다/하게 하다</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>かせる</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べさせる</td>
+      <td class="jp">させる</td>
+    </tr>
+    <tr>
+      <td><strong>사역수동</strong><br>(使役受け身)</td>
+      <td>(억지로) ~하게 됨</td>
+      <td class="jp"><ruby>書<rt>か</rt></ruby>かされる<br><ruby>書<rt>か</rt></ruby>かせられる</td>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べさせられる</td>
+      <td class="jp">させられる</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>1그룹 활용 규칙 (う단 → 다른 단)</h3>
+<table>
+  <thead>
+    <tr><th>만들 형태</th><th>바꾸는 법</th><th>예: 書く (か <strong>く</strong>)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>ます형</td><td>う단 → い단 + ます</td><td class="jp">書<strong>き</strong>ます</td></tr>
+    <tr><td>ない형</td><td>う단 → あ단 + ない<br>(단, う로 끝나면 あ가 아니라 <strong>わ</strong>)</td><td class="jp">書<strong>か</strong>ない<br>買う → 買<strong>わ</strong>ない</td></tr>
+    <tr><td>의지형</td><td>う단 → お단 + う</td><td class="jp">書<strong>こ</strong>う</td></tr>
+    <tr><td>가정형</td><td>う단 → え단 + ば</td><td class="jp">書<strong>け</strong>ば</td></tr>
+    <tr><td>가능형</td><td>う단 → え단 + る</td><td class="jp">書<strong>け</strong>る</td></tr>
+    <tr><td>수동형</td><td>う단 → あ단 + れる</td><td class="jp">書<strong>か</strong>れる</td></tr>
+    <tr><td>사역형</td><td>う단 → あ단 + せる</td><td class="jp">書<strong>か</strong>せる</td></tr>
+    <tr><td>명령형</td><td>う단 → え단</td><td class="jp">書<strong>け</strong></td></tr>
+  </tbody>
+</table>
+
+<h3>2그룹 활용 규칙 (る 떼고 연결)</h3>
+<p>훨씬 쉬워요! <strong>る를 떼고</strong> 필요한 어미만 붙이면 끝.</p>
+<ul class="jp">
+  <li>食べ<strong>る</strong> → 食べ + <strong>ます / ない / て / た / よう / れば / られる</strong></li>
+  <li>食べ + <strong>られる</strong> → 가능형 & 수동형이 <strong>같음</strong> (문맥으로 구분)</li>
+  <li>食べ + <strong>させる</strong> → 사역형</li>
+  <li>명령형: 食べ + <strong>ろ</strong></li>
+</ul>
+
+<div class="box">
+  <span class="label">💡 2그룹 가능형: ら 뺀 「食べれる」?</span>
+  <p>요즘 회화에선 「食べ<strong>ら</strong>れる」 대신 「食べれる」로 줄여 말하는 "<strong>ら抜き言葉</strong>"가 흔해요. 시험에선 공식 형태인 <strong>られる</strong>를 쓰세요.</p>
+</div>
+
+<h3>3그룹 (불규칙 — 통째로 암기)</h3>
+<table>
+  <thead>
+    <tr><th>활용형</th><th>する</th><th><ruby>来<rt>く</rt></ruby>る</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>ます형</td><td class="jp">します</td><td class="jp"><ruby>来<rt>き</rt></ruby>ます</td></tr>
+    <tr><td>ない형</td><td class="jp">しない</td><td class="jp"><ruby>来<rt>こ</rt></ruby>ない</td></tr>
+    <tr><td>て형</td><td class="jp">して</td><td class="jp"><ruby>来<rt>き</rt></ruby>て</td></tr>
+    <tr><td>의지형</td><td class="jp">しよう</td><td class="jp"><ruby>来<rt>こ</rt></ruby>よう</td></tr>
+    <tr><td>명령형</td><td class="jp">しろ / せよ</td><td class="jp"><ruby>来<rt>こ</rt></ruby>い</td></tr>
+    <tr><td>가능형</td><td class="jp">できる</td><td class="jp"><ruby>来<rt>こ</rt></ruby>られる</td></tr>
+    <tr><td>수동형</td><td class="jp">される</td><td class="jp"><ruby>来<rt>こ</rt></ruby>られる</td></tr>
+    <tr><td>사역형</td><td class="jp">させる</td><td class="jp"><ruby>来<rt>こ</rt></ruby>させる</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ==================== 3. て형·た형 ==================== -->
+<section id="ch3">
+<h2>3. て형·た형 만들기 (1그룹 규칙이 핵심!)</h2>
+
+<p>て형과 た형은 만드는 법이 같아요 (て → た 로만 바꿈). 1그룹 동사는 <strong>끝자음에 따라</strong> 변해서 외워야 해요.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>~う, ~つ, ~る</th>
+      <th>~む, ~ぶ, ~ぬ</th>
+      <th>~く</th>
+      <th>~ぐ</th>
+      <th>~す</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="center"><strong>→ ～って</strong></td>
+      <td class="center"><strong>→ ～んで</strong></td>
+      <td class="center"><strong>→ ～いて</strong></td>
+      <td class="center"><strong>→ ～いで</strong></td>
+      <td class="center"><strong>→ ～して</strong></td>
+    </tr>
+    <tr>
+      <td class="jp">
+        <ruby>買<rt>か</rt></ruby>う → 買って<br>
+        <ruby>待<rt>ま</rt></ruby>つ → 待って<br>
+        <ruby>帰<rt>かえ</rt></ruby>る → 帰って
+      </td>
+      <td class="jp">
+        <ruby>飲<rt>の</rt></ruby>む → 飲んで<br>
+        <ruby>呼<rt>よ</rt></ruby>ぶ → 呼んで<br>
+        <ruby>死<rt>し</rt></ruby>ぬ → 死んで
+      </td>
+      <td class="jp">
+        <ruby>書<rt>か</rt></ruby>く → 書いて<br>
+        <span class="ko">※예외</span><br>
+        <ruby>行<rt>い</rt></ruby>く → <strong>行って</strong>
+      </td>
+      <td class="jp">
+        <ruby>泳<rt>およ</rt></ruby>ぐ → 泳いで<br>
+        <ruby>急<rt>いそ</rt></ruby>ぐ → 急いで
+      </td>
+      <td class="jp">
+        <ruby>話<rt>はな</rt></ruby>す → 話して<br>
+        <ruby>出<rt>だ</rt></ruby>す → 出して
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box tip">
+  <span class="label">🎵 외우는 노래</span>
+  <p style="margin:0;">
+    「<strong>うつる → って / むぶぬ → んで / く → いて / ぐ → いで / す → して</strong>」<br>
+    리듬 타서 10번만 소리 내서 읽으면 평생 안 잊어요!
+  </p>
+</div>
+
+<h3>て형의 주요 용법</h3>
+<div class="grammar-item">
+  <h4>① ～ている</h4>
+  <span class="pattern">V-て + いる</span>
+  <p class="meaning">진행 / 상태 (~하고 있다 / ~해 있다)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>今<rt>いま</rt></ruby><ruby>本<rt>ほん</rt></ruby>を<ruby>読<rt>よ</rt></ruby>んでいる。</span>
+      <span class="ko">지금 책을 읽고 있다.</span>
+    </li>
+    <li>
+      <span class="jp"><ruby>窓<rt>まど</rt></ruby>が<ruby>開<rt>あ</rt></ruby>いている。</span>
+      <span class="ko">창문이 열려 있다. (상태)</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>② ～てください</h4>
+  <span class="pattern">V-て + ください</span>
+  <p class="meaning">정중한 부탁 (~해 주세요)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp">ちょっと<ruby>待<rt>ま</rt></ruby>ってください。</span>
+      <span class="ko">잠시만 기다려 주세요.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>③ ～てもいい / ～てはいけない</h4>
+  <span class="pattern">V-て + もいい / はいけない</span>
+  <p class="meaning">허가 (~해도 된다) / 금지 (~하면 안 된다)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp">ここで<ruby>写真<rt>しゃしん</rt></ruby>を<ruby>撮<rt>と</rt></ruby>ってもいいですか。</span>
+      <span class="ko">여기서 사진을 찍어도 되나요?</span>
+    </li>
+    <li>
+      <span class="jp">ここでタバコを<ruby>吸<rt>す</rt></ruby>ってはいけません。</span>
+      <span class="ko">여기서 담배를 피우면 안 됩니다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>④ ～てから / ～たあとで</h4>
+  <span class="pattern">V-て + から  /  V-た + あとで</span>
+  <p class="meaning">순서 (~하고 나서 / ~한 후에)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>手<rt>て</rt></ruby>を<ruby>洗<rt>あら</rt></ruby>ってから<ruby>食<rt>た</rt></ruby>べます。</span>
+      <span class="ko">손을 씻고 나서 먹습니다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>⑤ ～てしまう / ～ちゃう(구어)</h4>
+  <span class="pattern">V-て + しまう</span>
+  <p class="meaning">완료 강조 / 아쉬움·후회 (~해 버리다)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>財布<rt>さいふ</rt></ruby>を<ruby>忘<rt>わす</rt></ruby>れてしまった。</span>
+      <span class="ko">지갑을 잊어 버렸다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>⑥ ～ておく / ～とく(구어)</h4>
+  <span class="pattern">V-て + おく</span>
+  <p class="meaning">미리 ~해 두다</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>会議<rt>かいぎ</rt></ruby>の<ruby>前<rt>まえ</rt></ruby>に<ruby>資料<rt>しりょう</rt></ruby>を<ruby>読<rt>よ</rt></ruby>んでおきます。</span>
+      <span class="ko">회의 전에 자료를 읽어 두겠습니다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>⑦ ～てみる</h4>
+  <span class="pattern">V-て + みる</span>
+  <p class="meaning">시도 (~해 보다)</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp">この<ruby>料理<rt>りょうり</rt></ruby>、<ruby>食<rt>た</rt></ruby>べてみてください。</span>
+      <span class="ko">이 요리, 먹어 봐 주세요.</span>
+    </li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 4. 수동형 ==================== -->
+<section id="ch4" class="page-break">
+<h2>4. 수동형 (受<rt></rt>け<ruby>身<rt>み</rt></ruby>) — 당하다 / 받다</h2>
+
+<h3>만드는 법</h3>
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td>1그룹</td><td>う단 → <strong>あ단 + れる</strong></td><td class="jp"><ruby>叱<rt>しか</rt></ruby>る → 叱<strong>られる</strong> (혼나다)</td></tr>
+    <tr><td>2그룹</td><td>る → <strong>られる</strong></td><td class="jp">見る → 見<strong>られる</strong> (보여지다)</td></tr>
+    <tr><td>3그룹</td><td>する → される / 来る → 来(こ)られる</td><td class="jp">注意する → 注意<strong>される</strong> (주의 받다)</td></tr>
+  </tbody>
+</table>
+
+<h3>3가지 용법</h3>
+
+<div class="grammar-item">
+  <h4>① 직접 수동 — 누가 내게 뭘 했다</h4>
+  <span class="pattern">A は B に + V-れる/られる</span>
+  <p class="meaning">A는 B에게 ~당하다/받다</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>私<rt>わたし</rt></ruby>は<ruby>先生<rt>せんせい</rt></ruby>に<ruby>褒<rt>ほ</rt></ruby>められた。</span>
+      <span class="ko">나는 선생님께 칭찬 받았다.</span>
+    </li>
+    <li>
+      <span class="jp"><ruby>犬<rt>いぬ</rt></ruby>に<ruby>噛<rt>か</rt></ruby>まれた。</span>
+      <span class="ko">개에게 물렸다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>② 간접 수동 (피해 수동) — 일본어 특유!</h4>
+  <span class="pattern">A は B に + (C を) + V-れる/られる</span>
+  <p class="meaning">A는 B가 (C를) ~해서 <strong>피해를 입다 / 난감하다</strong></p>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>雨<rt>あめ</rt></ruby>に<ruby>降<rt>ふ</rt></ruby>られた。</span>
+      <span class="ko">비를 맞아서 곤란했다. (비가 내려서 나에게 피해)</span>
+    </li>
+    <li>
+      <span class="jp"><ruby>隣<rt>となり</rt></ruby>の<ruby>人<rt>ひと</rt></ruby>にタバコを<ruby>吸<rt>す</rt></ruby>われた。</span>
+      <span class="ko">옆 사람이 담배를 피워서 (내가) 괴로웠다.</span>
+    </li>
+    <li>
+      <span class="jp"><ruby>友達<rt>ともだち</rt></ruby>に<ruby>来<rt>こ</rt></ruby>られて、<ruby>勉強<rt>べんきょう</rt></ruby>できなかった。</span>
+      <span class="ko">친구가 와서 (방해돼서) 공부 못했다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>③ 무생물 수동 — 사물이 주어</h4>
+  <span class="pattern">N が + V-れる/られる</span>
+  <p class="meaning">신문·보도·객관 서술에 많이 사용</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp">この<ruby>本<rt>ほん</rt></ruby>は<ruby>多<rt>おお</rt></ruby>くの<ruby>人<rt>ひと</rt></ruby>に<ruby>読<rt>よ</rt></ruby>まれている。</span>
+      <span class="ko">이 책은 많은 사람들에게 읽히고 있다.</span>
+    </li>
+    <li>
+      <span class="jp">オリンピックは<ruby>東京<rt>とうきょう</rt></ruby>で<ruby>開<rt>ひら</rt></ruby>かれた。</span>
+      <span class="ko">올림픽은 도쿄에서 개최되었다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="box warn">
+  <span class="label">⚠️ 조사 주의</span>
+  <p>수동문에선 행위자 뒤에 <strong>「に」</strong> (혹은 「によって」 - 공식/창작자). 한국어 "~에게" 감각과 비슷해요.</p>
+</div>
+</section>
+
+<!-- ==================== 5. 사역형 ==================== -->
+<section id="ch5">
+<h2>5. 사역형 (使<ruby>役<rt>えき</rt></ruby>) — 시키다 / 하게 하다</h2>
+
+<h3>만드는 법</h3>
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td>1그룹</td><td>う단 → <strong>あ단 + せる</strong></td><td class="jp"><ruby>書<rt>か</rt></ruby>く → 書<strong>かせる</strong></td></tr>
+    <tr><td>2그룹</td><td>る → <strong>させる</strong></td><td class="jp"><ruby>食<rt>た</rt></ruby>べる → 食べ<strong>させる</strong></td></tr>
+    <tr><td>3그룹</td><td>する → させる / 来る → <ruby>来<rt>こ</rt></ruby>させる</td><td class="jp"><ruby>勉強<rt>べんきょう</rt></ruby>する → 勉強<strong>させる</strong></td></tr>
+  </tbody>
+</table>
+
+<h3>두 가지 뉘앙스: 강제 vs 허용</h3>
+
+<div class="grammar-item">
+  <h4>① 강제 — 억지로 시키다</h4>
+  <span class="pattern">A は B を / に + V-せる/させる</span>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>母<rt>はは</rt></ruby>は<ruby>弟<rt>おとうと</rt></ruby><strong>に</strong><ruby>野菜<rt>やさい</rt></ruby>を<ruby>食<rt>た</rt></ruby>べさせた。</span>
+      <span class="ko">엄마는 남동생에게 야채를 먹게 했다.</span>
+    </li>
+    <li>
+      <span class="jp"><ruby>先生<rt>せんせい</rt></ruby>は<ruby>学生<rt>がくせい</rt></ruby><strong>を</strong><ruby>立<rt>た</rt></ruby>たせた。</span>
+      <span class="ko">선생님은 학생을 세웠다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>② 허용 — ~하게 놔 두다 / 시켜 주다</h4>
+  <ul class="example-list">
+    <li>
+      <span class="jp"><ruby>子<rt>こ</rt></ruby>どもを<ruby>好<rt>す</rt></ruby>きなだけ<ruby>遊<rt>あそ</rt></ruby>ばせた。</span>
+      <span class="ko">아이가 원하는 만큼 놀게 해 주었다.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>③ 정중한 부탁: 「～させてください」</h4>
+  <span class="pattern">V-せて/させて + ください</span>
+  <p class="meaning">"~하게 해 주세요" = 자기가 하겠다고 양해를 구하는 정중 표현</p>
+  <ul class="example-list">
+    <li>
+      <span class="jp">ちょっと<ruby>考<rt>かんが</rt></ruby>えさせてください。</span>
+      <span class="ko">잠시 생각하게 해 주세요 (= 생각할 시간을 주세요).</span>
+    </li>
+    <li>
+      <span class="jp">その<ruby>仕事<rt>しごと</rt></ruby>、<ruby>私<rt>わたし</rt></ruby>にやらせてください。</span>
+      <span class="ko">그 일, 제가 하게 해 주세요.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="box">
+  <span class="label">🔑 を vs に 구분 포인트</span>
+  <ul style="margin:6px 0 0 18px;">
+    <li>자동사 사역 → <strong>を</strong> (학생<strong>을</strong> 세우다)</li>
+    <li>타동사 사역 → <strong>に</strong> (동생<strong>에게</strong> 야채를 먹이다) — 대상과 혼동 방지</li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 6. 사역수동 ==================== -->
+<section id="ch6">
+<h2>6. 사역수동 (使役<ruby>受<rt>う</rt></ruby>け身) — 억지로 ~하게 되다</h2>
+
+<p>사역형 + 수동형의 결합. <strong>"남이 시켜서 (내가) 억지로 ~했다"</strong> 는 뉘앙스. 불만·피해 감정이 담김.</p>
+
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1그룹</td>
+      <td>う단 → <strong>あ단 + される</strong><br>(정식: せられる → 축약)</td>
+      <td class="jp">
+        <ruby>飲<rt>の</rt></ruby>む → 飲<strong>まされる</strong><br>
+        (정식: 飲ませられる)
+      </td>
+    </tr>
+    <tr>
+      <td>2그룹</td>
+      <td>る → <strong>させられる</strong></td>
+      <td class="jp">食べる → 食べ<strong>させられる</strong></td>
+    </tr>
+    <tr>
+      <td>3그룹</td>
+      <td>する → させられる<br><ruby>来<rt>く</rt></ruby>る → <ruby>来<rt>こ</rt></ruby>させられる</td>
+      <td class="jp">勉強する → 勉強<strong>させられる</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box warn">
+  <span class="label">⚠️ 1그룹 축약 주의</span>
+  <p>1그룹은 회화에서 <strong>～される</strong> 로 축약돼요. <br>
+  단, <strong>~す로 끝나는 동사</strong> (話す, 出す 등)는 축약형을 쓰지 않고 <strong>～させられる</strong> 를 사용.<br>
+  예: 話す → 話<strong>させられる</strong> (○) / 話さされる (×)</p>
+</div>
+
+<h4>예문</h4>
+<ul class="example-list">
+  <li>
+    <span class="jp"><ruby>子<rt>こ</rt></ruby>どもの<ruby>時<rt>とき</rt></ruby>、<ruby>母<rt>はは</rt></ruby>に<ruby>野菜<rt>やさい</rt></ruby>を<ruby>食<rt>た</rt></ruby>べさせられた。</span>
+    <span class="ko">어릴 때 엄마 때문에 (억지로) 야채를 먹어야 했다.</span>
+  </li>
+  <li>
+    <span class="jp"><ruby>友達<rt>ともだち</rt></ruby>に<ruby>一<rt>いち</rt></ruby><ruby>時間<rt>じかん</rt></ruby><ruby>待<rt>ま</rt></ruby>たされた。</span>
+    <span class="ko">친구 때문에 (억지로) 1시간이나 기다려야 했다.</span>
+  </li>
+  <li>
+    <span class="jp"><ruby>会社<rt>かいしゃ</rt></ruby>で<ruby>毎日<rt>まいにち</rt></ruby><ruby>残業<rt>ざんぎょう</rt></ruby>させられている。</span>
+    <span class="ko">회사에서 매일 (억지로) 야근하고 있다.</span>
+  </li>
+</ul>
+
+<div class="box tip">
+  <span class="label">🎯 구분 요약</span>
+  <table style="margin-top:6px; background:#fff;">
+    <tr><td class="jp"><strong>飲<ruby>ま<rt></rt></ruby>せる</strong> (사역)</td><td>내가 남에게 마시게 시키다</td></tr>
+    <tr><td class="jp"><strong>飲まれる</strong> (수동)</td><td>(내 것을) 누가 마셔 버리다</td></tr>
+    <tr><td class="jp"><strong>飲まされる</strong> (사역수동)</td><td>남이 시켜서 (내가) 억지로 마시다</td></tr>
+  </table>
+</div>
+</section>
+
+<!-- ==================== 7. 가능·의지·명령 ==================== -->
+<section id="ch7">
+<h2>7. 가능형·의지형·명령형</h2>
+
+<h3>가능형 (可<ruby>能<rt>のう</rt></ruby>) — ~할 수 있다</h3>
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td>1그룹</td><td>う단 → <strong>え단 + る</strong></td><td class="jp">書く → 書<strong>ける</strong>, 飲む → 飲<strong>める</strong></td></tr>
+    <tr><td>2그룹</td><td>る → <strong>られる</strong></td><td class="jp">食べる → 食べ<strong>られる</strong></td></tr>
+    <tr><td>3그룹</td><td>する → <strong>できる</strong><br>来る → <ruby>来<rt>こ</rt></ruby>られる</td><td class="jp">運転する → 運転<strong>できる</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <span class="label">📝 가능형 주의</span>
+  <ul style="margin:6px 0 0 18px;">
+    <li>조사 변화: <strong>を → が</strong> (にほんごが話せる)</li>
+    <li>「見る · 聞く」 는 「見える · 聞こえる」 도 씀 (자연스럽게 보이고/들리고)</li>
+  </ul>
+</div>
+
+<h3>의지형 (意<ruby>向<rt>こう</rt></ruby>形) — ~하자 / ~하려고</h3>
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td>1그룹</td><td>う단 → <strong>お단 + う</strong></td><td class="jp">行く → 行<strong>こう</strong></td></tr>
+    <tr><td>2그룹</td><td>る → <strong>よう</strong></td><td class="jp">食べる → 食べ<strong>よう</strong></td></tr>
+    <tr><td>3그룹</td><td>する → <strong>しよう</strong> / 来る → <ruby>来<rt>こ</rt></ruby>よう</td><td class="jp"></td></tr>
+  </tbody>
+</table>
+
+<h4>주요 용법</h4>
+<ul class="example-list">
+  <li><span class="jp"><ruby>一緒<rt>いっしょ</rt></ruby>に<ruby>行<rt>い</rt></ruby>こう！</span><span class="ko">같이 가자!</span></li>
+  <li><span class="jp"><ruby>留学<rt>りゅうがく</rt></ruby>しようと<ruby>思<rt>おも</rt></ruby>っている。</span><span class="ko">유학하려고 생각 중이다. (～ようと思う)</span></li>
+  <li><span class="jp"><ruby>寝<rt>ね</rt></ruby>ようとした<ruby>時<rt>とき</rt></ruby>、<ruby>電話<rt>でんわ</rt></ruby>が<ruby>鳴<rt>な</rt></ruby>った。</span><span class="ko">자려 할 때 전화가 울렸다. (～ようとする)</span></li>
+</ul>
+
+<h3>명령형 — ~해! (강하게)</h3>
+<table>
+  <thead><tr><th>그룹</th><th>규칙</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td>1그룹</td><td>う단 → <strong>え단</strong></td><td class="jp">書く → 書<strong>け</strong>, 走る → 走<strong>れ</strong></td></tr>
+    <tr><td>2그룹</td><td>る → <strong>ろ</strong></td><td class="jp">食べる → 食べ<strong>ろ</strong></td></tr>
+    <tr><td>3그룹</td><td>する → <strong>しろ / せよ</strong><br>来る → <ruby>来<rt>こ</rt></ruby>い</td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="box warn">
+  <span class="label">🗣️ 명령형 사용 주의</span>
+  <p>명령형은 매우 거칠어요. 실생활에선 ① 부모→자식 ② 군대·스포츠 ③ 표지판(「<ruby>止<rt>と</rt></ruby>まれ」 멈춰!) ④ 격한 감정 표현 정도에만 씀. 대신 일상에선 <strong>～てください / ～なさい</strong> 사용.</p>
+</div>
+</section>
+
+<!-- ==================== 8. 조건형 ==================== -->
+<section id="ch8" class="page-break">
+<h2>8. 조건형 4가지 (ば / たら / なら / と)</h2>
+
+<p>한국어로는 다 "~하면" 이지만, 일본어는 미묘하게 다르게 씁니다.</p>
+
+<table>
+  <thead>
+    <tr><th>형태</th><th>핵심 뉘앙스</th><th>예시</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>～と</strong></td>
+      <td>항상 그렇게 된다 (자연법칙·습관·길안내)</td>
+      <td class="jp"><ruby>春<rt>はる</rt></ruby>になる<strong>と</strong><ruby>桜<rt>さくら</rt></ruby>が<ruby>咲<rt>さ</rt></ruby>く。<br><span class="ko">봄이 되면 벚꽃이 핀다.</span></td>
+    </tr>
+    <tr>
+      <td><strong>～ば</strong></td>
+      <td>가정·조건의 기본. 후문에 과거/명령 X</td>
+      <td class="jp"><ruby>安<rt>やす</rt></ruby>けれ<strong>ば</strong><ruby>買<rt>か</rt></ruby>います。<br><span class="ko">싸면 살게요.</span></td>
+    </tr>
+    <tr>
+      <td><strong>～たら</strong></td>
+      <td>가장 자유로움. 일회성·구어체</td>
+      <td class="jp"><ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>っ<strong>たら</strong>、<ruby>家<rt>いえ</rt></ruby>にいます。<br><span class="ko">비가 오면 집에 있을게요.</span></td>
+    </tr>
+    <tr>
+      <td><strong>～なら</strong></td>
+      <td>주제 제시형 "~라면" (상대 발화를 받아)</td>
+      <td class="jp"><ruby>温泉<rt>おんせん</rt></ruby><strong>なら</strong><ruby>箱根<rt>はこね</rt></ruby>がいいですよ。<br><span class="ko">온천이라면 하코네가 좋아요.</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box tip">
+  <span class="label">🧠 쉬운 선택 팁</span>
+  <ol style="margin:6px 0 0 18px;">
+    <li><strong>자연법칙·100% 결과</strong> → <strong>と</strong></li>
+    <li><strong>일상 대화, 일회성</strong> → <strong>たら</strong> (가장 무난)</li>
+    <li><strong>격언·속담, 가능조건</strong> → <strong>ば</strong></li>
+    <li><strong>상대가 말한 주제에 대한 조언</strong> → <strong>なら</strong></li>
+  </ol>
+</div>
+
+<h3>만드는 법</h3>
+<table>
+  <thead><tr><th>형태</th><th>동사</th><th>い형용사</th><th>な형용사</th><th>명사</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>～ば</td>
+      <td class="jp">え단+ば<br>書けば</td>
+      <td class="jp">い → ければ<br>安ければ</td>
+      <td class="jp">なら(ば)<br>静かなら</td>
+      <td class="jp">なら(ば)<br>学生なら</td>
+    </tr>
+    <tr>
+      <td>～たら</td>
+      <td class="jp">た형+ら<br>書いたら</td>
+      <td class="jp">かったら<br>安かったら</td>
+      <td class="jp">だったら<br>静かだったら</td>
+      <td class="jp">だったら<br>学生だったら</td>
+    </tr>
+    <tr>
+      <td>～なら</td>
+      <td class="jp">사전형+なら<br>書くなら</td>
+      <td class="jp">い+なら<br>安いなら</td>
+      <td class="jp">なら<br>静かなら</td>
+      <td class="jp">なら<br>学生なら</td>
+    </tr>
+    <tr>
+      <td>～と</td>
+      <td class="jp">사전형+と<br>書くと</td>
+      <td class="jp">い+と<br>安いと</td>
+      <td class="jp">だと<br>静かだと</td>
+      <td class="jp">だと<br>学生だと</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ==================== 9. 형용사 ==================== -->
+<section id="ch9">
+<h2>9. 형용사 활용 (い형용사 · な형용사)</h2>
+
+<h3>い형용사 (끝이 い로 끝남)</h3>
+<p>예: <span class="jp"><ruby>高<rt>たか</rt></ruby>い</span> (비싸다/높다)</p>
+<table>
+  <thead><tr><th>형태</th><th>규칙</th><th>예</th></tr></thead>
+  <tbody>
+    <tr><td>기본</td><td>い</td><td class="jp">高い</td></tr>
+    <tr><td>부정</td><td>い → <strong>くない</strong></td><td class="jp">高くない</td></tr>
+    <tr><td>과거</td><td>い → <strong>かった</strong></td><td class="jp">高かった</td></tr>
+    <tr><td>과거부정</td><td>い → <strong>くなかった</strong></td><td class="jp">高くなかった</td></tr>
+    <tr><td>て형 (연결)</td><td>い → <strong>くて</strong></td><td class="jp">高くて (비싸고)</td></tr>
+    <tr><td>부사화</td><td>い → <strong>く</strong></td><td class="jp">高く (높이)</td></tr>
+    <tr><td>명사 수식</td><td>い + 명사</td><td class="jp">高い<ruby>本<rt>ほん</rt></ruby></td></tr>
+  </tbody>
+</table>
+
+<div class="box warn">
+  <span class="label">⚠️ 예외: いい (좋다)</span>
+  <p>「いい」 는 활용할 때 <strong>よい</strong> 의 형태로 변해요.<br>
+  いい → よくない / よかった / よくなかった / よくて</p>
+</div>
+
+<h3>な형용사 (명사처럼 활용)</h3>
+<p>예: <span class="jp"><ruby>静<rt>しず</rt></ruby>か</span> (조용함)</p>
+<table>
+  <thead><tr><th>형태</th><th>규칙</th><th>예</th></tr></thead>
+  <tbody>
+    <tr><td>기본</td><td>명사처럼 + だ/です</td><td class="jp">静かだ / 静かです</td></tr>
+    <tr><td>부정</td><td><strong>じゃない / ではない</strong></td><td class="jp">静かじゃない</td></tr>
+    <tr><td>과거</td><td><strong>だった / でした</strong></td><td class="jp">静かだった</td></tr>
+    <tr><td>과거부정</td><td><strong>じゃなかった</strong></td><td class="jp">静かじゃなかった</td></tr>
+    <tr><td>て형 (연결)</td><td>+ <strong>で</strong></td><td class="jp">静かで (조용하고)</td></tr>
+    <tr><td>부사화</td><td>+ <strong>に</strong></td><td class="jp">静かに (조용히)</td></tr>
+    <tr><td>명사 수식</td><td>+ <strong>な</strong> + 명사</td><td class="jp">静かな<ruby>町<rt>まち</rt></ruby></td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ==================== 10. 조사 ==================== -->
+<section id="ch10">
+<h2>10. 주요 조사 정리</h2>
+
+<table>
+  <thead><tr><th>조사</th><th>핵심 의미</th><th>예시</th></tr></thead>
+  <tbody>
+    <tr><td><strong>は</strong></td><td>주제 "~은/는"</td><td class="jp"><ruby>私<rt>わたし</rt></ruby>は<ruby>学生<rt>がくせい</rt></ruby>です。</td></tr>
+    <tr><td><strong>が</strong></td><td>주격·신정보 "~이/가"</td><td class="jp"><ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>っている。</td></tr>
+    <tr><td><strong>を</strong></td><td>목적격·경로 "~을/를, ~을 통해"</td><td class="jp">パンを<ruby>食<rt>た</rt></ruby>べる。 / <ruby>公園<rt>こうえん</rt></ruby>を<ruby>歩<rt>ある</rt></ruby>く。</td></tr>
+    <tr><td><strong>に</strong></td><td>시간·장소·도착점·대상</td><td class="jp"><ruby>7時<rt>しちじ</rt></ruby>に<ruby>起<rt>お</rt></ruby>きる / <ruby>学校<rt>がっこう</rt></ruby>に<ruby>行<rt>い</rt></ruby>く</td></tr>
+    <tr><td><strong>で</strong></td><td>수단·장소(동작)·원인</td><td class="jp">バスで<ruby>行<rt>い</rt></ruby>く / <ruby>図書館<rt>としょかん</rt></ruby>で<ruby>勉強<rt>べんきょう</rt></ruby>する</td></tr>
+    <tr><td><strong>へ</strong></td><td>방향 "~쪽으로"</td><td class="jp"><ruby>東京<rt>とうきょう</rt></ruby>へ<ruby>行<rt>い</rt></ruby>く。</td></tr>
+    <tr><td><strong>と</strong></td><td>~와(함께) / 인용</td><td class="jp"><ruby>友達<rt>ともだち</rt></ruby>と<ruby>話<rt>はな</rt></ruby>す / 「はい」と<ruby>言<rt>い</rt></ruby>う</td></tr>
+    <tr><td><strong>から</strong></td><td>시작점 "~부터"</td><td class="jp"><ruby>9時<rt>くじ</rt></ruby>から<ruby>始<rt>はじ</rt></ruby>まる。</td></tr>
+    <tr><td><strong>まで</strong></td><td>종점 "~까지"</td><td class="jp"><ruby>駅<rt>えき</rt></ruby>まで<ruby>歩<rt>ある</rt></ruby>く。</td></tr>
+    <tr><td><strong>も</strong></td><td>~도, 역시</td><td class="jp"><ruby>私<rt>わたし</rt></ruby>も<ruby>行<rt>い</rt></ruby>きます。</td></tr>
+    <tr><td><strong>や</strong></td><td>~(이)랑 ~등 (열거의 일부)</td><td class="jp">りんごやバナナを<ruby>買<rt>か</rt></ruby>う。</td></tr>
+    <tr><td><strong>だけ / しか</strong></td><td>~만 / ~밖에 (しか+부정)</td><td class="jp"><ruby>一<rt>ひと</rt></ruby>つだけ / <ruby>一<rt>ひと</rt></ruby>つしかない</td></tr>
+  </tbody>
+</table>
+
+<div class="box">
+  <span class="label">🔥 헷갈리는 は vs が</span>
+  <ul style="margin:6px 0 0 18px;">
+    <li><strong>は</strong>: 이미 아는 주제, 대조, 문장 전체의 흐름</li>
+    <li><strong>が</strong>: 새 정보, 답 ("누가/무엇이?"에 대한 답), 존재문(います/あります)</li>
+    <li>예: <span class="jp"><ruby>象<rt>ぞう</rt></ruby><strong>は</strong><ruby>鼻<rt>はな</rt></ruby><strong>が</strong><ruby>長<rt>なが</rt></ruby>い。</span> (코끼리는 코가 길다 → 주제: 코끼리, 주어: 코)</li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 11. N5 ==================== -->
+<section id="ch11" class="page-break">
+<h2><span class="tag n5">N5</span> 11. JLPT N5 핵심 문법</h2>
+
+<div class="grammar-item">
+  <h4>～は～です / ～じゃありません</h4>
+  <span class="pattern">N は N です (~은/는 ~입니다)</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>私<rt>わたし</rt></ruby>は<ruby>韓国人<rt>かんこくじん</rt></ruby>です。</span><span class="ko">저는 한국인입니다.</span></li>
+    <li><span class="jp"><ruby>学生<rt>がくせい</rt></ruby>じゃありません。</span><span class="ko">학생이 아닙니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～があります / ～がいます</h4>
+  <span class="pattern">무생물: あります / 생물: います</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>机<rt>つくえ</rt></ruby>の<ruby>上<rt>うえ</rt></ruby>に<ruby>本<rt>ほん</rt></ruby>があります。</span><span class="ko">책상 위에 책이 있습니다.</span></li>
+    <li><span class="jp"><ruby>公園<rt>こうえん</rt></ruby>に<ruby>犬<rt>いぬ</rt></ruby>がいます。</span><span class="ko">공원에 개가 있습니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～たい (~하고 싶다)</h4>
+  <span class="pattern">V-ます형 + たい</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>水<rt>みず</rt></ruby>が<ruby>飲<rt>の</rt></ruby>みたいです。</span><span class="ko">물을 마시고 싶어요.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ませんか / ～ましょう</h4>
+  <span class="pattern">권유 (~하지 않을래요? / ~합시다)</span>
+  <ul class="example-list">
+    <li><span class="jp">コーヒーを<ruby>飲<rt>の</rt></ruby>みませんか。</span><span class="ko">커피 마시지 않을래요?</span></li>
+    <li><span class="jp"><ruby>一緒<rt>いっしょ</rt></ruby>に<ruby>行<rt>い</rt></ruby>きましょう。</span><span class="ko">같이 갑시다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～から (이유) / ～前に / ～後で</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>疲<rt>つか</rt></ruby>れたから<ruby>休<rt>やす</rt></ruby>みます。</span><span class="ko">피곤해서 쉽니다.</span></li>
+    <li><span class="jp"><ruby>食事<rt>しょくじ</rt></ruby>の<ruby>前<rt>まえ</rt></ruby>に<ruby>手<rt>て</rt></ruby>を<ruby>洗<rt>あら</rt></ruby>う。</span><span class="ko">식사 전에 손을 씻는다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ながら (동시 동작)</h4>
+  <span class="pattern">V-ます형 + ながら</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>音楽<rt>おんがく</rt></ruby>を<ruby>聞<rt>き</rt></ruby>きながら<ruby>勉強<rt>べんきょう</rt></ruby>する。</span><span class="ko">음악을 들으면서 공부한다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～が<ruby>上手<rt>じょうず</rt></ruby>だ / ～が<ruby>下手<rt>へた</rt></ruby>だ / ～が<ruby>好<rt>す</rt></ruby>きだ</h4>
+  <p class="meaning">감정·능력은 <strong>조사 が</strong>!</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>彼<rt>かれ</rt></ruby>は<ruby>歌<rt>うた</rt></ruby>が<ruby>上手<rt>じょうず</rt></ruby>です。</span><span class="ko">그는 노래를 잘합니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～でしょう (추측·확인)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>明日<rt>あした</rt></ruby>は<ruby>雨<rt>あめ</rt></ruby>でしょう。</span><span class="ko">내일은 비가 올 겁니다.</span></li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 12. N4 ==================== -->
+<section id="ch12">
+<h2><span class="tag n4">N4</span> 12. JLPT N4 핵심 문법</h2>
+
+<div class="grammar-item">
+  <h4>～ようになる / ～なくなる</h4>
+  <span class="pattern">변화 (~하게 되다 / ~하지 않게 되다)</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>日本語<rt>にほんご</rt></ruby>が<ruby>話<rt>はな</rt></ruby>せるようになった。</span><span class="ko">일본어를 말할 수 있게 되었다.</span></li>
+    <li><span class="jp"><ruby>肉<rt>にく</rt></ruby>を<ruby>食<rt>た</rt></ruby>べなくなった。</span><span class="ko">고기를 먹지 않게 되었다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ようにする (의식적으로 노력)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>毎日<rt>まいにち</rt></ruby><ruby>運動<rt>うんどう</rt></ruby>するようにしている。</span><span class="ko">매일 운동하려고 하고 있다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～と<ruby>思<rt>おも</rt></ruby>う / ～と<ruby>言<rt>い</rt></ruby>う</h4>
+  <span class="pattern">인용 (~라고 생각한다 / ~라고 한다)</span>
+  <ul class="example-list">
+    <li><span class="jp">これはいいと<ruby>思<rt>おも</rt></ruby>います。</span><span class="ko">이건 좋다고 생각합니다.</span></li>
+    <li><span class="jp"><ruby>田中<rt>たなか</rt></ruby>さんは「<ruby>行<rt>い</rt></ruby>かない」と<ruby>言<rt>い</rt></ruby>った。</span><span class="ko">다나카 씨는 "안 간다"고 했다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ば～ほど (~하면 ~할수록)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>練習<rt>れんしゅう</rt></ruby>すればするほど<ruby>上手<rt>じょうず</rt></ruby>になる。</span><span class="ko">연습하면 할수록 잘하게 된다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～なければならない / ～なきゃ(구어)</h4>
+  <span class="pattern">의무 (~해야 한다)</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>薬<rt>くすり</rt></ruby>を<ruby>飲<rt>の</rt></ruby>まなければなりません。</span><span class="ko">약을 먹어야 합니다.</span></li>
+    <li><span class="jp"><ruby>早<rt>はや</rt></ruby>く<ruby>帰<rt>かえ</rt></ruby>らなきゃ。</span><span class="ko">빨리 돌아가야 해.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～なくてもいい (~하지 않아도 된다)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>明日<rt>あした</rt></ruby>は<ruby>来<rt>こ</rt></ruby>なくてもいいです。</span><span class="ko">내일은 안 와도 됩니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～つもりだ / ～予<ruby>定<rt>てい</rt></ruby>だ</h4>
+  <span class="pattern">의도·계획 (~할 생각이다 / ~할 예정이다)</span>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>来年<rt>らいねん</rt></ruby><ruby>結婚<rt>けっこん</rt></ruby>するつもりです。</span><span class="ko">내년에 결혼할 생각입니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～かもしれない / ～はずだ</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>るかもしれません。</span><span class="ko">비가 올지도 모릅니다. (50%)</span></li>
+    <li><span class="jp"><ruby>彼<rt>かれ</rt></ruby>はもう<ruby>着<rt>つ</rt></ruby>いているはずです。</span><span class="ko">그는 이미 도착했을 겁니다. (근거 있는 확신)</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～そうだ (양태·전문)</h4>
+  <ul class="example-list">
+    <li><span class="jp">おいし<strong>そう</strong>ですね！</span><span class="ko">맛있어 보이네요! (양태: 보고 추측, い형은 い 떼고)</span></li>
+    <li><span class="jp"><ruby>明日<rt>あした</rt></ruby>は<ruby>雨<rt>あめ</rt></ruby>が<ruby>降<rt>ふ</rt></ruby>る<strong>そうです</strong>。</span><span class="ko">내일은 비가 온다고 해요. (전문: 들은 정보, 보통형+そうだ)</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～やすい / ～にくい</h4>
+  <span class="pattern">V-ます형 + やすい(쉽다) / にくい(어렵다)</span>
+  <ul class="example-list">
+    <li><span class="jp">この<ruby>本<rt>ほん</rt></ruby>は<ruby>読<rt>よ</rt></ruby>みやすい。</span><span class="ko">이 책은 읽기 쉽다.</span></li>
+    <li><span class="jp">この<ruby>靴<rt>くつ</rt></ruby>は<ruby>歩<rt>ある</rt></ruby>きにくい。</span><span class="ko">이 신발은 걷기 불편하다.</span></li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 13. N3 ==================== -->
+<section id="ch13" class="page-break">
+<h2><span class="tag n3">N3</span> 13. JLPT N3 핵심 문법</h2>
+
+<p>N3는 표현이 훨씬 풍부해져요. 시험뿐 아니라 드라마·애니에서도 자주 만나는 표현들입니다.</p>
+
+<div class="grammar-item">
+  <h4>～わけだ / ～わけではない</h4>
+  <p class="meaning">わけだ: 그래서 ~인 거구나 (납득) / わけではない: ~인 것은 아니다 (부분 부정)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>10年<rt>じゅうねん</rt></ruby><ruby>住<rt>す</rt></ruby>んでいるから、<ruby>日本語<rt>にほんご</rt></ruby>が<ruby>上手<rt>じょうず</rt></ruby>なわけだ。</span><span class="ko">10년 살고 있으니까 일본어를 잘하는 거구나.</span></li>
+    <li><span class="jp"><ruby>嫌<rt>きら</rt></ruby>いなわけではない。</span><span class="ko">싫은 것은 아니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ばかり (~뿐)</h4>
+  <p class="meaning">① ～てばかりいる: ~만 하고 있다 / ② ～たばかり: 막 ~했다</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>弟<rt>おとうと</rt></ruby>はゲームをしてばかりいる。</span><span class="ko">동생은 게임만 하고 있다.</span></li>
+    <li><span class="jp">ついさっき<ruby>着<rt>つ</rt></ruby>いたばかりです。</span><span class="ko">방금 막 도착했습니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ところだ / ～たところだ / ～ているところだ</h4>
+  <p class="meaning">시점 표현 (막 ~하려던 참 / 막 ~한 참 / ~하고 있는 중)</p>
+  <ul class="example-list">
+    <li><span class="jp">これから<ruby>食<rt>た</rt></ruby>べるところです。</span><span class="ko">이제 막 먹으려던 참이에요.</span></li>
+    <li><span class="jp">もう<ruby>食<rt>た</rt></ruby>べたところです。</span><span class="ko">방금 막 먹었어요.</span></li>
+    <li><span class="jp">いま<ruby>食<rt>た</rt></ruby>べているところです。</span><span class="ko">지금 먹고 있는 중이에요.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ように / ～ないように</h4>
+  <p class="meaning">목적 (~하도록 / ~하지 않도록)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>忘<rt>わす</rt></ruby>れないようにメモする。</span><span class="ko">잊지 않도록 메모한다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ために (~를 위해 / ~때문에)</h4>
+  <p class="meaning">목적·원인 (동사 사전형 → 목적 / 명사+の → 목적 / た형·원인)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>健康<rt>けんこう</rt></ruby>のために<ruby>運動<rt>うんどう</rt></ruby>する。</span><span class="ko">건강을 위해 운동한다.</span></li>
+    <li><span class="jp"><ruby>台風<rt>たいふう</rt></ruby>のため、<ruby>電車<rt>でんしゃ</rt></ruby>が<ruby>止<rt>と</rt></ruby>まった。</span><span class="ko">태풍 때문에 전철이 멈췄다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～おかげで / ～せいで</h4>
+  <p class="meaning">긍정 원인 (~덕분에) / 부정 원인 (~탓에)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>先生<rt>せんせい</rt></ruby>のおかげで<ruby>合格<rt>ごうかく</rt></ruby>できた。</span><span class="ko">선생님 덕분에 합격할 수 있었다.</span></li>
+    <li><span class="jp"><ruby>雨<rt>あめ</rt></ruby>のせいで<ruby>遅<rt>おく</rt></ruby>れた。</span><span class="ko">비 탓에 늦었다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～について / ～に<ruby>関<rt>かん</rt></ruby>して</h4>
+  <p class="meaning">주제 제시 (~에 대해서 / 좀 더 격식)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>環境問題<rt>かんきょうもんだい</rt></ruby>について<ruby>話<rt>はな</rt></ruby>す。</span><span class="ko">환경 문제에 대해 이야기한다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～にとって (~에게 있어서)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>私<rt>わたし</rt></ruby>にとって<ruby>家族<rt>かぞく</rt></ruby>が<ruby>一番<rt>いちばん</rt></ruby><ruby>大切<rt>たいせつ</rt></ruby>です。</span><span class="ko">나에게 가족이 가장 소중합니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～によって</h4>
+  <p class="meaning">수단·원인·주체·차이 (~에 의해 / ~에 따라)</p>
+  <ul class="example-list">
+    <li><span class="jp">この<ruby>小説<rt>しょうせつ</rt></ruby>は<ruby>村上春樹<rt>むらかみはるき</rt></ruby>によって<ruby>書<rt>か</rt></ruby>かれた。</span><span class="ko">이 소설은 무라카미 하루키에 의해 쓰였다.</span></li>
+    <li><span class="jp"><ruby>国<rt>くに</rt></ruby>によって<ruby>文化<rt>ぶんか</rt></ruby>が<ruby>違<rt>ちが</rt></ruby>う。</span><span class="ko">나라마다 문화가 다르다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～<ruby>代<rt>か</rt></ruby>わりに</h4>
+  <p class="meaning">~대신에</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>父<rt>ちち</rt></ruby>の<ruby>代<rt>か</rt></ruby>わりに<ruby>私<rt>わたし</rt></ruby>が<ruby>行<rt>い</rt></ruby>きます。</span><span class="ko">아버지 대신 제가 가겠습니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～<ruby>通<rt>とお</rt></ruby>りに / ～<ruby>通<rt>どお</rt></ruby>り</h4>
+  <p class="meaning">~대로</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>説明書<rt>せつめいしょ</rt></ruby>のとおりに<ruby>作<rt>つく</rt></ruby>る。</span><span class="ko">설명서대로 만든다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～<ruby>間<rt>あいだ</rt></ruby> / ～<ruby>間<rt>あいだ</rt></ruby>に</h4>
+  <p class="meaning">~동안 (계속) / ~하는 사이에 (그 동안에 어떤 일이)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>赤<rt>あか</rt></ruby>ちゃんが<ruby>寝<rt>ね</rt></ruby>ている<ruby>間<rt>あいだ</rt></ruby><ruby>本<rt>ほん</rt></ruby>を<ruby>読<rt>よ</rt></ruby>んだ。</span><span class="ko">아기가 자는 동안 계속 책을 읽었다.</span></li>
+    <li><span class="jp"><ruby>赤<rt>あか</rt></ruby>ちゃんが<ruby>寝<rt>ね</rt></ruby>ている<ruby>間<rt>あいだ</rt></ruby>に<ruby>買<rt>か</rt></ruby>い<ruby>物<rt>もの</rt></ruby>に<ruby>行<rt>い</rt></ruby>った。</span><span class="ko">아기가 자는 사이에 장보러 갔다 왔다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～<ruby>際<rt>さい</rt></ruby>に / ～<ruby>最中<rt>さいちゅう</rt></ruby>に</h4>
+  <p class="meaning">~할 때 (격식) / 한창 ~하는 중에</p>
+  <ul class="example-list">
+    <li><span class="jp">ご<ruby>利用<rt>りよう</rt></ruby>の<ruby>際<rt>さい</rt></ruby>はご<ruby>注意<rt>ちゅうい</rt></ruby>ください。</span><span class="ko">이용 시 주의해 주세요.</span></li>
+    <li><span class="jp"><ruby>会議<rt>かいぎ</rt></ruby>の<ruby>最中<rt>さいちゅう</rt></ruby>に<ruby>電話<rt>でんわ</rt></ruby>が<ruby>鳴<rt>な</rt></ruby>った。</span><span class="ko">회의가 한창인 중에 전화가 울렸다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～としても / ～にしても</h4>
+  <p class="meaning">~라고 해도 (가정의 양보)</p>
+  <ul class="example-list">
+    <li><span class="jp">どんなに<ruby>忙<rt>いそが</rt></ruby>しいとしても、<ruby>連絡<rt>れんらく</rt></ruby>はしてほしい。</span><span class="ko">아무리 바쁘다 해도 연락은 해 줬으면.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ば<ruby>良<rt>よ</rt></ruby>かった / ～なければ<ruby>良<rt>よ</rt></ruby>かった</h4>
+  <p class="meaning">후회 (~했으면 좋았을걸 / ~하지 않았으면 좋았을걸)</p>
+  <ul class="example-list">
+    <li><span class="jp">もっと<ruby>早<rt>はや</rt></ruby>く<ruby>出<rt>で</rt></ruby>ればよかった。</span><span class="ko">좀 더 빨리 나올 걸 그랬다.</span></li>
+    <li><span class="jp">あんなことを<ruby>言<rt>い</rt></ruby>わなければよかった。</span><span class="ko">그런 말 안 했으면 좋았을걸.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～ものだ / ～ものではない</h4>
+  <p class="meaning">일반적 진리·상식·당연함</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>子<rt>こ</rt></ruby>どもは<ruby>元気<rt>げんき</rt></ruby>なものだ。</span><span class="ko">아이는 (원래) 건강한 법이다.</span></li>
+    <li><span class="jp">そんなことを<ruby>言<rt>い</rt></ruby>うものではない。</span><span class="ko">그런 말을 하는 게 아니다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～がる (감정의 객관적 표현)</h4>
+  <p class="meaning">남의 감정은 ～がる로 (い형 い떼고 / な형 な떼고 + がる)</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>子<rt>こ</rt></ruby>どもが<ruby>寒<rt>さむ</rt></ruby>がっている。</span><span class="ko">아이가 추워한다.</span></li>
+    <li><span class="jp"><ruby>妹<rt>いもうと</rt></ruby>はその<ruby>本<rt>ほん</rt></ruby>を<ruby>欲<rt>ほ</rt></ruby>しがっている。</span><span class="ko">여동생이 그 책을 갖고 싶어한다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～らしい (~인 것 같다 / ~답다)</h4>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>彼<rt>かれ</rt></ruby>はもう<ruby>帰<rt>かえ</rt></ruby>ったらしい。</span><span class="ko">그는 이미 돌아간 것 같다. (객관적 추측)</span></li>
+    <li><span class="jp"><ruby>彼<rt>かれ</rt></ruby>は<ruby>男<rt>おとこ</rt></ruby>らしい<ruby>人<rt>ひと</rt></ruby>だ。</span><span class="ko">그는 남자다운 사람이다.</span></li>
+  </ul>
+</div>
+
+<div class="grammar-item">
+  <h4>～てほしい / ～てもらいたい</h4>
+  <p class="meaning">남에게 ~해 주기 바란다</p>
+  <ul class="example-list">
+    <li><span class="jp"><ruby>手伝<rt>てつだ</rt></ruby>ってほしい。</span><span class="ko">도와줬으면 좋겠어.</span></li>
+  </ul>
+</div>
+</section>
+
+<!-- ==================== 14. 경어 ==================== -->
+<section id="ch14" class="page-break">
+<h2>14. 경어 (<ruby>敬<rt>けい</rt></ruby><ruby>語<rt>ご</rt></ruby>) 기초</h2>
+
+<p>일본어 경어는 3종류: <strong>존경어</strong> (상대 행동을 높임), <strong>겸양어</strong> (자기 행동을 낮춤), <strong>정중어</strong> (です·ます).</p>
+
+<h3>주요 동사 경어 대응표</h3>
+<table>
+  <thead>
+    <tr><th>보통</th><th>존경어 (상대 행동)</th><th>겸양어 (내 행동)</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="jp"><ruby>行<rt>い</rt></ruby>く · <ruby>来<rt>く</rt></ruby>る · いる</td>
+      <td class="jp">いらっしゃる<br>おいでになる</td>
+      <td class="jp"><ruby>参<rt>まい</rt></ruby>る (行く·来る)<br>おる (いる)</td>
+    </tr>
+    <tr>
+      <td class="jp"><ruby>言<rt>い</rt></ruby>う</td>
+      <td class="jp">おっしゃる</td>
+      <td class="jp"><ruby>申<rt>もう</rt></ruby>す / <ruby>申<rt>もう</rt></ruby>し<ruby>上<rt>あ</rt></ruby>げる</td>
+    </tr>
+    <tr>
+      <td class="jp"><ruby>見<rt>み</rt></ruby>る</td>
+      <td class="jp">ご<ruby>覧<rt>らん</rt></ruby>になる</td>
+      <td class="jp"><ruby>拝<rt>はい</rt></ruby><ruby>見<rt>けん</rt></ruby>する</td>
+    </tr>
+    <tr>
+      <td class="jp"><ruby>食<rt>た</rt></ruby>べる · <ruby>飲<rt>の</rt></ruby>む</td>
+      <td class="jp"><ruby>召<rt>め</rt></ruby>し<ruby>上<rt>あ</rt></ruby>がる</td>
+      <td class="jp">いただく</td>
+    </tr>
+    <tr>
+      <td class="jp">する</td>
+      <td class="jp">なさる</td>
+      <td class="jp">いたす</td>
+    </tr>
+    <tr>
+      <td class="jp"><ruby>知<rt>し</rt></ruby>る</td>
+      <td class="jp">ご<ruby>存<rt>ぞん</rt></ruby>じだ</td>
+      <td class="jp"><ruby>存<rt>ぞん</rt></ruby>じる / 存じ<ruby>上<rt>あ</rt></ruby>げる</td>
+    </tr>
+    <tr>
+      <td class="jp"><ruby>会<rt>あ</rt></ruby>う</td>
+      <td class="jp">お<ruby>会<rt>あ</rt></ruby>いになる</td>
+      <td class="jp">お<ruby>目<rt>め</rt></ruby>にかかる</td>
+    </tr>
+    <tr>
+      <td class="jp">あげる / くれる / もらう</td>
+      <td class="jp">くださる (くれる)</td>
+      <td class="jp"><ruby>差<rt>さ</rt></ruby>し<ruby>上<rt>あ</rt></ruby>げる / いただく</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>공식 (어휘가 따로 없을 때)</h3>
+<table>
+  <thead><tr><th>형태</th><th>공식</th><th>예</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>존경어 (공식)</td>
+      <td class="jp">お + V-ます형 + になる<br>ご + 한자어 + になる</td>
+      <td class="jp">お<ruby>読<rt>よ</rt></ruby>みになる<br>ご<ruby>利用<rt>りよう</rt></ruby>になる</td>
+    </tr>
+    <tr>
+      <td>겸양어 (공식)</td>
+      <td class="jp">お + V-ます형 + する<br>ご + 한자어 + する/いたす</td>
+      <td class="jp">お<ruby>持<rt>も</rt></ruby>ちする<br>ご<ruby>案内<rt>あんない</rt></ruby>いたします</td>
+    </tr>
+    <tr>
+      <td>수동형 존경 (약한 존경)</td>
+      <td class="jp">V-れる/られる</td>
+      <td class="jp"><ruby>先生<rt>せんせい</rt></ruby>が<ruby>来<rt>こ</rt></ruby>られる (오시다)</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="box example">
+  <span class="label">💬 실전 예문</span>
+  <ul class="example-list" style="margin:0;">
+    <li>
+      <span class="jp">(점원)いらっしゃいませ。<ruby>何<rt>なに</rt></ruby>をお<ruby>探<rt>さが</rt></ruby>しですか。</span>
+      <span class="ko">어서 오세요. 무엇을 찾으세요?</span>
+    </li>
+    <li>
+      <span class="jp">(나)<ruby>田中<rt>たなか</rt></ruby>と<ruby>申<rt>もう</rt></ruby>します。<ruby>明日<rt>あした</rt></ruby><ruby>伺<rt>うかが</rt></ruby>ってもよろしいでしょうか。</span>
+      <span class="ko">다나카라고 합니다. 내일 찾아뵈어도 될까요?</span>
+    </li>
+    <li>
+      <span class="jp">(손님에게)こちらの<ruby>資料<rt>しりょう</rt></ruby>をご<ruby>覧<rt>らん</rt></ruby>ください。</span>
+      <span class="ko">이 자료를 봐 주십시오.</span>
+    </li>
+  </ul>
+</div>
+
+<div class="box tip">
+  <span class="label">🎯 경어 3원칙</span>
+  <ol style="margin:6px 0 0 18px;">
+    <li><strong>존경어</strong>는 <strong>상대</strong>의 행동에만 사용</li>
+    <li><strong>겸양어</strong>는 <strong>자기·우리</strong>의 행동에만 사용 (회사 밖 사람에게 말할 때 우리 상사도 겸양 대상)</li>
+    <li>자기한테 존경어 쓰면 큰 실례! 예: <del class="jp">私が申し上げられました</del> (X)</li>
+  </ol>
+</div>
+</section>
+
+<footer style="margin-top:60px; padding-top:24px; border-top:1px solid var(--border); font-size:13px; color:var(--fg-muted); text-align:center;">
+  <p>📘 일본어 문법 정리 · JLPT N3 합격을 응원합니다! がんばってください！</p>
+</footer>
+
+</main>
+
+<script>
+  // 인쇄 단축키 안내
+  document.addEventListener("keydown", (e) => {
+    const mac = navigator.platform.toUpperCase().includes("MAC");
+    if ((mac ? e.metaKey : e.ctrlKey) && e.key === "p") {
+      // 브라우저 기본 동작 그대로 두기
+    }
+  });
+</script>
+</body>
+</html>

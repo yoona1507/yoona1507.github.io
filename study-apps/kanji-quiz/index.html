@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1b3a">
+<title>한자 읽기 퀴즈</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  :root {
+    --bg-1: #0f1020;
+    --bg-2: #1a1b3a;
+    --bg-3: #2d1b4e;
+    --text: #f5f5ff;
+    --text-muted: #a8a8c8;
+    --accent: #f59e0b;
+    --accent2: #ef4444;
+    --accent-soft: rgba(245, 158, 11, 0.15);
+    --correct: #4ade80;
+    --correct-soft: rgba(74, 222, 128, 0.15);
+    --wrong: #f87171;
+    --wrong-soft: rgba(248, 113, 113, 0.15);
+    --card: rgba(255, 255, 255, 0.06);
+    --border: rgba(255, 255, 255, 0.12);
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: "Hiragino Sans", "Noto Sans JP", "Noto Sans KR",
+      -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+    background-attachment: fixed;
+    overflow-x: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 홈 버튼 */
+  .hub-home-btn {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 10px);
+    left: calc(env(safe-area-inset-left, 0) + 10px);
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    font: 600 13px/1 inherit;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    text-decoration: none;
+  }
+  .hub-home-btn:hover { background: var(--accent); color: #000; }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
+  }
+
+  h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 800;
+    margin: 0 0 8px;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+  .sub {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+
+  /* 설정 패널 */
+  .settings-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .setting-row:last-child { margin-bottom: 0; }
+  .setting-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    min-width: 80px;
+  }
+  .chip {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  .chip.active {
+    color: #000;
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .chip.level-5.active { background: #4ade80; border-color: #4ade80; }
+  .chip.level-4.active { background: #60a5fa; border-color: #60a5fa; }
+  .chip.level-3.active { background: #f472b6; border-color: #f472b6; }
+
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .mode-card {
+    padding: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
+  }
+  .mode-card:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .mode-card:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .mode-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+  .mode-title { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+  .mode-desc { font-size: 12px; color: var(--text-muted); margin: 0; }
+
+  .start-info {
+    text-align: center;
+    padding: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .start-info b { color: var(--accent); }
+
+  /* 최근 기록 */
+  .best-scores {
+    padding: 16px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .best-scores h3 { margin: 0 0 10px; font-size: 14px; color: var(--text-muted); }
+  .best-scores ul { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+  .best-scores li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+  }
+  .best-scores li:last-child { border-bottom: 0; }
+  .best-scores .score { color: var(--accent); font-weight: 700; }
+
+  /* ========== 퀴즈 화면 ========== */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .streak {
+    color: #f59e0b;
+    font-weight: 700;
+  }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--card);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+    border-radius: 3px;
+  }
+
+  .question-card {
+    padding: 32px 24px;
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-align: center;
+  }
+  .kanji-display {
+    font-size: clamp(56px, 14vw, 96px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 20px 0 8px;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+  .meaning {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    display: inline-block;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+  }
+  .pos {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 6px;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 8px;
+  }
+  .level-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+  }
+  .level-5 { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+  .level-4 { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+  .level-3 { background: rgba(244, 114, 182, 0.2); color: #f472b6; }
+
+  /* 객관식 옵션 */
+  .options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .option {
+    padding: 16px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .option:hover:not(:disabled) {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .option:disabled { cursor: default; }
+  .option .num {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-right: 6px;
+    font-weight: 400;
+  }
+  .option.correct {
+    background: var(--correct-soft);
+    border-color: var(--correct);
+    color: var(--correct);
+  }
+  .option.wrong {
+    background: var(--wrong-soft);
+    border-color: var(--wrong);
+    color: var(--wrong);
+  }
+
+  /* 단답형 입력 */
+  .input-wrap {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .input-wrap input {
+    flex: 1;
+    padding: 16px 18px;
+    font-size: 22px;
+    text-align: center;
+    color: var(--text);
+    background: rgba(0,0,0,0.3);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-family: inherit;
+    outline: none;
+    -webkit-appearance: none;
+    letter-spacing: 0.05em;
+  }
+  .input-wrap input:focus {
+    border-color: var(--accent);
+    background: rgba(0,0,0,0.45);
+  }
+  .input-wrap input.correct { border-color: var(--correct); color: var(--correct); }
+  .input-wrap input.wrong { border-color: var(--wrong); color: var(--wrong); }
+
+  .btn {
+    padding: 14px 20px;
+    font: 700 15px/1 inherit;
+    color: #000;
+    background: var(--accent);
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #fbbf24; transform: translateY(-1px); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn.ghost:hover { background: var(--card); color: var(--text); }
+  .btn.wide { width: 100%; padding: 16px; font-size: 16px; }
+
+  /* 피드백 */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    text-align: left;
+    animation: slideUp 0.25s ease;
+  }
+  .feedback.correct { background: var(--correct-soft); border-left: 4px solid var(--correct); }
+  .feedback.wrong { background: var(--wrong-soft); border-left: 4px solid var(--wrong); }
+  .feedback .result {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .feedback.correct .result { color: var(--correct); }
+  .feedback.wrong .result { color: var(--wrong); }
+  .feedback .reading {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 4px 0;
+    color: var(--text);
+  }
+  .feedback .reading b { color: var(--accent); }
+  .feedback .kr-meaning {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .feedback .example {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .feedback .example .jp { font-size: 15px; color: var(--text); }
+  .feedback .example .ko { color: var(--text-muted); }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+  }
+  .speak-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== 결과 화면 ========== */
+  .result-screen {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 12px; }
+  .result-score {
+    font-size: 48px;
+    font-weight: 800;
+    margin: 12px 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .result-fraction { font-size: 18px; color: var(--text-muted); margin-bottom: 8px; }
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .result-comment { font-size: 15px; color: var(--text-muted); margin-bottom: 28px; }
+  .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .wrong-review {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 14px;
+    text-align: left;
+  }
+  .wrong-review h3 { margin: 0 0 12px; font-size: 14px; color: var(--text-muted); }
+  .wrong-review-item {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: var(--wrong-soft);
+    border-left: 3px solid var(--wrong);
+    border-radius: 0 8px 8px 0;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .wrong-review-item .kj { font-size: 22px; font-weight: 700; }
+  .wrong-review-item .hr { color: var(--accent); font-size: 15px; }
+  .wrong-review-item .kr { color: var(--text-muted); font-size: 12px; width: 100%; }
+
+  .hidden { display: none !important; }
+
+  /* 모바일 */
+  @media (max-width: 640px) {
+    main { padding: 58px 14px 30px; }
+    .question-card { padding: 24px 16px; }
+    .kanji-display { font-size: 64px; margin: 12px 0 8px; }
+    .options { grid-template-columns: 1fr; }
+    .option { font-size: 18px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .setting-label { min-width: auto; width: 100%; margin-bottom: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="hub-home-btn" href="../index.html">← 홈</a>
+
+<main>
+
+  <!-- ========== 메뉴 ========== -->
+  <section id="screen-menu">
+    <h1>🈁 한자 읽기 퀴즈</h1>
+    <p class="sub">JLPT 단어 <b id="totalCount">-</b>개 · 한자를 보고 읽는 법(히라가나) 맞히기</p>
+
+    <div class="settings-panel">
+      <div class="setting-row">
+        <span class="setting-label">📊 레벨</span>
+        <button class="chip level-5 active" data-level="5">N5</button>
+        <button class="chip level-4 active" data-level="4">N4</button>
+        <button class="chip level-3 active" data-level="3">N3</button>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">📝 문제 수</span>
+        <button class="chip count active" data-count="10">10</button>
+        <button class="chip count" data-count="20">20</button>
+        <button class="chip count" data-count="30">30</button>
+        <button class="chip count" data-count="50">50</button>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">💭 뜻 보기</span>
+        <button class="chip hint active" data-hint="show">보여줌</button>
+        <button class="chip hint" data-hint="hide">숨김 (더 어려움)</button>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <button class="mode-card" data-mode="mc">
+        <span class="mode-icon">🎯</span>
+        <h3 class="mode-title">객관식</h3>
+        <p class="mode-desc">4개 중 읽는 법 고르기 · 쉬움</p>
+      </button>
+      <button class="mode-card" data-mode="input">
+        <span class="mode-icon">⌨️</span>
+        <h3 class="mode-title">단답형</h3>
+        <p class="mode-desc">히라가나 직접 입력 · 어려움</p>
+      </button>
+      <button class="mode-card" data-mode="meaning-mc">
+        <span class="mode-icon">🇰🇷</span>
+        <h3 class="mode-title">뜻 맞히기</h3>
+        <p class="mode-desc">한자·히라가나 보고 뜻 고르기</p>
+      </button>
+      <button class="mode-card" data-mode="listen" id="listenBtn">
+        <span class="mode-icon">🔊</span>
+        <h3 class="mode-title">듣기 받아쓰기</h3>
+        <p class="mode-desc">음성 듣고 한자 고르기</p>
+      </button>
+    </div>
+
+    <div class="start-info" id="poolInfo">선택된 단어: <b>-</b>개</div>
+
+    <div class="best-scores" id="bestScores">
+      <h3>🏆 최근 기록</h3>
+      <ul id="bestScoresList"><li><span style="color:var(--text-muted)">아직 기록이 없어요</span></li></ul>
+    </div>
+  </section>
+
+  <!-- ========== 퀴즈 ========== -->
+  <section id="screen-quiz" class="hidden">
+    <div class="quiz-header">
+      <button class="btn ghost" onclick="quitQuiz()" style="padding:6px 12px; font-size:12px;">← 그만</button>
+      <div><span id="qNum">1</span> / <span id="qTotal">20</span></div>
+      <div>
+        점수 <b id="qScore" style="color:var(--accent)">0</b>
+        <span class="streak hidden" id="qStreak">🔥 <b>0</b></span>
+      </div>
+    </div>
+    <div class="progress-bar"><div id="progressFill" class="progress-bar-fill" style="width:0%"></div></div>
+
+    <div class="question-card">
+      <span class="level-badge" id="qLevel">N5</span>
+      <div class="kanji-display" id="kanjiDisplay">漢字</div>
+      <div id="kanjiHint"></div>
+      <div id="answerArea"></div>
+      <div id="feedback"></div>
+      <div class="actions hidden" id="actions">
+        <button class="btn ghost" onclick="skipQuestion()">건너뛰기 (S)</button>
+        <button class="btn" onclick="nextQuestion()" id="nextBtn" style="margin-left:auto;">다음 → (Enter)</button>
+      </div>
+    </div>
+
+    <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">
+      💡 <b>1~4</b> 선택 · <b>Enter</b> 제출/다음 · <b>Space</b> 음성 듣기 · <b>S</b> 건너뛰기
+    </p>
+  </section>
+
+  <!-- ========== 결과 ========== -->
+  <section id="screen-result" class="hidden">
+    <div class="result-screen">
+      <div class="result-emoji" id="resultEmoji">🎉</div>
+      <h1 style="margin:0;">수고하셨어요!</h1>
+      <div class="result-score" id="resultScore">0%</div>
+      <div class="result-fraction" id="resultFraction">0 / 0</div>
+      <div class="result-stats" id="resultStats"></div>
+      <div class="result-comment" id="resultComment"></div>
+      <div class="result-actions">
+        <button class="btn" onclick="retryQuiz()">다시 풀기</button>
+        <button class="btn ghost" onclick="backToMenu()">메뉴로</button>
+      </div>
+      <div class="wrong-review hidden" id="wrongReview">
+        <h3>📝 틀린 문제 복습</h3>
+        <div id="wrongList"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- JLPT 데이터 불러오기 -->
+<script src="../jlpt/data.js"></script>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ==================== 유틸 ====================
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function normalize(s) {
+    return (s || "").trim().replace(/[\s　。、！？]/g, "");
+  }
+
+  function kataToHira(s) {
+    return s.replace(/[\u30A1-\u30F6]/g, ch =>
+      String.fromCharCode(ch.charCodeAt(0) - 0x60)
+    );
+  }
+
+  // 한자가 들어있는지 확인
+  function hasKanji(s) {
+    return /[\u4E00-\u9FFF]/.test(s);
+  }
+
+  // ==================== TTS (일본어 음성) ====================
+  let jpVoice = null;
+  function initVoice() {
+    if (!("speechSynthesis" in window)) return;
+    const pick = () => {
+      const voices = speechSynthesis.getVoices();
+      jpVoice = voices.find(v => /Kyoko|Otoya|Google.*日本/i.test(v.name) && /ja/i.test(v.lang))
+             || voices.find(v => /ja/i.test(v.lang))
+             || null;
+    };
+    pick();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = pick;
+    }
+  }
+  function speakJapanese(text) {
+    if (!("speechSynthesis" in window) || !text) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "ja-JP";
+      if (jpVoice) u.voice = jpVoice;
+      u.rate = 0.9;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  initVoice();
+
+  // ==================== 상태 ====================
+  let settings = {
+    levels: new Set([5, 4, 3]),
+    count: 10,
+    hint: "show",
+  };
+
+  let state = {
+    pool: [],
+    index: 0,
+    score: 0,
+    streak: 0,
+    maxStreak: 0,
+    answered: false,
+    wrong: [],
+    mode: null,
+    startTime: 0
+  };
+
+  // ==================== 단어 풀 필터 ====================
+  function getFilteredWords(forMode) {
+    if (typeof JLPT_DATA === "undefined") return [];
+    return JLPT_DATA.filter(w => {
+      if (!settings.levels.has(w.lv)) return false;
+      // 한자 읽기 모드는 한자 있는 단어만
+      if (forMode === "mc" || forMode === "input" || forMode === "listen") {
+        if (!hasKanji(w.kj) || w.kj === w.hr) return false;
+      }
+      return true;
+    });
+  }
+
+  function updatePoolInfo() {
+    const mode = "mc"; // 가장 제한적인 기준 (한자 필수)
+    const filtered = getFilteredWords(mode);
+    const all = JLPT_DATA.filter(w => settings.levels.has(w.lv));
+    $("poolInfo").innerHTML = `한자 있는 단어: <b>${filtered.length}</b>개 · 전체: <b>${all.length}</b>개`;
+  }
+
+  // ==================== 메뉴 이벤트 ====================
+  $("totalCount").textContent = typeof JLPT_DATA !== "undefined" ? JLPT_DATA.length : "0";
+
+  document.querySelectorAll(".chip[data-level]").forEach(b => {
+    b.onclick = () => {
+      const lv = parseInt(b.dataset.level, 10);
+      if (settings.levels.has(lv)) {
+        if (settings.levels.size === 1) return; // 최소 1개
+        settings.levels.delete(lv);
+        b.classList.remove("active");
+      } else {
+        settings.levels.add(lv);
+        b.classList.add("active");
+      }
+      updatePoolInfo();
+    };
+  });
+
+  document.querySelectorAll(".chip.count").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll(".chip.count").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      settings.count = parseInt(b.dataset.count, 10);
+    };
+  });
+
+  document.querySelectorAll(".chip.hint").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll(".chip.hint").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      settings.hint = b.dataset.hint;
+    };
+  });
+
+  document.querySelectorAll(".mode-card").forEach(b => {
+    b.onclick = () => startQuiz(b.dataset.mode);
+  });
+
+  // 듣기 모드: 음성 지원 안 될 시 비활성화
+  if (!("speechSynthesis" in window)) {
+    $("listenBtn").disabled = true;
+    $("listenBtn").title = "이 브라우저는 음성을 지원하지 않아요";
+  }
+
+  updatePoolInfo();
+  renderBestScores();
+
+  // ==================== 최근 기록 ====================
+  function renderBestScores() {
+    try {
+      const scores = JSON.parse(localStorage.getItem("kanjiQuizScores") || "[]");
+      const list = $("bestScoresList");
+      if (!scores.length) return;
+      const modeNames = { mc: "객관식", input: "단답형", "meaning-mc": "뜻 맞히기", listen: "듣기" };
+      list.innerHTML = scores.slice(0, 5).map(s => {
+        const levels = (s.levels || []).map(l => "N"+l).join("+");
+        return `<li><span>${modeNames[s.mode] || s.mode} · ${levels}</span><span class="score">${s.percent}% (${s.score}/${s.total})</span></li>`;
+      }).join("");
+    } catch (e) {}
+  }
+  function saveScore(mode, score, total, levels) {
+    try {
+      const scores = JSON.parse(localStorage.getItem("kanjiQuizScores") || "[]");
+      scores.unshift({
+        mode, score, total, levels,
+        percent: Math.round((score / total) * 100),
+        date: Date.now()
+      });
+      localStorage.setItem("kanjiQuizScores", JSON.stringify(scores.slice(0, 30)));
+    } catch (e) {}
+  }
+
+  // ==================== 퀴즈 시작 ====================
+  function startQuiz(mode) {
+    const filtered = getFilteredWords(mode);
+    if (filtered.length < 4) {
+      alert("선택한 조건에 해당하는 단어가 너무 적어요. 레벨을 늘려주세요.");
+      return;
+    }
+    const pool = shuffle(filtered).slice(0, Math.min(settings.count, filtered.length));
+
+    state = {
+      pool,
+      index: 0,
+      score: 0,
+      streak: 0,
+      maxStreak: 0,
+      answered: false,
+      wrong: [],
+      mode,
+      startTime: Date.now()
+    };
+
+    $("screen-menu").classList.add("hidden");
+    $("screen-result").classList.add("hidden");
+    $("screen-quiz").classList.remove("hidden");
+    $("qTotal").textContent = pool.length;
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const word = state.pool[state.index];
+    state.answered = false;
+
+    $("qNum").textContent = state.index + 1;
+    $("qScore").textContent = state.score;
+    $("progressFill").style.width = (state.index / state.pool.length * 100) + "%";
+
+    const lvBadge = $("qLevel");
+    lvBadge.textContent = "N" + word.lv;
+    lvBadge.className = "level-badge level-" + word.lv;
+
+    const display = $("kanjiDisplay");
+    const hint = $("kanjiHint");
+    const area = $("answerArea");
+    $("feedback").innerHTML = "";
+    $("actions").classList.add("hidden");
+    area.innerHTML = "";
+
+    if (state.mode === "listen") {
+      display.textContent = "🔊";
+      display.style.cursor = "pointer";
+      display.onclick = () => speakJapanese(word.hr);
+      hint.innerHTML = `<button class="speak-btn" onclick="speakJapanese('${word.hr}')">🔊 다시 듣기</button>`;
+      setTimeout(() => speakJapanese(word.hr), 300);
+    } else {
+      display.textContent = word.kj;
+      display.style.cursor = "pointer";
+      display.onclick = () => speakJapanese(word.hr);
+      if (settings.hint === "show" || state.mode === "meaning-mc") {
+        hint.innerHTML = `
+          ${state.mode !== "meaning-mc" ? `<div class="meaning">${word.kr}<span class="pos">${word.tp}</span></div>` : ""}
+          <div><button class="speak-btn" onclick="speakJapanese('${word.hr}')">🔊 음성</button></div>
+        `;
+      } else {
+        hint.innerHTML = `<div><button class="speak-btn" onclick="speakJapanese('${word.hr}')">🔊 음성</button></div>`;
+      }
+    }
+
+    renderAnswerArea(word);
+  }
+
+  function renderAnswerArea(word) {
+    const area = $("answerArea");
+
+    if (state.mode === "input") {
+      area.innerHTML = `
+        <div class="input-wrap">
+          <input type="text" id="answerInput" placeholder="ひらがな 입력" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button class="btn" onclick="submitInput()">제출</button>
+        </div>
+      `;
+      setTimeout(() => $("answerInput")?.focus(), 50);
+      $("answerInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !state.answered) {
+          e.preventDefault();
+          submitInput();
+        }
+      });
+      return;
+    }
+
+    // 객관식 옵션 생성
+    let correctText, options;
+    if (state.mode === "meaning-mc") {
+      // 뜻 맞히기
+      correctText = word.kr;
+      const pool = JLPT_DATA.filter(w =>
+        settings.levels.has(w.lv) && w.kr !== word.kr && w.tp === word.tp
+      );
+      const distractors = shuffle(pool).slice(0, 3).map(w => w.kr);
+      while (distractors.length < 3) distractors.push("다른 뜻");
+      options = shuffle([word.kr, ...distractors]);
+      // hint에 히라가나 표시 (mc 형태)
+      $("kanjiHint").innerHTML += `<div style="margin-top:6px; color:var(--accent); font-size:18px;">${word.hr}</div>`;
+    } else {
+      // mc, listen: 읽기 맞히기
+      correctText = word.hr;
+      const pool = JLPT_DATA.filter(w =>
+        settings.levels.has(w.lv) && w.hr !== word.hr && w.hr.length === word.hr.length
+      );
+      let distractors = shuffle(pool).slice(0, 3).map(w => w.hr);
+      // 비슷한 길이가 부족하면 아무거나
+      if (distractors.length < 3) {
+        const extra = shuffle(JLPT_DATA.filter(w => w.hr !== word.hr)).slice(0, 3).map(w => w.hr);
+        distractors = [...new Set([...distractors, ...extra])].slice(0, 3);
+      }
+      options = shuffle([word.hr, ...distractors]);
+    }
+
+    const wrap = document.createElement("div");
+    wrap.className = "options";
+    options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      btn.innerHTML = `<span class="num">${i + 1}</span>${opt}`;
+      btn.onclick = () => selectOption(i, opt, correctText);
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  }
+
+  // ==================== 답변 처리 ====================
+  function selectOption(idx, chosen, correct) {
+    if (state.answered) return;
+    state.answered = true;
+
+    const buttons = document.querySelectorAll(".option");
+    buttons.forEach(b => b.disabled = true);
+
+    const isCorrect = chosen === correct;
+    buttons[idx].classList.add(isCorrect ? "correct" : "wrong");
+    if (!isCorrect) {
+      buttons.forEach(b => {
+        if (b.textContent.replace(/^\d/, "").trim() === correct) {
+          b.classList.add("correct");
+        }
+      });
+    }
+    finishAnswer(isCorrect);
+  }
+
+  function submitInput() {
+    if (state.answered) return;
+    const word = state.pool[state.index];
+    const input = $("answerInput");
+    const user = normalize(input.value);
+    if (!user) { input.focus(); return; }
+
+    const userHira = kataToHira(user);
+    const correctHira = kataToHira(normalize(word.hr));
+    const isCorrect = userHira === correctHira;
+
+    state.answered = true;
+    input.disabled = true;
+    input.classList.add(isCorrect ? "correct" : "wrong");
+    finishAnswer(isCorrect);
+  }
+
+  function finishAnswer(isCorrect) {
+    const word = state.pool[state.index];
+    if (isCorrect) {
+      state.score++;
+      state.streak++;
+      state.maxStreak = Math.max(state.maxStreak, state.streak);
+      if (state.streak >= 3) {
+        $("qStreak").classList.remove("hidden");
+        $("qStreak").querySelector("b").textContent = state.streak;
+      }
+    } else {
+      state.streak = 0;
+      $("qStreak").classList.add("hidden");
+      state.wrong.push(word);
+    }
+    $("qScore").textContent = state.score;
+
+    // 음성으로 정답 들려주기 (항상)
+    if (state.mode !== "listen") {
+      setTimeout(() => speakJapanese(word.hr), 300);
+    }
+
+    const fb = $("feedback");
+    const exampleHtml = (word.ex && word.ex[0]) ? `
+      <div class="example">
+        <div class="jp">${word.ex[0].jp}</div>
+        <div class="jp" style="color:var(--text-muted);">${word.ex[0].hr}</div>
+        <div class="ko">${word.ex[0].kr}</div>
+      </div>
+    ` : "";
+
+    fb.innerHTML = `
+      <div class="feedback ${isCorrect ? "correct" : "wrong"}">
+        <div class="result">${isCorrect ? "✅ 정답!" : "❌ 틀렸어요"}</div>
+        <div class="reading">${word.kj} · <b>${word.hr}</b></div>
+        <div class="kr-meaning">💡 ${word.kr} <span class="pos">${word.tp}</span></div>
+        ${exampleHtml}
+      </div>
+    `;
+    $("actions").classList.remove("hidden");
+    $("nextBtn").focus();
+  }
+
+  function nextQuestion() {
+    state.index++;
+    if (state.index >= state.pool.length) {
+      finishQuiz();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function skipQuestion() {
+    if (state.answered) { nextQuestion(); return; }
+    state.wrong.push(state.pool[state.index]);
+    state.streak = 0;
+    $("qStreak").classList.add("hidden");
+    state.answered = true;
+    nextQuestion();
+  }
+
+  function quitQuiz() {
+    if (confirm("퀴즈를 그만두시겠어요?")) backToMenu();
+  }
+
+  // ==================== 결과 ====================
+  function finishQuiz() {
+    try { speechSynthesis.cancel(); } catch (e) {}
+    $("progressFill").style.width = "100%";
+    $("screen-quiz").classList.add("hidden");
+    $("screen-result").classList.remove("hidden");
+
+    const total = state.pool.length;
+    const percent = Math.round((state.score / total) * 100);
+    const seconds = Math.round((Date.now() - state.startTime) / 1000);
+    const mm = Math.floor(seconds / 60);
+    const ss = seconds % 60;
+
+    $("resultScore").textContent = percent + "%";
+    $("resultFraction").textContent = `${state.score} / ${total} 정답`;
+    $("resultStats").innerHTML = `
+      ⏱️ ${mm > 0 ? mm + "분 " : ""}${ss}초 ·
+      🔥 최대 연속 ${state.maxStreak}개 ·
+      ⚡ 평균 ${Math.round(seconds / total)}초/문제
+    `;
+
+    let emoji, comment;
+    if (percent === 100) { emoji = "🏆"; comment = "완벽! 한자 마스터!"; }
+    else if (percent >= 90) { emoji = "🌟"; comment = "훌륭해요! 거의 완벽!"; }
+    else if (percent >= 75) { emoji = "🎉"; comment = "좋아요! 꾸준히 하면 금방 마스터!"; }
+    else if (percent >= 60) { emoji = "👍"; comment = "괜찮아요. 틀린 것만 복습해봐요!"; }
+    else if (percent >= 40) { emoji = "💪"; comment = "아직 익숙하지 않아요. 괜찮아요!"; }
+    else { emoji = "📚"; comment = "JLPT 단어 앱에서 기초부터 훑어봐요 ✊"; }
+    $("resultEmoji").textContent = emoji;
+    $("resultComment").textContent = comment;
+
+    const wrongDiv = $("wrongReview");
+    const wrongList = $("wrongList");
+    if (state.wrong.length > 0) {
+      wrongDiv.classList.remove("hidden");
+      wrongList.innerHTML = state.wrong.map(w => `
+        <div class="wrong-review-item">
+          <span class="kj" onclick="speakJapanese('${w.hr}')" style="cursor:pointer;">${w.kj}</span>
+          <span class="hr">${w.hr}</span>
+          <span class="kr">${w.kr}</span>
+        </div>
+      `).join("");
+    } else {
+      wrongDiv.classList.add("hidden");
+    }
+
+    saveScore(state.mode, state.score, total, [...settings.levels]);
+  }
+
+  function retryQuiz() {
+    if (state.mode) startQuiz(state.mode);
+  }
+
+  function backToMenu() {
+    try { speechSynthesis.cancel(); } catch (e) {}
+    $("screen-quiz").classList.add("hidden");
+    $("screen-result").classList.add("hidden");
+    $("screen-menu").classList.remove("hidden");
+    renderBestScores();
+  }
+
+  // ==================== 키보드 ====================
+  document.addEventListener("keydown", (e) => {
+    if ($("screen-quiz").classList.contains("hidden")) return;
+    const inputEl = document.activeElement?.tagName === "INPUT";
+
+    if (!state.answered && !inputEl) {
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= 4) {
+        const btns = document.querySelectorAll(".option");
+        if (btns[n - 1]) { btns[n - 1].click(); e.preventDefault(); }
+        return;
+      }
+    }
+    if (e.key === " " && !inputEl) {
+      const word = state.pool[state.index];
+      if (word) speakJapanese(word.hr);
+      e.preventDefault();
+      return;
+    }
+    if (e.key === "Enter" && state.answered) {
+      nextQuestion();
+      e.preventDefault();
+    }
+    if ((e.key === "s" || e.key === "S") && !inputEl) {
+      skipQuestion();
+      e.preventDefault();
+    }
+  });
+</script>
+</body>
+</html>
